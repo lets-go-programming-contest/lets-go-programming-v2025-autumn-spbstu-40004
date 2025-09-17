@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 func main() {
@@ -13,19 +12,19 @@ func main() {
 	_, err3 := fmt.Scanln(&operator)
 	if err1 != nil {
 		fmt.Println("Invalid first operand")
-		os.Exit(1)
+		return
 	}
 	if err2 != nil {
 		fmt.Println("Invalid second operand")
-		os.Exit(1)
+		return
 	}
 	if err3 != nil {
 		fmt.Println("Invalid input for operator")
-		os.Exit(1)
+		return
 	}
 	if operator == "/" && y == 0 {
 		fmt.Println("Division by zero")
-		os.Exit(1)
+		return
 	}
 	switch operator {
 	case "+":
