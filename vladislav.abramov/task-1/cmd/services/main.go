@@ -14,16 +14,19 @@ func main() {
 		fmt.Print("Invalid first operand\n")
 		return
 	}
+
 	_, error2 := fmt.Scanln(&b)
 	if error2 != nil {
 		fmt.Print("Invalid second operand\n")
 		return
 	}
+
 	_, error3 := fmt.Scanln(&op)
 	if error3 != nil {
 		fmt.Print("Invalid operation\n")
 		return
 	}
+
 	if b == 0 && op == "/" {
 		fmt.Print("Division by zero\n")
 		return
