@@ -8,39 +8,40 @@ func main() {
 	var a int
 	var b int
 	var op string
+	var err error
 
-	_, error1 := fmt.Scanln(&a)
-	if error1 != nil {
+	_, err = fmt.Scanln(&a)
+	if err != nil {
 		fmt.Print("Invalid first operand\n")
 		return
 	}
 
-	_, error2 := fmt.Scanln(&b)
-	if error2 != nil {
+	_, err = fmt.Scanln(&b)
+	if err != nil {
 		fmt.Print("Invalid second operand\n")
 		return
 	}
 
-	_, error3 := fmt.Scanln(&op)
-	if error3 != nil {
+	_, err = fmt.Scanln(&op)
+	if err != nil {
 		fmt.Print("Invalid operation\n")
 		return
 	}
 
-	if b == 0 && op == "/" {
-		fmt.Print("Division by zero\n")
-		return
-	}
-
-	if op == "+" {
+	switch op {
+	case "+":
 		fmt.Println(a + b)
-	} else if op == "-" {
+	case "-":
 		fmt.Println(a - b)
-	} else if op == "*" {
+	case "*":
 		fmt.Println(a * b)
-	} else if op == "/" {
-		fmt.Println(a / b)
-	} else {
+	case "/":
+		if b == 0 {
+			fmt.Print("Division by zero\n")
+		} else {
+			fmt.Println(a / b)
+		}
+	default:
 		fmt.Print("Invalid operation\n")
 	}
 }
