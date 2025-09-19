@@ -1,3 +1,0 @@
-*.go text diff=golang
-*.mod text
-go.mod text
