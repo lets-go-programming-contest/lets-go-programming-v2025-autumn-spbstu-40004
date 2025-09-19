@@ -5,46 +5,49 @@ import (
 	"fmt"
 )
 
+var ErrDivisionByZero = errors.New("Division by zero")
+
 func safeDivision(operand1 int, operand2 int) (int, error) {
 	if operand2 == 0 {
-		return 0, errors.New("division by zero")
+		return 0, ErrDivisionByZero
 	}
 	return operand1 / operand2, nil
 }
 
 func main() {
-	var operand1 int
-	_, scanErr := fmt.Scanln(&operand1)
-	if scanErr != nil {
+	var leftOperand int
+	_, err := fmt.Scanln(&leftOperand)
+	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
 
-	var operand2 int
-	_, scanErr = fmt.Scanln(&operand2)
-	if scanErr != nil {
+	var rightOperand int
+	_, err = fmt.Scanln(&rightOperand)
+	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
 
 	var operation string
-	_, scanErr = fmt.Scanln(&operation)
-	if scanErr != nil {
+	_, err = fmt.Scanln(&operation)
+	if err != nil {
 		fmt.Println("Invalid operation")
 		return
 	}
 
 	switch operation {
 	case "+":
-		fmt.Println(operand1 + operand2)
+		fmt.Println(leftOperand + rightOperand)
 	case "-":
-		fmt.Println(operand1 - operand2)
+		fmt.Println(leftOperand - rightOperand)
 	case "*":
-		fmt.Println(operand1 * operand2)
+		fmt.Println(leftOperand * rightOperand)
 	case "/":
-		divisionResult, divisionErr := safeDivision(operand1, operand2)
-		if divisionErr != nil {
-			fmt.Println("Division by zero")
+		var divisionResult int
+		divisionResult, err = safeDivision(leftOperand, rightOperand)
+		if err != nil {
+			fmt.Println(err)
 			return
 		}
 		fmt.Println(divisionResult)
