@@ -6,26 +6,20 @@ func main() {
 	var firstNum, secondNum, result int
 	var operator string
 
-	fmt.Println("Type the first number: ")
-	_, errFirstNum := fmt.Scanln(&firstNum)
-
-	fmt.Println("Type the second number: ")
-	_, errSecondNum := fmt.Scanln(&secondNum)
-
-	fmt.Println("Type an operator (+, -, *, /): ")
-	_, errOperator := fmt.Scanln(&operator)
-
-	if errFirstNum != nil {
+	_, err := fmt.Scanln(&firstNum)
+	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
 
-	if errSecondNum != nil {
+	_, err = fmt.Scanln(&secondNum)
+	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
 
-	if errOperator != nil {
+	_, err = fmt.Scanln(&operator)
+	if err != nil {
 		fmt.Println("Invalid operation")
 		return
 	}
