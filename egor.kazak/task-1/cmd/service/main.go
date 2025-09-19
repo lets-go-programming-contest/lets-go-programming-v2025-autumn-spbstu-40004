@@ -10,19 +10,19 @@ func main() {
 
 	_, err := fmt.Scan(&a)
 	if err != nil {
-		fmt.Println("Invalid first operand.")
+		fmt.Println("Invalid first operand")
 		return
 	}
 
 	_, err = fmt.Scan(&b)
 	if err != nil {
-		fmt.Println("Invalid second operand.")
+		fmt.Println("Invalid second operand")
 		return
 	}
 
 	_, err = fmt.Scan(&op)
 	if err != nil {
-		fmt.Println("Invalid operation.")
+		fmt.Println("Invalid operation")
 		return
 	}
 
@@ -35,11 +35,11 @@ func main() {
 		fmt.Println(a * b)
 	case "/":
 		if b == 0 {
-			fmt.Println("Division by zero.")
+			fmt.Println("Division by zero")
 			return
 		}
 		fmt.Println(a / b)
 	default:
-		fmt.Println("Invalid operation.")
+		fmt.Println("Invalid operation")
 	}
 }
