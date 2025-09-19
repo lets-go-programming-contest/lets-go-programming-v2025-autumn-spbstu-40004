@@ -7,23 +7,19 @@ import (
 func main() {
 	var x, y int
 	var operator string
-	_, err1 := fmt.Scanln(&x)
-	_, err2 := fmt.Scanln(&y)
-	_, err3 := fmt.Scanln(&operator)
-	if err1 != nil {
+	_, err := fmt.Scanln(&x)
+	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
-	if err2 != nil {
+	_, err = fmt.Scanln(&y)
+	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
-	if err3 != nil {
+	_, err = fmt.Scanln(&operator)
+	if err != nil {
 		fmt.Println("Invalid input for operator")
-		return
-	}
-	if operator == "/" && y == 0 {
-		fmt.Println("Division by zero")
 		return
 	}
 	switch operator {
@@ -34,6 +30,10 @@ func main() {
 	case "*":
 		fmt.Println(x * y)
 	case "/":
+		if y == 0 {
+			fmt.Println("Division by zero")
+			return
+		}
 		fmt.Println(x / y)
 	default:
 		fmt.Println("Invalid operation")
