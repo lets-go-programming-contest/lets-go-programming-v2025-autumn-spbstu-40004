@@ -20,7 +20,6 @@ func main() {
 	for range nCount {
 		var kCount int
 		_, err = fmt.Scanln(&kCount)
-
 		if err != nil {
 			fmt.Print("Invalid var K\n")
 
@@ -32,11 +31,11 @@ func main() {
 		valid := true
 
 		for range kCount {
-
 			var (
 				operation string
 				temp      int
 			)
+
 			_, err = fmt.Scan(&operation, &temp)
 			if err != nil {
 				fmt.Print("Invalid data\n")
