@@ -5,12 +5,14 @@ import (
 )
 
 func main() {
-	var nCount int
-	var err error
-
+	var (
+		nCount int
+		err    error
+	)
 	_, err = fmt.Scanln(&nCount)
 	if err != nil {
 		fmt.Print("Invalid var N\n")
+
 		return
 	}
 
@@ -19,6 +21,7 @@ func main() {
 		_, err = fmt.Scanln(&kCount)
 		if err != nil {
 			fmt.Print("Invalid var K\n")
+
 			return
 		}
 
@@ -41,6 +44,7 @@ func main() {
 
 			if !valid {
 				fmt.Print("-1\n")
+
 				continue
 			}
 
