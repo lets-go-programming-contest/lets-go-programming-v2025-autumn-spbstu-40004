@@ -5,7 +5,6 @@ import (
 )
 
 func main() {
-
 	var (
 		nCount int
 		err    error
