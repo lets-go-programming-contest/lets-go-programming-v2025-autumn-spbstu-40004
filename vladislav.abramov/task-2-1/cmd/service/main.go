@@ -10,15 +10,17 @@ func main() {
 		err    error
 	)
 	_, err = fmt.Scanln(&nCount)
+
 	if err != nil {
 		fmt.Print("Invalid var N\n")
 
 		return
 	}
 
-	for rangeN := 0; rangeN < nCount; rangeN++ {
+	for rangeN := range nCount {
 		var kCount int
 		_, err = fmt.Scanln(&kCount)
+
 		if err != nil {
 			fmt.Print("Invalid var K\n")
 
@@ -29,7 +31,8 @@ func main() {
 		maxTemp := 30
 		valid := true
 
-		for rangeK := 0; rangeK < kCount; rangeK++ {
+		for rangeK := range kCount {
+
 			var operation string
 			var temp int
 
@@ -63,6 +66,7 @@ func main() {
 
 			if minTemp > maxTemp {
 				valid = false
+
 				fmt.Print("-1\n")
 			} else {
 				fmt.Println(minTemp)
