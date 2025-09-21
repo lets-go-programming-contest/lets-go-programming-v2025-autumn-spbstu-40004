@@ -49,6 +49,7 @@ func processDepartment(kCount int) {
 
 		if minTemp > maxTemp {
 			valid = false
+
 			fmt.Print("-1\n")
 		} else {
 			fmt.Println(minTemp)
