@@ -33,9 +33,10 @@ func main() {
 
 		for range kCount {
 
-			var operation string
-			var temp int
-
+			var (
+				operation string
+				vtemp     int
+			)
 			_, err = fmt.Scan(&operation, &temp)
 			if err != nil {
 				fmt.Print("Invalid data\n")
