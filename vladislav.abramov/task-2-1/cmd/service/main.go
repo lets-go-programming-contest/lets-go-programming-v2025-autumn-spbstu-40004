@@ -21,6 +21,7 @@ func main() {
 			fmt.Print("Invalid var K\n")
 			return
 		}
+
 		minTemp := 15
 		maxTemp := 30
 		valid := true
@@ -28,10 +29,12 @@ func main() {
 		for rangeK := 0; rangeK < kCount; rangeK++ {
 			var operation string
 			var temp int
+
 			_, err = fmt.Scan(&operation, &temp)
 			if err != nil {
 				fmt.Print("Invalid data\n")
 			}
+
 			if temp > 30 || temp < 15 {
 				fmt.Print("Invalid temperature\n")
 			}
@@ -40,6 +43,7 @@ func main() {
 				fmt.Print("-1\n")
 				continue
 			}
+
 			switch operation {
 			case ">=":
 				if temp > minTemp {
@@ -52,6 +56,7 @@ func main() {
 			default:
 				fmt.Print("Invalid data\n")
 			}
+
 			if minTemp > maxTemp {
 				valid = false
 				fmt.Print("-1\n")
