@@ -17,7 +17,7 @@ func main() {
 		return
 	}
 
-	for rangeN := range nCount {
+	for range nCount {
 		var kCount int
 		_, err = fmt.Scanln(&kCount)
 
@@ -31,7 +31,7 @@ func main() {
 		maxTemp := 30
 		valid := true
 
-		for rangeK := range kCount {
+		for range kCount {
 
 			var operation string
 			var temp int
