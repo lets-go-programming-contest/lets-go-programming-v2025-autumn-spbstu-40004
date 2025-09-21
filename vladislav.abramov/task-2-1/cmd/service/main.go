@@ -20,6 +20,7 @@ func main() {
 	for range nCount {
 		var kCount int
 		_, err = fmt.Scanln(&kCount)
+
 		if err != nil {
 			fmt.Print("Invalid var K\n")
 
