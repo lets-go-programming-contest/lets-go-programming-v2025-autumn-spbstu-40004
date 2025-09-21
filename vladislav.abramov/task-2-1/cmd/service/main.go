@@ -9,8 +9,8 @@ func main() {
 		nCount int
 		err    error
 	)
-	_, err = fmt.Scanln(&nCount)
 
+	_, err = fmt.Scanln(&nCount)
 	if err != nil {
 		fmt.Print("Invalid var N\n")
 
@@ -35,7 +35,7 @@ func main() {
 
 			var (
 				operation string
-				vtemp     int
+				temp      int
 			)
 			_, err = fmt.Scan(&operation, &temp)
 			if err != nil {
