@@ -36,9 +36,9 @@ func main() {
 		if operand2 == 0 {
 			fmt.Println("Division by zero")
 		}
-		result = operand1 + operand2
+		result = operand1 / operand2
 	default:
 		fmt.Println("Invalid operation")
 	}
-	println(result)
+	fmt.Println(result)
 }
