@@ -33,7 +33,6 @@ func (h *IntHeap) Pop() interface{} {
 
 func main() {
 	var nCount, kCount int
-
 	fmt.Scan(&nCount)
 
 	arr := make([]int, nCount)
