@@ -35,10 +35,12 @@ func main() {
 	case "/":
 		if operand2 == 0 {
 			fmt.Println("Division by zero")
+			return
 		}
 		result = operand1 / operand2
 	default:
 		fmt.Println("Invalid operation")
+		return
 	}
 	fmt.Println(result)
 }
