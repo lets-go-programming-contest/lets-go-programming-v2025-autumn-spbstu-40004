@@ -33,26 +33,37 @@ func (h *IntHeap) Pop() interface{} {
 
 func main() {
 	var nCount, kCount int
-	fmt.Scan(&nCount)
+
+  _, err := fmt.Scan(&nCount)
+  if err != nil {
+    fmt.Print("Failed to read N\n")
+  }
 
 	arr := make([]int, nCount)
-	for count := 0; count < nCount; count++ {
-		fmt.Scan(&arr[count])
+
+	for count := range nCount {
+		_, err = fmt.Scan(&arr[count])
+    if err != nil {
+      fmt.Print("Failed to read data\n")
+    }
 	}
 
-	fmt.Scan(&kCount)
+	_, err = fmt.Scan(&kCount)
+  if err != nil {
+    fmt.Print("Failed to read K\n")
+  }
 
-	heap_of_meals := &IntHeap{}
-	heap.Init(heap_of_meals)
+	heapOfMeals := &IntHeap{}
+	heap.Init(heapOfMeals)
 
 	for _, num := range arr {
-		heap.Push(heap_of_meals, num)
+		heap.Push(heapOfMeals, num)
 	}
 
 	var result int
 
 	for range kCount {
-		result = heap.Pop(heap_of_meals).(int)
+		result = heap.Pop(heapOfMeals).(int)
 	}
 
 	fmt.Println(result)
