@@ -7,16 +7,16 @@ import (
 
 type MaxHeap []int
 
-func (h MaxHeap) Len() int {
-	return len(h)
+func (h *MaxHeap) Len() int {
+	return len(*h)
 }
 
-func (h MaxHeap) Less(i, j int) bool {
-	return h[i] > h[j]
+func (h *MaxHeap) Less(i, j int) bool {
+	return (*h)[i] > (*h)[j]
 }
 
-func (h MaxHeap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
+func (h *MaxHeap) Swap(i, j int) {
+	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
 func (h *MaxHeap) Push(x interface{}) {
@@ -28,6 +28,7 @@ func (h *MaxHeap) Pop() interface{} {
 	n := len(old)
 	x := old[n-1]
 	*h = old[:n-1]
+
 	return x
 }
 
@@ -35,11 +36,12 @@ func initHeap(array []int) *MaxHeap {
 	maxHeap := &MaxHeap{}
 	*maxHeap = array
 	heap.Init(maxHeap)
+
 	return maxHeap
 }
 
 func main() {
-	var amount, k, result int
+	var amount, kNumber, result int
 
 	_, err := fmt.Scan(&amount)
 	if err != nil {
@@ -58,7 +60,7 @@ func main() {
 		}
 	}
 
-	_, err = fmt.Scan(&k)
+	_, err = fmt.Scan(&kNumber)
 	if err != nil {
 		fmt.Println("Invalid k")
 
@@ -67,7 +69,7 @@ func main() {
 
 	mealHeap := initHeap(mealArray)
 
-	for range k {
+	for range kNumber {
 		result = heap.Pop(mealHeap).(int)
 	}
 
