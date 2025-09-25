@@ -52,7 +52,7 @@ func main() {
 		lowTemp = 15
 		highTemp = 30
 
-		for i := uint16(0); i < employeeAmount; i++ {
+		for i := 0; i < int(employeeAmount); i++ {
 			_, err = fmt.Scanln(&operation, &askingTemp)
 			if err != nil {
 				fmt.Println("Invalid employee input")
