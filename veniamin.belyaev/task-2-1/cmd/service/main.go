@@ -41,7 +41,7 @@ func main() {
 		return
 	}
 
-	for i := 0; i < int(departmentAmount); i++ { // shrug
+	for range departmentAmount {
 		_, err = fmt.Scanln(&employeeAmount)
 		if err != nil {
 			fmt.Println("Invalid employee amount")
@@ -52,7 +52,7 @@ func main() {
 		lowTemp = 15
 		highTemp = 30
 
-		for i := 0; i < int(employeeAmount); i++ {
+		for range employeeAmount {
 			_, err = fmt.Scanln(&operation, &askingTemp)
 			if err != nil {
 				fmt.Println("Invalid employee input")
