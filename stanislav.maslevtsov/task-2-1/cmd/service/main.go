@@ -7,8 +7,8 @@ func main() {
 		departmentNum uint
 		employeeNum   uint
 		cmpOperator   string
-		leftBorder    uint = 15
-		rightBorder   uint = 30
+		leftBorder    uint
+		rightBorder   uint
 		newBorder     uint
 	)
 
@@ -44,8 +44,7 @@ func main() {
 					fmt.Println(-1)
 
 					continue
-				}
-				if newBorder > leftBorder {
+				} else if newBorder > leftBorder {
 					leftBorder = newBorder
 				}
 			case "<=":
@@ -53,8 +52,7 @@ func main() {
 					fmt.Println(-1)
 
 					continue
-				}
-				if newBorder < rightBorder {
+				} else if newBorder < rightBorder {
 					rightBorder = newBorder
 				}
 			default:
