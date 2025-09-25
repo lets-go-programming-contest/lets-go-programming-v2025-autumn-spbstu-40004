@@ -4,38 +4,27 @@ import "fmt"
 
 func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation string) (int, int) {
 	if lowTemp == -1 && highTemp == -1 {
-		return -1, -1
+		return lowTemp, highTemp
 	}
 
 	switch operation {
 	case ">=":
 		if askingTemp > highTemp {
-			return -1, -1
-		}
-
-		if askingTemp <= lowTemp {
-			return lowTemp, highTemp
-		}
-		if lowTemp <= askingTemp && askingTemp <= highTemp {
+			lowTemp = -1
+			highTemp = -1
+		} else if lowTemp <= askingTemp && askingTemp <= highTemp {
 			lowTemp = askingTemp
-			return lowTemp, highTemp
 		}
 	case "<=":
 		if askingTemp < lowTemp {
-			return -1, -1
-		}
-
-		if askingTemp >= highTemp {
-			return lowTemp, highTemp
-		}
-
-		if lowTemp <= askingTemp && askingTemp <= highTemp {
+			lowTemp = -1
+			highTemp = -1
+		} else if lowTemp <= askingTemp && askingTemp <= highTemp {
 			highTemp = askingTemp
-			return lowTemp, highTemp
 		}
 	}
 
-	return -1, -1
+	return lowTemp, highTemp
 }
 
 func main() {
