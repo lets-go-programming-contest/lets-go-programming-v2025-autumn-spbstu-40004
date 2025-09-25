@@ -4,7 +4,6 @@ import "fmt"
 
 func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation string) (int, int) {
 	if lowTemp == -1 && highTemp == -1 {
-
 		return lowTemp, highTemp
 	}
 
@@ -42,13 +41,14 @@ func main() {
 		return
 	}
 
-	for i := uint16(0); i < departmentAmount; i++ { // shrug
+	for i := 0; i < int(departmentAmount); i++ { // shrug
 		_, err = fmt.Scanln(&employeeAmount)
 		if err != nil {
 			fmt.Println("Invalid employee amount")
 
 			return
 		}
+
 		lowTemp = 15
 		highTemp = 30
 
