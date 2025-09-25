@@ -3,28 +3,34 @@ package main
 import "fmt"
 
 func main() {
-	var departmentNum int
+	var (
+		departmentNum uint
+		employeeNum   uint
+		cmpOperator   string
+		border        uint
+	)
+
 	_, err := fmt.Scan(&departmentNum)
 	if err != nil {
 		fmt.Println("Error: invalid department number")
+
 		return
 	}
 
-	for iDepartment := 0; iDepartment != departmentNum; iDepartment++ {
-		temperatures := [2]int{15, 30}
-		var employeeNum int
+	for range departmentNum {
+		temperatures := [2]uint{15, 30}
 		_, err = fmt.Scan(&employeeNum)
 		if err != nil {
 			fmt.Println("Error: invalid employee number")
+
 			return
 		}
 
-		for iEmployee := 0; iEmployee != employeeNum; iEmployee++ {
-			var cmpOperator string
-			var border int
+		for range employeeNum {
 			_, err = fmt.Scan(&cmpOperator, &border)
 			if err != nil {
 				fmt.Println("Error: invalid temperature border")
+
 				return
 			}
 
@@ -32,19 +38,29 @@ func main() {
 			case ">=":
 				if border > temperatures[1] {
 					fmt.Println(-1)
+
 					continue
 				}
-				temperatures[0] = border
+				if border > temperatures[0] {
+					temperatures[0] = border
+				}
 			case "<=":
 				if border < temperatures[0] {
 					fmt.Println(-1)
+
 					continue
+				}
+				if border < temperatures[1] {
+					temperatures[1] = border
 				}
 				temperatures[1] = border
 			default:
 				fmt.Println("Error: invalid compare operator")
+
 				return
 			}
+
+			fmt.Println(temperatures[0])
 		}
 	}
 }
