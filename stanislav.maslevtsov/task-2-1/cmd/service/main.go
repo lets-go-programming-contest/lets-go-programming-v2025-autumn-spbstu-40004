@@ -7,7 +7,9 @@ func main() {
 		departmentNum uint
 		employeeNum   uint
 		cmpOperator   string
-		border        uint
+		leftBorder    uint = 15
+		rightBorder   uint = 30
+		newBorder     uint
 	)
 
 	_, err := fmt.Scan(&departmentNum)
@@ -18,9 +20,8 @@ func main() {
 	}
 
 	for range departmentNum {
-		temperature_borders := make([]uint, 2)
-		temperature_borders[0] = 15
-		temperature_borders[1] = 30
+		leftBorder = 15
+		rightBorder = 30
 
 		_, err = fmt.Scan(&employeeNum)
 		if err != nil {
@@ -30,7 +31,7 @@ func main() {
 		}
 
 		for range employeeNum {
-			_, err = fmt.Scan(&cmpOperator, &border)
+			_, err = fmt.Scan(&cmpOperator, &newBorder)
 			if err != nil {
 				fmt.Println("Error: invalid temperature border")
 
@@ -39,31 +40,30 @@ func main() {
 
 			switch cmpOperator {
 			case ">=":
-				if border > temperature_borders[1] {
+				if newBorder > rightBorder {
 					fmt.Println(-1)
 
 					continue
 				}
-				if border > temperature_borders[0] {
-					temperature_borders[0] = border
+				if newBorder > leftBorder {
+					leftBorder = newBorder
 				}
 			case "<=":
-				if border < temperature_borders[0] {
+				if newBorder < leftBorder {
 					fmt.Println(-1)
 
 					continue
 				}
-				if border < temperature_borders[1] {
-					temperature_borders[1] = border
+				if newBorder < rightBorder {
+					rightBorder = newBorder
 				}
-				temperature_borders[1] = border
 			default:
 				fmt.Println("Error: invalid compare operator")
 
 				return
 			}
 
-			fmt.Println(temperature_borders[0])
+			fmt.Println(leftBorder)
 		}
 	}
 }
