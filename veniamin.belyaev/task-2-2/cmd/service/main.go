@@ -20,7 +20,10 @@ func (h *MaxHeap) Swap(i, j int) {
 }
 
 func (h *MaxHeap) Push(x interface{}) {
-	*h = append(*h, x.(int))
+	num, TACheck := x.(int)
+	if TACheck {
+		*h = append(*h, num)
+	}
 }
 
 func (h *MaxHeap) Pop() interface{} {
@@ -70,7 +73,10 @@ func main() {
 	mealHeap := initHeap(mealArray)
 
 	for range kNumber {
-		result = heap.Pop(mealHeap).(int)
+		val, TACheck := heap.Pop(mealHeap).(int)
+		if TACheck {
+			result = val
+		}
 	}
 
 	fmt.Println(result)
