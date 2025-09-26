@@ -8,8 +8,8 @@ import (
 var errOperation = errors.New("invalid operation")
 
 // cyclomatic complexity workaround
-func isValueInInterval(value int, min int, max int) bool {
-	return min <= value && value <= max
+func isValueInInterval(value int, intervalMin int, intervalMax int) bool {
+	return intervalMin <= value && value <= intervalMax
 }
 
 func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation string) (int, int, error) {
@@ -22,14 +22,14 @@ func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation stri
 		if askingTemp > highTemp {
 			lowTemp = -1
 			highTemp = -1
-		} else if isValueInInterval(lowTemp, askingTemp, highTemp) {
+		} else if isValueInInterval(askingTemp, lowTemp, highTemp) {
 			lowTemp = askingTemp
 		}
 	case "<=":
 		if askingTemp < lowTemp {
 			lowTemp = -1
 			highTemp = -1
-		} else if isValueInInterval(lowTemp, askingTemp, highTemp) {
+		} else if isValueInInterval(askingTemp, lowTemp, highTemp) {
 			highTemp = askingTemp
 		}
 	default:
