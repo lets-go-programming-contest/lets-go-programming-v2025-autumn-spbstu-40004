@@ -4,7 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 
-	"github.com/belyaevEDU/task-2-2/internal/maxheap"
+	maxheap "github.com/belyaevEDU/task-2-2/internal/MaxHeap"
 )
 
 func main() {
