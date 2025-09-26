@@ -11,7 +11,7 @@ func main() {
 	var amount, kNumber, result int
 
 	_, err := fmt.Scan(&amount)
-	if err != nil {
+	if err != nil || amount < 1 {
 		fmt.Println("Invalid amount")
 
 		return
@@ -25,10 +25,15 @@ func main() {
 
 			return
 		}
+		if mealArray[index] < -10000 || mealArray[index] > 10000 {
+			fmt.Println("Invalid data")
+
+			return
+		}
 	}
 
 	_, err = fmt.Scan(&kNumber)
-	if err != nil {
+	if err != nil || kNumber < 1 || kNumber > amount {
 		fmt.Println("Invalid k")
 
 		return
