@@ -25,6 +25,7 @@ func main() {
 
 			return
 		}
+
 		if mealArray[index] < -10000 || mealArray[index] > 10000 {
 			fmt.Println("Invalid data")
 
