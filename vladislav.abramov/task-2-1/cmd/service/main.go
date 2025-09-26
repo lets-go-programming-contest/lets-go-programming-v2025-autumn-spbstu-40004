@@ -4,9 +4,14 @@ import (
 	"fmt"
 )
 
+const (
+	minAllowedTemp = 15
+	maxAllowedTemp = 30
+)
+
 func processDepartment(kCount int) {
-	minTemp := 15
-	maxTemp := 30
+	minTemp := minAllowedTemp
+	maxTemp := maxAllowedTemp
 	valid := true
 
 	for range kCount {
@@ -22,7 +27,7 @@ func processDepartment(kCount int) {
 			continue
 		}
 
-		if temp > 30 || temp < 15 {
+		if temp > maxAllowedTemp || temp < minAllowedTemp {
 			fmt.Print("Invalid data\n")
 
 			continue
@@ -64,7 +69,7 @@ func main() {
 	)
 
 	_, err = fmt.Scanln(&nCount)
-	if err != nil {
+	if err != nil || nCount < 1 || nCount > 1000 {
 		fmt.Print("Invalid var N\n")
 
 		return
@@ -74,8 +79,10 @@ func main() {
 		var kCount int
 
 		_, err = fmt.Scanln(&kCount)
-		if err != nil {
+		if err != nil || kCount < 1 || kCount > 1000 {
 			fmt.Print("Invalid var K\n")
+
+			continue
 		}
 
 		processDepartment(kCount)
