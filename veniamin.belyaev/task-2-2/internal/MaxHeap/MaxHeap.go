@@ -1,4 +1,4 @@
-package MaxHeap
+package maxheap
 
 import "container/heap"
 

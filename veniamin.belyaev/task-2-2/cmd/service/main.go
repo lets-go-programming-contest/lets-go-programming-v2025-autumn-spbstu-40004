@@ -4,7 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 
-	"github.com/belyaevEDU/task-2-2/internal/MaxHeap"
+	"github.com/belyaevEDU/task-2-2/internal/maxheap"
 )
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 		return
 	}
 
-	mealHeap := MaxHeap.InitHeap(mealArray)
+	mealHeap := maxheap.InitHeap(mealArray)
 
 	for range kNumber {
 		val, TACheck := heap.Pop(mealHeap).(int)
