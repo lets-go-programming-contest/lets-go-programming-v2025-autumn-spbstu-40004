@@ -3,45 +3,9 @@ package main
 import (
 	"container/heap"
 	"fmt"
+
+	"github.com/belyaevEDU/task-2-2/internal/MaxHeap"
 )
-
-type MaxHeap []int
-
-func (h *MaxHeap) Len() int {
-	return len(*h)
-}
-
-func (h *MaxHeap) Less(i, j int) bool {
-	return (*h)[i] > (*h)[j]
-}
-
-func (h *MaxHeap) Swap(i, j int) {
-	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
-}
-
-func (h *MaxHeap) Push(x interface{}) {
-	num, TACheck := x.(int)
-	if TACheck {
-		*h = append(*h, num)
-	}
-}
-
-func (h *MaxHeap) Pop() interface{} {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[:n-1]
-
-	return x
-}
-
-func initHeap(array []int) *MaxHeap {
-	maxHeap := &MaxHeap{}
-	*maxHeap = array
-	heap.Init(maxHeap)
-
-	return maxHeap
-}
 
 func main() {
 	var amount, kNumber, result int
@@ -70,7 +34,7 @@ func main() {
 		return
 	}
 
-	mealHeap := initHeap(mealArray)
+	mealHeap := MaxHeap.InitHeap(mealArray)
 
 	for range kNumber {
 		val, TACheck := heap.Pop(mealHeap).(int)
