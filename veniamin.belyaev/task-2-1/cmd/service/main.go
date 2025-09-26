@@ -7,6 +7,11 @@ import (
 
 var errOperation = errors.New("invalid operation")
 
+// cyclomatic complexity workaround
+func isValueInInterval(value int, min int, max int) bool {
+	return min <= value && value <= max
+}
+
 func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation string) (int, int, error) {
 	if lowTemp == -1 && highTemp == -1 {
 		return lowTemp, highTemp, nil
@@ -17,14 +22,14 @@ func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation stri
 		if askingTemp > highTemp {
 			lowTemp = -1
 			highTemp = -1
-		} else if lowTemp <= askingTemp && askingTemp <= highTemp {
+		} else if isValueInInterval(lowTemp, askingTemp, highTemp) {
 			lowTemp = askingTemp
 		}
 	case "<=":
 		if askingTemp < lowTemp {
 			lowTemp = -1
 			highTemp = -1
-		} else if lowTemp <= askingTemp && askingTemp <= highTemp {
+		} else if isValueInInterval(lowTemp, askingTemp, highTemp) {
 			highTemp = askingTemp
 		}
 	default:
@@ -46,7 +51,7 @@ func main() {
 	)
 
 	_, err := fmt.Scanln(&departmentAmount)
-	if err != nil || departmentAmount < 1 || departmentAmount > 1000 {
+	if err != nil || !isValueInInterval(departmentAmount, 1, 1000) {
 		fmt.Println("Invalid department amount")
 
 		return
@@ -54,7 +59,7 @@ func main() {
 
 	for range departmentAmount {
 		_, err = fmt.Scanln(&employeeAmount)
-		if err != nil || employeeAmount < 1 || employeeAmount > 1000 {
+		if err != nil || !isValueInInterval(employeeAmount, 1, 1000) {
 			fmt.Println("Invalid employee amount")
 
 			return
@@ -65,7 +70,7 @@ func main() {
 
 		for range employeeAmount {
 			_, err = fmt.Scanln(&operation, &askingTemp)
-			if err != nil || askingTemp < 15 || askingTemp > 30 {
+			if err != nil || !isValueInInterval(askingTemp, 15, 30) {
 				fmt.Println("Invalid employee input")
 
 				return
