@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var errOperation = errors.New("invalid operation")
+
 func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation string) (int, int, error) {
 	if lowTemp == -1 && highTemp == -1 {
 		return lowTemp, highTemp, nil
@@ -26,15 +28,17 @@ func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation stri
 			highTemp = askingTemp
 		}
 	default:
-		return lowTemp, highTemp, errors.New("Invalid operation")
+		return lowTemp, highTemp, errOperation
 	}
 
 	return lowTemp, highTemp, nil
 }
 
 func main() {
-	const minTemp = 15
-	const maxTemp = 30
+	const (
+		minTemp = 15
+		maxTemp = 30
+	)
 
 	var (
 		departmentAmount, employeeAmount uint16
@@ -74,6 +78,7 @@ func main() {
 
 				return
 			}
+
 			fmt.Println(lowTemp)
 		}
 	}
