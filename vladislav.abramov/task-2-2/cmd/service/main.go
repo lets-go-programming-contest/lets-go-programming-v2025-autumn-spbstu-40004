@@ -1,8 +1,8 @@
 package main
 
 import (
-	"container/heap"
 	"fmt"
+	"container/heap"
 	intheap "github.com/15446-rus75/task-2-2/pkg/heap"
 )
 
