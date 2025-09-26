@@ -3,43 +3,17 @@ package main
 import (
 	"container/heap"
 	"fmt"
+  intheap "github.com/15446-rus75/task-2-2/pkg/heap"
 )
-
-type IntHeap []int
-
-func (h *IntHeap) Len() int {
-	return len(*h)
-}
-
-func (h *IntHeap) Less(i, j int) bool {
-	return (*h)[i] > (*h)[j]
-}
-
-func (h *IntHeap) Swap(i, j int) {
-	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
-}
-
-func (h *IntHeap) Push(x interface{}) {
-	if num, good := x.(int); good {
-		*h = append(*h, num)
-	}
-}
-
-func (h *IntHeap) Pop() interface{} {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-
-	return x
-}
 
 func main() {
 	var nCount, kCount int
 
 	_, err := fmt.Scan(&nCount)
-	if err != nil {
+	if err != nil || nCount < 1 || nCount > 1000 {
 		fmt.Print("Failed to read N\n")
+
+    return
 	}
 
 	arr := make([]int, nCount)
@@ -49,15 +23,20 @@ func main() {
 		if err != nil {
 			fmt.Print("Failed to read data\n")
 		}
+
+    if arr[count] < -10000 || arr[count] > 10000 {
+      fmt.Print("Invalid arr[i]\n")
+
+      return
+    }
 	}
 
 	_, err = fmt.Scan(&kCount)
-	if err != nil {
+	if err != nil || kCount < 1 || kCount > nCount {
 		fmt.Print("Failed to read K\n")
 	}
 
-	heapOfMeals := &IntHeap{}
-	heap.Init(heapOfMeals)
+	heapOfMeals := intheap.NewIntHeap()
 
 	for _, num := range arr {
 		heap.Push(heapOfMeals, num)
