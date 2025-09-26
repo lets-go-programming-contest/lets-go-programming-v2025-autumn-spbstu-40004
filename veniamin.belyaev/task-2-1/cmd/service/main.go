@@ -1,10 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation string) (int, int) {
+func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation string) (int, int, error) {
 	if lowTemp == -1 && highTemp == -1 {
-		return lowTemp, highTemp
+		return lowTemp, highTemp, nil
 	}
 
 	switch operation {
@@ -22,12 +25,17 @@ func adjustTemperature(lowTemp int, highTemp int, askingTemp int, operation stri
 		} else if lowTemp <= askingTemp && askingTemp <= highTemp {
 			highTemp = askingTemp
 		}
+	default:
+		return lowTemp, highTemp, errors.New("Invalid operation")
 	}
 
-	return lowTemp, highTemp
+	return lowTemp, highTemp, nil
 }
 
 func main() {
+	const minTemp = 15
+	const maxTemp = 30
+
 	var (
 		departmentAmount, employeeAmount uint16
 		askingTemp, lowTemp, highTemp    int
@@ -35,7 +43,7 @@ func main() {
 	)
 
 	_, err := fmt.Scanln(&departmentAmount)
-	if err != nil {
+	if err != nil || departmentAmount < 1 || departmentAmount > 1000 {
 		fmt.Println("Invalid department amount")
 
 		return
@@ -43,24 +51,29 @@ func main() {
 
 	for range departmentAmount {
 		_, err = fmt.Scanln(&employeeAmount)
-		if err != nil {
+		if err != nil || employeeAmount < 1 || employeeAmount > 1000 {
 			fmt.Println("Invalid employee amount")
 
 			return
 		}
 
-		lowTemp = 15
-		highTemp = 30
+		lowTemp = minTemp
+		highTemp = maxTemp
 
 		for range employeeAmount {
 			_, err = fmt.Scanln(&operation, &askingTemp)
-			if err != nil {
+			if err != nil || askingTemp < 15 || askingTemp > 30 {
 				fmt.Println("Invalid employee input")
 
 				return
 			}
 
-			lowTemp, highTemp = adjustTemperature(lowTemp, highTemp, askingTemp, operation)
+			lowTemp, highTemp, err = adjustTemperature(lowTemp, highTemp, askingTemp, operation)
+			if err != nil {
+				fmt.Println(err)
+
+				return
+			}
 			fmt.Println(lowTemp)
 		}
 	}
