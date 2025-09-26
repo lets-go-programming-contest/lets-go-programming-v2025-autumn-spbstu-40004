@@ -3,7 +3,7 @@ package main
 import (
 	"container/heap"
 	"fmt"
-  intheap "github.com/15446-rus75/task-2-2/pkg/heap"
+	intheap "github.com/15446-rus75/task-2-2/pkg/heap"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	if err != nil || nCount < 1 || nCount > 1000 {
 		fmt.Print("Failed to read N\n")
 
-    return
+		return
 	}
 
 	arr := make([]int, nCount)
@@ -24,11 +24,11 @@ func main() {
 			fmt.Print("Failed to read data\n")
 		}
 
-    if arr[count] < -10000 || arr[count] > 10000 {
-      fmt.Print("Invalid arr[i]\n")
+		if arr[count] < -10000 || arr[count] > 10000 {
+			fmt.Print("Invalid arr[i]\n")
 
-      return
-    }
+			return
+		}
 	}
 
 	_, err = fmt.Scan(&kCount)
