@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 func main() {
@@ -12,19 +11,19 @@ func main() {
 		operator string
 	)
 
-	_, err := fmt.Scan(os.Stdin, &numSt)
+	_, err := fmt.Scan(&numSt)
 	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
 
-	_, err = fmt.Scan(os.Stdin, &numNd)
+	_, err = fmt.Scan(&numNd)
 	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
 
-	_, err = fmt.Scan(os.Stdin, &operator)
+	_, err = fmt.Scan(&operator)
 	if err != nil {
 		fmt.Println("Invalid third operand")
 		return
