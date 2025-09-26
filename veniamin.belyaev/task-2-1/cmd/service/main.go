@@ -41,9 +41,8 @@ func main() {
 	)
 
 	var (
-		departmentAmount, employeeAmount uint16
-		askingTemp, lowTemp, highTemp    int
-		operation                        string
+		departmentAmount, employeeAmount, askingTemp int
+		operation                                    string
 	)
 
 	_, err := fmt.Scanln(&departmentAmount)
@@ -61,8 +60,8 @@ func main() {
 			return
 		}
 
-		lowTemp = minTemp
-		highTemp = maxTemp
+		lowTemp := minTemp
+		highTemp := maxTemp
 
 		for range employeeAmount {
 			_, err = fmt.Scanln(&operation, &askingTemp)
