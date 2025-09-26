@@ -10,7 +10,7 @@ func main() {
 	var nCount, kCount int
 
 	_, err := fmt.Scan(&nCount)
-	if err != nil || nCount < 1 || nCount > 1000 {
+	if err != nil {
 		fmt.Print("Failed to read N\n")
 
 		return
