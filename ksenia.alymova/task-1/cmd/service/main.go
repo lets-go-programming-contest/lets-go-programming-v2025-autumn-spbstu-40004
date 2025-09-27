@@ -3,15 +3,15 @@ package main
 import "fmt"
 
 func main() {
-	var operand1 int
-	_, err := fmt.Scan(&operand1)
+	var lhs int
+	_, err := fmt.Scan(&lhs)
 	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
 
-	var operand2 int
-	_, err = fmt.Scan(&operand2)
+	var rhs int
+	_, err = fmt.Scan(&rhs)
 	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
@@ -27,17 +27,17 @@ func main() {
 	var result int
 	switch operation {
 	case "+":
-		result = operand1 + operand2
+		result = lhs + rhs
 	case "-":
-		result = operand1 - operand2
+		result = lhs - rhs
 	case "*":
-		result = operand1 * operand2
+		result = lhs * rhs
 	case "/":
-		if operand2 == 0 {
+		if rhs == 0 {
 			fmt.Println("Division by zero")
 			return
 		}
-		result = operand1 / operand2
+		result = lhs / rhs
 	default:
 		fmt.Println("Invalid operation")
 		return
