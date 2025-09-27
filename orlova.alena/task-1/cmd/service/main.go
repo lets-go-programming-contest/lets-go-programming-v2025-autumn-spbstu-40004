@@ -12,7 +12,7 @@ func main() {
 	}
 	_, err = fmt.Scanln(&b)
 	if err != nil {
-		fmt.Println("Invalid second operation")
+		fmt.Println("Invalid second operand")
 		return
 	}
 	_, err = fmt.Scanln(&operator)
