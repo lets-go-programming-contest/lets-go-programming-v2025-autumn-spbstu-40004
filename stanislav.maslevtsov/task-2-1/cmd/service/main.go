@@ -1,14 +1,39 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrInvalidCmpOperator = errors.New("invalid compare operator")
+
+func setBorders(leftBorder uint, rightBorder uint, cmpOperator string, newBorder uint) (uint, uint, error) {
+	switch cmpOperator {
+	case ">=":
+		if newBorder > rightBorder {
+			return 0, 0, nil
+		} else if newBorder > leftBorder {
+			leftBorder = newBorder
+		}
+	case "<=":
+		if newBorder < leftBorder {
+			return 0, 0, nil
+		} else if newBorder < rightBorder {
+			rightBorder = newBorder
+		}
+	default:
+		return 0, 0, ErrInvalidCmpOperator
+	}
+	return leftBorder, rightBorder, nil
+}
 
 func main() {
 	var (
 		departmentNum uint
 		employeeNum   uint
-		cmpOperator   string
 		leftBorder    uint
 		rightBorder   uint
+		cmpOperator   string
 		newBorder     uint
 	)
 
@@ -38,30 +63,18 @@ func main() {
 				return
 			}
 
-			switch cmpOperator {
-			case ">=":
-				if newBorder > rightBorder {
-					fmt.Println(-1)
-
-					continue
-				} else if newBorder > leftBorder {
-					leftBorder = newBorder
-				}
-			case "<=":
-				if newBorder < leftBorder {
-					fmt.Println(-1)
-
-					continue
-				} else if newBorder < rightBorder {
-					rightBorder = newBorder
-				}
-			default:
-				fmt.Println("Error: invalid compare operator")
+			leftBorder, rightBorder, err = setBorders(leftBorder, rightBorder, cmpOperator, newBorder)
+			if err != nil {
+				fmt.Println(err)
 
 				return
 			}
 
-			fmt.Println(leftBorder)
+			if leftBorder == 0 {
+				fmt.Println(-1)
+			} else {
+				fmt.Println(leftBorder)
+			}
 		}
 	}
 }
