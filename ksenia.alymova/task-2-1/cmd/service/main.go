@@ -7,6 +7,7 @@ import (
 
 func reduceLowBound(temperature []int, tempValue int) (int, []int) {
 	if temperature == nil {
+
 		return -1, temperature
 	}
 
@@ -24,6 +25,7 @@ func reduceLowBound(temperature []int, tempValue int) (int, []int) {
 
 func reduceHighBound(temperature []int, tempValue int) (int, []int) {
 	if temperature == nil {
+
 		return -1, temperature
 	}
 
@@ -105,6 +107,7 @@ func main() {
 			}
 		}
 	}
+
 	for indexRes := range res {
 		fmt.Println(res[indexRes])
 	}
