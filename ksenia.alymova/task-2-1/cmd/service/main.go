@@ -7,56 +7,55 @@ import (
 
 func main() {
 	var (
-		max_temp int = 30
-		min_temp int = 15
-		cnt_unit int = 0
+		maxTemp int = 30
+		minTemp int = 15
+		cntUnit int = 0
 	)
-	_, err := fmt.Scan(&cnt_unit)
-	if err != nil || cnt_unit < 1 || cnt_unit > 1000 {
+	_, err := fmt.Scan(&cntUnit)
+	if err != nil || cntUnit < 1 || cntUnit > 1000 {
 		fmt.Println("Incorrect input")
 		return
 	}
-	for index_unit := 0; index_unit < cnt_unit; index_unit++ {
-		var cnt_worker int = 0
-		_, err := fmt.Scan(&cnt_worker)
-		if err != nil || cnt_worker < 1 || cnt_worker > 1000 {
+	for range cntUnit {
+		var cntWorker int = 0
+		_, err := fmt.Scan(&cntWorker)
+		if err != nil || cntWorker < 1 || cntWorker > 1000 {
 			fmt.Println("Incorrect input")
 			return
 		}
-		temperature := make([]int, 0, max_temp-min_temp+1)
-		for filler := min_temp; filler < max_temp+1; filler++ {
+		temperature := make([]int, 0, maxTemp-minTemp+1)
+		for filler := minTemp; filler < maxTemp+1; filler++ {
 			temperature = append(temperature, filler)
 		}
-		for index_worker := 0; index_worker < cnt_worker; index_worker++ {
+		for range cntWorker {
 			var (
 				comparator string
-				temp_value int
+				tempValue  int
 			)
-			_, err = fmt.Scan(&comparator, &temp_value)
+			_, err = fmt.Scan(&comparator, &tempValue)
 			if err != nil {
 				fmt.Println("Incorrect input")
 				return
 			}
-			if strings.Compare(comparator, ">=") == 0 {
-				if temp_value > temperature[len(temperature)-1] {
+			switch {
+			case strings.Compare(comparator, ">=") == 0:
+				if tempValue > temperature[len(temperature)-1] {
 					fmt.Println("-1")
-				} else if temp_value > temperature[0] {
-					temperature = temperature[temp_value-temperature[0]:]
+				} else if tempValue > temperature[0] {
+					temperature = temperature[tempValue-temperature[0]:]
 				}
-			} else if strings.Compare(comparator, "<=") == 0 {
-				if temp_value < temperature[0] {
+				fmt.Println(temperature[0])
+			case strings.Compare(comparator, "<=") == 0:
+				if tempValue < temperature[0] {
 					fmt.Println("-1")
-				} else if temp_value < temperature[len(temperature)-1] {
-					temperature = temperature[:temp_value-temperature[0]+1]
+				} else if tempValue < temperature[len(temperature)-1] {
+					temperature = temperature[:tempValue-temperature[0]+1]
 				}
-			} else {
+				fmt.Println(temperature[0])
+			default:
 				fmt.Println("Incorrect input")
 				return
 			}
-			fmt.Println(temperature[0])
-			//fmt.Println(temperature)
 		}
-
 	}
-
 }
