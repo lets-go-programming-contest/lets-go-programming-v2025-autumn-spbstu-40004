@@ -6,22 +6,36 @@ import (
 )
 
 func reduceLowBound(temperature []int, tempValue int) (int, []int) {
-	if tempValue > temperature[len(temperature)-1] {
+	if temperature == nil {
 		return -1, temperature
 	}
+
+	if tempValue > temperature[len(temperature)-1] {
+		temperature = nil
+		return -1, temperature
+	}
+
 	if tempValue > temperature[0] {
 		temperature = temperature[tempValue-temperature[0]:]
 	}
+
 	return temperature[0], temperature
 }
 
 func reduceHighBound(temperature []int, tempValue int) (int, []int) {
-	if tempValue < temperature[0] {
+	if temperature == nil {
 		return -1, temperature
 	}
+
+	if tempValue < temperature[0] {
+		temperature = nil
+		return -1, temperature
+	}
+
 	if tempValue < temperature[len(temperature)-1] {
 		temperature = temperature[:tempValue-temperature[0]+1]
 	}
+
 	return temperature[0], temperature
 }
 
