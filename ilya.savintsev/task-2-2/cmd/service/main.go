@@ -1,17 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"container/heap"
+	"fmt"
 
-	IntHeap "github.com/faxryzen/task-2-2/internal/IntHeap"
+	intheap "github.com/faxryzen/task-2-2/internal/IntHeap"
 )
 
 func main() {
-	var (
-		amount, kPrefer uint16
-		result          int
-	)
+	var amount, kPrefer uint16
 
 	_, err := fmt.Scanln(&amount)
 	if err != nil || amount == 0 || amount > 10000 {
@@ -23,7 +20,7 @@ func main() {
 	foodRating := make([]int, amount)
 
 	for i := range amount {
-		_, err = fmt.Scanln(&foodRating[i])
+		_, err = fmt.Scan(&foodRating[i])
 		if err != nil || foodRating[i] < -10000 || foodRating[i] > 10000 {
 			fmt.Println("invalid food init")
 
@@ -38,9 +35,15 @@ func main() {
 		return
 	}
 
-	foodHeap := IntHeap.InitIntHeap(foodRating)
+	resultPrefer(kPrefer, foodRating)
+}
 
-	for range kPrefer {
+func resultPrefer(pref uint16, ratings []int) {
+	var result int
+
+	foodHeap := intheap.InitIntHeap(ratings)
+
+	for range pref {
 		value, isGood := heap.Pop(foodHeap).(int)
 		if isGood {
 			result = value
