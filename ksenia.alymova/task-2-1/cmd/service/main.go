@@ -5,6 +5,26 @@ import (
 	"strings"
 )
 
+func reduceLowBound(temperature []int, tempValue int) (int, []int) {
+	if tempValue > temperature[len(temperature)-1] {
+		return -1, temperature
+	}
+	if tempValue > temperature[0] {
+		temperature = temperature[tempValue-temperature[0]:]
+	}
+	return temperature[0], temperature
+}
+
+func reduceHighBound(temperature []int, tempValue int) (int, []int) {
+	if tempValue < temperature[0] {
+		return -1, temperature
+	}
+	if tempValue < temperature[len(temperature)-1] {
+		temperature = temperature[:tempValue-temperature[0]+1]
+	}
+	return temperature[0], temperature
+}
+
 func main() {
 	var (
 		maxTemp = 30
@@ -40,6 +60,7 @@ func main() {
 			var (
 				comparator string
 				tempValue  int
+				resValue   int
 			)
 
 			_, err = fmt.Scan(&comparator)
@@ -58,23 +79,11 @@ func main() {
 
 			switch {
 			case strings.Compare(comparator, ">=") == 0:
-				if tempValue > temperature[len(temperature)-1] {
-					res = append(res, -1)
-				} else if tempValue > temperature[0] {
-					temperature = temperature[tempValue-temperature[0]:]
-					res = append(res, temperature[0])
-				} else {
-					res = append(res, temperature[0])
-				}
+				resValue, temperature = reduceLowBound(temperature, tempValue)
+				res = append(res, resValue)
 			case strings.Compare(comparator, "<=") == 0:
-				if tempValue < temperature[0] {
-					res = append(res, -1)
-				} else if tempValue < temperature[len(temperature)-1] {
-					temperature = temperature[:tempValue-temperature[0]+1]
-					res = append(res, temperature[0])
-				} else {
-					res = append(res, temperature[0])
-				}
+				resValue, temperature = reduceHighBound(temperature, tempValue)
+				res = append(res, resValue)
 			default:
 				fmt.Println("Incorrect input")
 
