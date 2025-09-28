@@ -7,14 +7,15 @@ import (
 
 func reduceLowBound(temperature []int, tempValue int) (int, []int) {
 	if temperature == nil {
-
 		return -1, temperature
 	}
+
 	if tempValue > temperature[len(temperature)-1] {
 		temperature = nil
 
 		return -1, temperature
 	}
+
 	if tempValue > temperature[0] {
 		temperature = temperature[tempValue-temperature[0]:]
 	}
@@ -24,14 +25,15 @@ func reduceLowBound(temperature []int, tempValue int) (int, []int) {
 
 func reduceHighBound(temperature []int, tempValue int) (int, []int) {
 	if temperature == nil {
-
 		return -1, temperature
 	}
+
 	if tempValue < temperature[0] {
 		temperature = nil
 
 		return -1, temperature
 	}
+
 	if tempValue < temperature[len(temperature)-1] {
 		temperature = temperature[:tempValue-temperature[0]+1]
 	}
@@ -44,6 +46,7 @@ func main() {
 		maxTemp = 30
 		minTemp = 15
 	)
+
 	var (
 		cntUnit = 0
 		res     = make([]int, 0)
