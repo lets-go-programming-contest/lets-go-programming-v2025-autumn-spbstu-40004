@@ -5,6 +5,11 @@ import (
 	"fmt"
 )
 
+const (
+	minTemperature = 15
+	maxTemperature = 30
+)
+
 var errFormat = errors.New("invalid temperature format")
 
 func adjustTemperature(low int, high int) (int, int, error) {
@@ -14,7 +19,7 @@ func adjustTemperature(low int, high int) (int, int, error) {
 	)
 
 	_, err := fmt.Scanln(&operation, &newTemp)
-	if err != nil || newTemp < 15 || newTemp > 30 {
+	if err != nil || newTemp < minTemperature || newTemp > maxTemperature {
 		return 0, 0, errFormat
 	}
 
@@ -46,7 +51,7 @@ func main() {
 	var dep, emp uint16
 
 	_, err := fmt.Scanln(&dep)
-	if err != nil || dep > 1000 {
+	if err != nil || dep == 0 || dep > 1000 {
 		fmt.Println("invalid number of departments")
 
 		return
@@ -60,8 +65,8 @@ func main() {
 			return
 		}
 
-		lowTemp := 15
-		highTemp := 30
+		lowTemp := minTemperature
+		highTemp := maxTemperature
 
 		for range emp {
 			lowTemp, highTemp, err = adjustTemperature(lowTemp, highTemp)
