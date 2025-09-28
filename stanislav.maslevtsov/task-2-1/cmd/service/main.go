@@ -24,6 +24,7 @@ func setBorders(leftBorder uint, rightBorder uint, cmpOperator string, newBorder
 	default:
 		return 0, 0, ErrInvalidCmpOperator
 	}
+
 	return leftBorder, rightBorder, nil
 }
 
