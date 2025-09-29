@@ -36,6 +36,20 @@ func reduceHighBound(lowBound, highBound *int, tempValue int) {
 	}
 }
 
+func changeTemperature(comparator string, tempValue int, lowBound, highBound *int) error {
+	switch {
+	case strings.Compare(comparator, ">=") == 0:
+		reduceLowBound(lowBound, highBound, tempValue)
+	case strings.Compare(comparator, "<=") == 0:
+		reduceHighBound(lowBound, highBound, tempValue)
+	default:
+
+		return errors.New("incorrect input")
+	}
+
+	return nil
+}
+
 func main() {
 	var (
 		cntUnit    = 0
@@ -54,6 +68,7 @@ func main() {
 			minTemp = 15
 			maxTemp = 30
 		)
+
 		var (
 			cntWorker = 0
 			lowBound  = minTemp
@@ -87,13 +102,9 @@ func main() {
 				return
 			}
 
-			switch {
-			case strings.Compare(comparator, ">=") == 0:
-				reduceLowBound(&lowBound, &highBound, tempValue)
-			case strings.Compare(comparator, "<=") == 0:
-				reduceHighBound(&lowBound, &highBound, tempValue)
-			default:
-				fmt.Println(errorInput)
+			err = changeTemperature(comparator, tempValue, &lowBound, &highBound)
+			if err != nil {
+				fmt.Println(err)
 
 				return
 			}
