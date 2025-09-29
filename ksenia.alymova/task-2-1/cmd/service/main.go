@@ -5,48 +5,43 @@ import (
 	"strings"
 )
 
-func reduceLowBound(temperature []int, tempValue int) (int, []int) {
-	if temperature == nil {
-		return -1, temperature
+func reduceLowBound(lowBound, highBound, tempValue int) (int, int) {
+	if lowBound == -1 {
+		return lowBound, highBound
 	}
 
-	if tempValue > temperature[len(temperature)-1] {
-		temperature = nil
+	if tempValue > highBound {
+		lowBound = -1
 
-		return -1, temperature
+		return lowBound, highBound
 	}
 
-	if tempValue > temperature[0] {
-		temperature = temperature[tempValue-temperature[0]:]
+	if tempValue > lowBound {
+		lowBound = tempValue
 	}
 
-	return temperature[0], temperature
+	return lowBound, highBound
 }
 
-func reduceHighBound(temperature []int, tempValue int) (int, []int) {
-	if temperature == nil {
-		return -1, temperature
+func reduceHighBound(lowBound, highBound, tempValue int) (int, int) {
+	if lowBound == -1 {
+		return lowBound, highBound
 	}
 
-	if tempValue < temperature[0] {
-		temperature = nil
+	if tempValue < lowBound && lowBound != -1 {
+		lowBound = -1
 
-		return -1, temperature
+		return lowBound, highBound
 	}
 
-	if tempValue < temperature[len(temperature)-1] {
-		temperature = temperature[:tempValue-temperature[0]+1]
+	if tempValue < highBound {
+		highBound = tempValue
 	}
 
-	return temperature[0], temperature
+	return lowBound, highBound
 }
 
 func main() {
-	const (
-		maxTemp = 30
-		minTemp = 15
-	)
-
 	var (
 		cntUnit = 0
 		res     = make([]int, 0)
@@ -60,26 +55,23 @@ func main() {
 	}
 
 	for range cntUnit {
-		cntWorker := 0
-		_, err = fmt.Scan(&cntWorker)
+		var (
+			cntWorker = 0
+			lowBound  = 15
+			highBound = 30
+		)
 
+		_, err = fmt.Scan(&cntWorker)
 		if err != nil || cntWorker < 1 || cntWorker > 1000 {
 			fmt.Println("Incorrect input")
 
 			return
 		}
 
-		temperature := make([]int, 0, maxTemp-minTemp+1)
-
-		for filler := minTemp; filler < maxTemp+1; filler++ {
-			temperature = append(temperature, filler)
-		}
-
 		for range cntWorker {
 			var (
 				comparator string
 				tempValue  int
-				resValue   int
 			)
 
 			_, err = fmt.Scan(&comparator)
@@ -98,11 +90,11 @@ func main() {
 
 			switch {
 			case strings.Compare(comparator, ">=") == 0:
-				resValue, temperature = reduceLowBound(temperature, tempValue)
-				res = append(res, resValue)
+				lowBound, highBound = reduceLowBound(lowBound, highBound, tempValue)
+				res = append(res, lowBound)
 			case strings.Compare(comparator, "<=") == 0:
-				resValue, temperature = reduceHighBound(temperature, tempValue)
-				res = append(res, resValue)
+				lowBound, highBound = reduceHighBound(lowBound, highBound, tempValue)
+				res = append(res, lowBound)
 			default:
 				fmt.Println("Incorrect input")
 
