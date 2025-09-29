@@ -12,8 +12,6 @@ var errInput = errors.New("incorrect input")
 
 func main() {
 	var cntDish int
-	heapDish := &maxheap.MaxHeap{}
-	heap.Init(heapDish)
 
 	_, err := fmt.Scanln(&cntDish)
 	if err != nil || cntDish < 1 || cntDish > 10000 {
@@ -21,6 +19,9 @@ func main() {
 
 		return
 	}
+
+	heapDish := &maxheap.MaxHeap{}
+	heap.Init(heapDish)
 
 	for range cntDish {
 		var valueDish int
