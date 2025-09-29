@@ -20,6 +20,8 @@ func reduceLowBound(lowBound, highBound *int, tempValue int) {
 
 	if tempValue > *highBound {
 		*lowBound = -1
+
+		return
 	}
 
 	if tempValue > *lowBound {
@@ -32,8 +34,10 @@ func reduceHighBound(lowBound, highBound *int, tempValue int) {
 		return
 	}
 
-	if tempValue < *lowBound && *lowBound != -1 {
+	if tempValue < *lowBound {
 		*lowBound = -1
+
+		return
 	}
 
 	if tempValue < *highBound {
