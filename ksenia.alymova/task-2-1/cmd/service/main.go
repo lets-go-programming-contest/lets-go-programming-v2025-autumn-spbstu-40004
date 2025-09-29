@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	errorInput = errors.New("incorrect input")
+	errInput = errors.New("incorrect input")
 )
 
 const (
@@ -50,7 +50,7 @@ func changeTemperature(comparator string, tempValue int, lowBound, highBound *in
 	case strings.Compare(comparator, "<=") == 0:
 		reduceHighBound(lowBound, highBound, tempValue)
 	default:
-		return errorInput
+		return errInput
 	}
 
 	return nil
@@ -59,41 +59,36 @@ func changeTemperature(comparator string, tempValue int, lowBound, highBound *in
 func main() {
 	var cntUnit int
 
-	_, err := fmt.Scan(&cntUnit)
+	_, err := fmt.Scanln(&cntUnit)
 	if err != nil || cntUnit < 1 || cntUnit > 1000 {
-		fmt.Println(errorInput)
+		fmt.Println(errInput)
 
 		return
 	}
 
 	for range cntUnit {
 		var (
-			cntWorker = 0
+			cntWorker int
 			lowBound  = minTemp
 			highBound = maxTemp
 		)
 
-		_, err = fmt.Scan(&cntWorker)
+		_, err = fmt.Scanln(&cntWorker)
 		if err != nil || cntWorker < 1 || cntWorker > 1000 {
-			fmt.Println(errorInput)
+			fmt.Println(errInput)
 
 			return
 		}
 
 		for range cntWorker {
-			var comparator string
-			var tempValue int
+			var (
+				comparator string
+				tempValue  int
+			)
 
-			_, err = fmt.Scan(&comparator)
-			if err != nil {
-				fmt.Println(errorInput)
-
-				return
-			}
-
-			_, err = fmt.Scan(&tempValue)
+			_, err = fmt.Scanln(&comparator, &tempValue)
 			if err != nil || tempValue < minTemp || tempValue > maxTemp {
-				fmt.Println(errorInput)
+				fmt.Println(errInput)
 
 				return
 			}
