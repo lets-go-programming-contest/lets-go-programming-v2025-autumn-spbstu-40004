@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+var (
+	errorInput = errors.New("incorrect input")
+)
+
+const (
+	minTemp = 15
+	maxTemp = 30
+)
+
 func reduceLowBound(lowBound, highBound *int, tempValue int) {
 	if *lowBound == -1 {
 		return
@@ -13,8 +22,6 @@ func reduceLowBound(lowBound, highBound *int, tempValue int) {
 
 	if tempValue > *highBound {
 		*lowBound = -1
-
-		return
 	}
 
 	if tempValue > *lowBound {
@@ -43,18 +50,14 @@ func changeTemperature(comparator string, tempValue int, lowBound, highBound *in
 	case strings.Compare(comparator, "<=") == 0:
 		reduceHighBound(lowBound, highBound, tempValue)
 	default:
-
-		return errors.New("incorrect input")
+		return errorInput
 	}
 
 	return nil
 }
 
 func main() {
-	var (
-		cntUnit    = 0
-		errorInput = errors.New("incorrect input")
-	)
+	var cntUnit int
 
 	_, err := fmt.Scan(&cntUnit)
 	if err != nil || cntUnit < 1 || cntUnit > 1000 {
@@ -64,11 +67,6 @@ func main() {
 	}
 
 	for range cntUnit {
-		const (
-			minTemp = 15
-			maxTemp = 30
-		)
-
 		var (
 			cntWorker = 0
 			lowBound  = minTemp
@@ -83,10 +81,8 @@ func main() {
 		}
 
 		for range cntWorker {
-			var (
-				comparator string
-				tempValue  int
-			)
+			var comparator string
+			var tempValue int
 
 			_, err = fmt.Scan(&comparator)
 			if err != nil {
@@ -96,7 +92,7 @@ func main() {
 			}
 
 			_, err = fmt.Scan(&tempValue)
-			if err != nil {
+			if err != nil || tempValue < minTemp || tempValue > maxTemp {
 				fmt.Println(errorInput)
 
 				return
