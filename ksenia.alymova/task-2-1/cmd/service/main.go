@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -37,13 +38,13 @@ func reduceHighBound(lowBound, highBound *int, tempValue int) {
 
 func main() {
 	var (
-		cntUnit = 0
-		res     = make([]int, 0)
+		cntUnit    = 0
+		errorInput = errors.New("incorrect input")
 	)
 
 	_, err := fmt.Scan(&cntUnit)
 	if err != nil || cntUnit < 1 || cntUnit > 1000 {
-		fmt.Println("Incorrect input")
+		fmt.Println(errorInput)
 
 		return
 	}
@@ -61,7 +62,7 @@ func main() {
 
 		_, err = fmt.Scan(&cntWorker)
 		if err != nil || cntWorker < 1 || cntWorker > 1000 {
-			fmt.Println("Incorrect input")
+			fmt.Println(errorInput)
 
 			return
 		}
@@ -74,14 +75,14 @@ func main() {
 
 			_, err = fmt.Scan(&comparator)
 			if err != nil {
-				fmt.Println("Incorrect input")
+				fmt.Println(errorInput)
 
 				return
 			}
 
 			_, err = fmt.Scan(&tempValue)
 			if err != nil {
-				fmt.Println("Incorrect input")
+				fmt.Println(errorInput)
 
 				return
 			}
@@ -92,15 +93,12 @@ func main() {
 			case strings.Compare(comparator, "<=") == 0:
 				reduceHighBound(&lowBound, &highBound, tempValue)
 			default:
-				fmt.Println("Incorrect input")
+				fmt.Println(errorInput)
 
 				return
 			}
-			res = append(res, lowBound)
-		}
-	}
 
-	for indexRes := range res {
-		fmt.Println(res[indexRes])
+			fmt.Println(lowBound)
+		}
 	}
 }
