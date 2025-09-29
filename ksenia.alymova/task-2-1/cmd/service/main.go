@@ -5,40 +5,34 @@ import (
 	"strings"
 )
 
-func reduceLowBound(lowBound, highBound, tempValue int) (int, int) {
-	if lowBound == -1 {
-		return lowBound, highBound
+func reduceLowBound(lowBound, highBound *int, tempValue int) {
+	if *lowBound == -1 {
+		return
 	}
 
-	if tempValue > highBound {
-		lowBound = -1
+	if tempValue > *highBound {
+		*lowBound = -1
 
-		return lowBound, highBound
+		return
 	}
 
-	if tempValue > lowBound {
-		lowBound = tempValue
+	if tempValue > *lowBound {
+		*lowBound = tempValue
 	}
-
-	return lowBound, highBound
 }
 
-func reduceHighBound(lowBound, highBound, tempValue int) (int, int) {
-	if lowBound == -1 {
-		return lowBound, highBound
+func reduceHighBound(lowBound, highBound *int, tempValue int) {
+	if *lowBound == -1 {
+		return
 	}
 
-	if tempValue < lowBound && lowBound != -1 {
-		lowBound = -1
-
-		return lowBound, highBound
+	if tempValue < *lowBound && *lowBound != -1 {
+		*lowBound = -1
 	}
 
-	if tempValue < highBound {
-		highBound = tempValue
+	if tempValue < *highBound {
+		*highBound = tempValue
 	}
-
-	return lowBound, highBound
 }
 
 func main() {
@@ -55,10 +49,14 @@ func main() {
 	}
 
 	for range cntUnit {
+		const (
+			minTemp = 15
+			maxTemp = 30
+		)
 		var (
 			cntWorker = 0
-			lowBound  = 15
-			highBound = 30
+			lowBound  = minTemp
+			highBound = maxTemp
 		)
 
 		_, err = fmt.Scan(&cntWorker)
@@ -90,16 +88,15 @@ func main() {
 
 			switch {
 			case strings.Compare(comparator, ">=") == 0:
-				lowBound, highBound = reduceLowBound(lowBound, highBound, tempValue)
-				res = append(res, lowBound)
+				reduceLowBound(&lowBound, &highBound, tempValue)
 			case strings.Compare(comparator, "<=") == 0:
-				lowBound, highBound = reduceHighBound(lowBound, highBound, tempValue)
-				res = append(res, lowBound)
+				reduceHighBound(&lowBound, &highBound, tempValue)
 			default:
 				fmt.Println("Incorrect input")
 
 				return
 			}
+			res = append(res, lowBound)
 		}
 	}
 
