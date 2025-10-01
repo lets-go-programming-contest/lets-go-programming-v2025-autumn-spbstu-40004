@@ -25,12 +25,8 @@ func main() {
 
 	var operator string
 	_, _ = fmt.Scan(&operator)
-	/*if err_op != nil {
-	    fmt.Println("Invalid operator")
-	}*/
 
 	switch operator {
-
 	case "+":
 		fmt.Println(firstOperand + secondOperand)
 	case "-":
