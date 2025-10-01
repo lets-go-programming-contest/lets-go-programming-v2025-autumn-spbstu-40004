@@ -40,7 +40,7 @@ func main() {
 			fmt.Println(firstOperand / secondOperand)
 		}
 	default:
-		fmt.Println("Invalid operator")
+		fmt.Println("Invalid operation")
 		_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
 		return
 	}
