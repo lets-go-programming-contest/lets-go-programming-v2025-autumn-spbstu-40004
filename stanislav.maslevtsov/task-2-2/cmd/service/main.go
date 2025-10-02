@@ -20,7 +20,10 @@ func (heap MaxHeap) Swap(left, right int) {
 }
 
 func (heap *MaxHeap) Push(value any) {
-	*heap = append(*heap, value.(int))
+	assertedValue, ok := value.(int)
+	if ok {
+		*heap = append(*heap, assertedValue)
+	}
 }
 
 func (heap *MaxHeap) Pop() any {
@@ -28,6 +31,7 @@ func (heap *MaxHeap) Pop() any {
 	heapLen := len(oldHeap)
 	lastValue := oldHeap[heapLen-1]
 	*heap = oldHeap[0 : heapLen-1]
+
 	return lastValue
 }
 
@@ -69,6 +73,8 @@ func main() {
 	for range preference - 1 {
 		heap.Pop(preferences)
 	}
-
-	fmt.Println(heap.Pop(preferences))
+	result, ok := heap.Pop(preferences).(int)
+	if ok {
+		fmt.Println(result)
+	}
 }
