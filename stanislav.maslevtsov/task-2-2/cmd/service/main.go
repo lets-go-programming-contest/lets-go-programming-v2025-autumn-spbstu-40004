@@ -1,28 +1,29 @@
 package main
 
 import (
+	"container/heap"
 	"fmt"
 )
 
-type MinHeap []uint
+type MaxHeap []int
 
-func (heap MinHeap) Len() int {
+func (heap MaxHeap) Len() int {
 	return len(heap)
 }
 
-func (heap MinHeap) Less(left, right int) bool {
-	return heap[left] < heap[right]
+func (heap MaxHeap) Less(left, right int) bool {
+	return heap[left] > heap[right]
 }
 
-func (heap MinHeap) Swap(left, right int) {
+func (heap MaxHeap) Swap(left, right int) {
 	heap[left], heap[right] = heap[right], heap[left]
 }
 
-func (heap *MinHeap) Push(value any) {
-	*heap = append(*heap, value.(uint))
+func (heap *MaxHeap) Push(value any) {
+	*heap = append(*heap, value.(int))
 }
 
-func (heap *MinHeap) Pop() any {
+func (heap *MaxHeap) Pop() any {
 	oldHeap := *heap
 	heapLen := len(oldHeap)
 	lastValue := oldHeap[heapLen-1]
@@ -32,7 +33,9 @@ func (heap *MinHeap) Pop() any {
 
 func main() {
 	var (
-		dishesAmount int
+		dishesAmount uint
+		dishPriority int
+		preference   uint
 	)
 
 	_, err := fmt.Scan(&dishesAmount)
@@ -41,4 +44,29 @@ func main() {
 
 		return
 	}
+
+	preferences := &MaxHeap{}
+	heap.Init(preferences)
+	for range dishesAmount {
+		_, err = fmt.Scan(&dishPriority)
+		if err != nil {
+			fmt.Println("invalid dish priority")
+
+			return
+		}
+
+		heap.Push(preferences, dishPriority)
+	}
+
+	_, err = fmt.Scan(&preference)
+	if err != nil {
+		fmt.Println("invalid dish preference")
+
+		return
+	}
+
+	for range preference - 1 {
+		heap.Pop(preferences)
+	}
+	fmt.Println(heap.Pop(preferences))
 }
