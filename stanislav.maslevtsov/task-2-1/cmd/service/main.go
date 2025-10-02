@@ -29,8 +29,10 @@ func setBorders(leftBorder uint, rightBorder uint, cmpOperator string, newBorder
 }
 
 func main() {
-	const lowerBorder = 15
-	const upperBorder = 30
+	const (
+		lowerBorder = 15
+		upperBorder = 30
+	)
 
 	var (
 		departmentNum uint
