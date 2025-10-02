@@ -29,6 +29,9 @@ func setBorders(leftBorder uint, rightBorder uint, cmpOperator string, newBorder
 }
 
 func main() {
+	const lowerBorder = 15
+	const upperBorder = 30
+
 	var (
 		departmentNum uint
 		employeeNum   uint
@@ -46,12 +49,12 @@ func main() {
 	}
 
 	for range departmentNum {
-		leftBorder = 15
-		rightBorder = 30
+		leftBorder = lowerBorder
+		rightBorder = upperBorder
 
 		_, err = fmt.Scan(&employeeNum)
 		if err != nil {
-			fmt.Println("Error: invalid employee number")
+			fmt.Println("invalid employee number")
 
 			return
 		}
@@ -59,7 +62,7 @@ func main() {
 		for range employeeNum {
 			_, err = fmt.Scan(&cmpOperator, &newBorder)
 			if err != nil {
-				fmt.Println("Error: invalid temperature border")
+				fmt.Println("invalid temperature border")
 
 				return
 			}
