@@ -7,16 +7,16 @@ import (
 
 type MaxHeap []int
 
-func (heap MaxHeap) Len() int {
-	return len(heap)
+func (heap *MaxHeap) Len() int {
+	return len(*heap)
 }
 
-func (heap MaxHeap) Less(left, right int) bool {
-	return heap[left] > heap[right]
+func (heap *MaxHeap) Less(left, right int) bool {
+	return (*heap)[left] > (*heap)[right]
 }
 
-func (heap MaxHeap) Swap(left, right int) {
-	heap[left], heap[right] = heap[right], heap[left]
+func (heap *MaxHeap) Swap(left, right int) {
+	(*heap)[left], (*heap)[right] = (*heap)[right], (*heap)[left]
 }
 
 func (heap *MaxHeap) Push(value any) {
@@ -73,6 +73,7 @@ func main() {
 	for range preference - 1 {
 		heap.Pop(preferences)
 	}
+
 	result, ok := heap.Pop(preferences).(int)
 	if ok {
 		fmt.Println(result)
