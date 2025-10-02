@@ -47,6 +47,7 @@ func main() {
 
 	preferences := &MaxHeap{}
 	heap.Init(preferences)
+
 	for range dishesAmount {
 		_, err = fmt.Scan(&dishPriority)
 		if err != nil {
@@ -68,5 +69,6 @@ func main() {
 	for range preference - 1 {
 		heap.Pop(preferences)
 	}
+
 	fmt.Println(heap.Pop(preferences))
 }
