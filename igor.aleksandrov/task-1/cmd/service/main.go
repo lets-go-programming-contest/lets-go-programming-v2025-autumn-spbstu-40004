@@ -24,11 +24,12 @@ func main() {
 		return
 	}
 
-	if operation == "+" {
+	switch operation {
+	case "+":
 		fmt.Println(lhs + rhs)
-	} else if operation == "-" {
+	case "-":
 		fmt.Println(lhs - rhs)
-	} else {
+	default:
 		fmt.Println("Unsupported operation")
 	}
 }
