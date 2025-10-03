@@ -11,20 +11,20 @@ const (
 
 func main() {
 	var (
-		currTemp int
-		n, k     int
-		sign     string
+		currTemp                       int
+		numOfDepartments, numOfWorkers int
+		sign                           string
 	)
 
-	_, err := fmt.Scanln(&n)
+	_, err := fmt.Scanln(&numOfDepartments)
 	if err != nil {
 		fmt.Println("Wrong input")
 
 		return
 	}
 
-	for i := 1; i <= n; i++ {
-		_, err = fmt.Scanln(&k)
+	for i := 1; i <= numOfDepartments; i++ {
+		_, err = fmt.Scanln(&numOfWorkers)
 		if err != nil {
 			fmt.Println("Wrong input")
 
@@ -33,7 +33,7 @@ func main() {
 		minTempBound := minTemp
 		maxTempBound := maxTemp
 
-		for j := 1; j <= k; j++ {
+		for j := 1; j <= numOfWorkers; j++ {
 			_, err = fmt.Scanln(&sign, &currTemp)
 			if err != nil {
 				fmt.Println("Wrong input")
