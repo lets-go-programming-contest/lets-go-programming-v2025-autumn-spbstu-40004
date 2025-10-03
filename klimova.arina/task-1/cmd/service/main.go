@@ -8,16 +8,19 @@ func main() {
 	var a, b int
 	var operation string
 	_, err1 := fmt.Scanln(&a)
-	_, err2 := fmt.Scanln(&b)
-	_, err3 := fmt.Scanln(&operation)
 	if err1 != nil {
 		fmt.Println("Invalid first operand")
+		return
 	}
+	_, err2 := fmt.Scanln(&b)
 	if err2 != nil {
 		fmt.Println("Invalid second operand")
+		return
 	}
+	_, err3 := fmt.Scanln(&operation)
 	if err3 != nil {
 		fmt.Println("Invalid operation")
+		return
 	}
 	var result int
 	switch operation {
