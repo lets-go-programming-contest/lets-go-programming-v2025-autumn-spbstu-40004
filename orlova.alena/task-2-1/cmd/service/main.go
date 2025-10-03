@@ -1,0 +1,87 @@
+package main
+
+import (
+	"fmt"
+)
+
+const (
+	minTemp = 15
+	maxTemp = 30
+)
+
+func findOptimalTemp(minTempBound, maxTempBound *int) {
+	var (
+		currTemp int
+		sign     string
+	)
+
+	_, err := fmt.Scanln(&sign, &currTemp)
+	if err != nil {
+		fmt.Println("Wrong input")
+
+		return
+	}
+
+	switch sign {
+	case ">=":
+		if *minTempBound == -1 {
+			return
+		}
+
+		if currTemp > *maxTempBound {
+			*minTempBound = -1
+
+			return
+		}
+
+		if currTemp >= *minTempBound {
+			*minTempBound = currTemp
+		}
+	case "<=":
+		if *minTempBound == -1 {
+			return
+		}
+
+		if currTemp < *minTempBound {
+			*minTempBound = -1
+
+			return
+		}
+
+		if currTemp <= *maxTempBound {
+			*maxTempBound = currTemp
+		}
+	default:
+		fmt.Println("Wrong input")
+
+		return
+	}
+}
+
+func main() {
+	var numOfDeparts, numOfWorkers int
+
+	_, err := fmt.Scanln(&numOfDeparts)
+	if err != nil {
+		fmt.Println("Wrong input")
+
+		return
+	}
+
+	for i := 1; i <= numOfDeparts; i++ {
+		_, err = fmt.Scanln(&numOfWorkers)
+		if err != nil {
+			fmt.Println("Wrong input")
+
+			return
+		}
+
+		minTempBound := minTemp
+		maxTempBound := maxTemp
+
+		for j := 1; j <= numOfWorkers; j++ {
+			findOptimalTemp(&minTempBound, &maxTempBound)
+			fmt.Println(minTempBound)
+		}
+	}
+}
