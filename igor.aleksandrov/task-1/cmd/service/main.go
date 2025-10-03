@@ -17,5 +17,18 @@ func main() {
 		return
 	}
 
-	fmt.Println(lhs + rhs)
+	var operation string
+	_, err = fmt.Scanln(&operation)
+	if err != nil {
+		fmt.Println("Invalid operation")
+		return
+	}
+
+	if operation == "+" {
+		fmt.Println(lhs + rhs)
+	} else if operation == "-" {
+		fmt.Println(lhs - rhs)
+	} else {
+		fmt.Println("Unsupported operation")
+	}
 }
