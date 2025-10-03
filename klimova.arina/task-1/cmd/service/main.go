@@ -37,7 +37,7 @@ func main() {
 		}
 		result = a / b
 	default:
-		fmt.Println("Invalid opertion")
+		fmt.Println("Invalid operation")
 		return
 	}
 
