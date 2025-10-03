@@ -4,8 +4,10 @@ import (
 	"fmt"
 )
 
-const minTemp int = 15
-const maxTemp int = 30
+const (
+	minTemp = 15
+	maxTemp = 30
+)
 
 func main() {
 	var currTemp int
