@@ -4,6 +4,54 @@ import (
 	"fmt"
 )
 
+const minTemp int = 15
+const maxTemp int = 30
+
 func main() {
-	fmt.Println("TASK-2-1")
+	var currTemp int
+	var n, k int
+	var sign string
+	_, err := fmt.Scanln(&n)
+	if err != nil {
+		fmt.Println("Wrong input")
+		return
+	}
+	for i := 1; i <= n; i++ {
+		_, err = fmt.Scanln(&k)
+		if err != nil {
+			fmt.Println("Wrong input")
+			return
+		}
+		minTempBound := minTemp
+		maxTempBound := maxTemp
+		for j := 1; j <= k; j++ {
+			_, err = fmt.Scanln(&sign, &currTemp)
+			if err != nil {
+				fmt.Println("Wrong input")
+				return
+			}
+			switch sign {
+			case ">=":
+				if currTemp > maxTempBound {
+					fmt.Println("-1")
+					return
+				}
+				if currTemp >= minTempBound {
+					minTempBound = currTemp
+				}
+			case "<=":
+				if currTemp < minTempBound {
+					fmt.Println("-1")
+					return
+				}
+				if currTemp <= maxTempBound {
+					maxTempBound = currTemp
+				}
+			default:
+				fmt.Println("Wrong input")
+				return
+			}
+			fmt.Println(minTempBound)
+		}
+	}
 }
