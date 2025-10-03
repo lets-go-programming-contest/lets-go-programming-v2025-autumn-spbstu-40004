@@ -4,10 +4,10 @@ import "fmt"
 
 func main() {
   var lhs int
-  fmt.Scanln(&a)
+  fmt.Scanln(&lhs)
 
   var rhs int
-  fmt.Scanln(&b)
+  fmt.Scanln(&rhs)
 
   fmt.Println(lhs + rhs)
 }
