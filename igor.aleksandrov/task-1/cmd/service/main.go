@@ -3,11 +3,11 @@ package main
 import "fmt"
 
 func main() {
-  var a int
+  var lhs int
   fmt.Scanln(&a)
 
-  var b int
+  var rhs int
   fmt.Scanln(&b)
 
-  fmt.Println(a + b)
+  fmt.Println(lhs + rhs)
 }
