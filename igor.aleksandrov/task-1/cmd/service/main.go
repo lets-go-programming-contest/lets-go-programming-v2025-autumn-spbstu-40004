@@ -24,20 +24,23 @@ func main() {
 		return
 	}
 
+	var result int
 	switch operation {
 	case "+":
-		fmt.Println(lhs + rhs)
+		result = lhs + rhs
 	case "-":
-		fmt.Println(lhs - rhs)
+		result = lhs - rhs
 	case "*":
-		fmt.Println(lhs * rhs)
+		result = lhs * rhs
 	case "/":
 		if rhs == 0 {
 			fmt.Println("Division by zero")
 			return
 		}
-		fmt.Println(lhs / rhs)
+		result = lhs / rhs
 	default:
-		fmt.Println("Unsupported operation")
+		fmt.Println("Invalid operation")
+		return
 	}
+	fmt.Println(result)
 }
