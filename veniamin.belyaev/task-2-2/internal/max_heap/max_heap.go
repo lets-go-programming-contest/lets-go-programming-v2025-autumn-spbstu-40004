@@ -25,15 +25,16 @@ func (h *MaxHeap) Push(x interface{}) {
 
 func (h *MaxHeap) Pop() interface{} {
 	old := *h
-	n := len(old)
-	if n == 0 {
+
+	length := len(old)
+	if length == 0 {
 		return nil
 	}
 
-	x := old[n-1]
-	*h = old[:n-1]
+	element := old[length-1]
+	*h = old[:length-1]
 
-	return x
+	return element
 }
 
 func InitHeap(array []int) *MaxHeap {
