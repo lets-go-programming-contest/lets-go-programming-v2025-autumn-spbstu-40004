@@ -22,8 +22,11 @@ func (heap *MaxHeap) Push(value any) {
 }
 
 func (heap *MaxHeap) Pop() any {
+	heapLen := len(*heap)
+	if heapLen == 0 {
+		return nil
+	}
 	oldHeap := *heap
-	heapLen := len(oldHeap)
 	lastValue := oldHeap[heapLen-1]
 	*heap = oldHeap[0 : heapLen-1]
 
