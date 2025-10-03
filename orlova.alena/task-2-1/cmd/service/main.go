@@ -30,6 +30,7 @@ func main() {
 
 			return
 		}
+
 		minTempBound := minTemp
 		maxTempBound := maxTemp
 
