@@ -60,6 +60,7 @@ func findOptimalTemp(minTempBound, maxTempBound *int) {
 
 func main() {
 	var numOfDepartments, numOfWorkers int
+
 	_, err := fmt.Scanln(&numOfDepartments)
 	if err != nil {
 		fmt.Println("Wrong input")
