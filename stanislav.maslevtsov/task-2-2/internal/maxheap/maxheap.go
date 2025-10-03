@@ -26,6 +26,7 @@ func (heap *MaxHeap) Pop() any {
 	if heapLen == 0 {
 		return nil
 	}
+
 	oldHeap := *heap
 	lastValue := oldHeap[heapLen-1]
 	*heap = oldHeap[0 : heapLen-1]
