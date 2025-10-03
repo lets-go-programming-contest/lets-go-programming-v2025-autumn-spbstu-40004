@@ -14,6 +14,7 @@ func findOptimalTemp(minTempBound, maxTempBound *int) {
 		currTemp int
 		sign     string
 	)
+
 	_, err := fmt.Scanln(&sign, &currTemp)
 	if err != nil {
 		fmt.Println("Wrong input")
@@ -25,17 +26,29 @@ func findOptimalTemp(minTempBound, maxTempBound *int) {
 	case ">=":
 		if *minTempBound == -1 {
 			return
-		} else if currTemp > *maxTempBound {
+		}
+
+		if currTemp > *maxTempBound {
 			*minTempBound = -1
-		} else if currTemp >= *minTempBound {
+
+			return
+		}
+
+		if currTemp >= *minTempBound {
 			*minTempBound = currTemp
 		}
 	case "<=":
 		if *minTempBound == -1 {
 			return
-		} else if currTemp < *minTempBound {
+		}
+
+		if currTemp < *minTempBound {
 			*minTempBound = -1
-		} else if currTemp <= *maxTempBound {
+
+			return
+		}
+
+		if currTemp <= *maxTempBound {
 			*maxTempBound = currTemp
 		}
 	default:
@@ -64,6 +77,7 @@ func main() {
 
 		minTempBound := minTemp
 		maxTempBound := maxTemp
+
 		for j := 1; j <= numOfWorkers; j++ {
 			findOptimalTemp(&minTempBound, &maxTempBound)
 			fmt.Println(minTempBound)
