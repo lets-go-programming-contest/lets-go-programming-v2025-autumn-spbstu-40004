@@ -31,6 +31,8 @@ func main() {
 		fmt.Println(lhs - rhs)
 	case "*":
 		fmt.Println(lhs * rhs)
+	case "/":
+		fmt.Println(lhs / rhs)
 	default:
 		fmt.Println("Unsupported operation")
 	}
