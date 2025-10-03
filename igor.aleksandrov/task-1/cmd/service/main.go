@@ -32,6 +32,10 @@ func main() {
 	case "*":
 		fmt.Println(lhs * rhs)
 	case "/":
+		if rhs == 0 {
+			fmt.Println("Division by zero")
+			return
+		}
 		fmt.Println(lhs / rhs)
 	default:
 		fmt.Println("Unsupported operation")
