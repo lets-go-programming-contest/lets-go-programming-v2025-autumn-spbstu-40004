@@ -38,7 +38,7 @@ func main() {
 		}
 		result = firstNumber / secondNumber
 	default:
-		fmr.Println("Unknown operator!")
+		fmt.Println("Unknown operator!")
 		return
 	}
 	fmt.Println(result)
