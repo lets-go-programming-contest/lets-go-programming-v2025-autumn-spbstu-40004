@@ -19,16 +19,22 @@ func main() {
 				if personTemp >= minTemp && personTemp <= maxTemp {
 					minTemp = personTemp
 				}
+				if maxTemp >= personTemp {
+					fmt.Println(minTemp)
+				} else {
+					fmt.Println("-1")
+					return
+				}
 			} else if op == "<=" {
 				if personTemp <= maxTemp && personTemp >= minTemp {
 					maxTemp = personTemp
 				}
-			}
-			if maxTemp >= personTemp && minTemp <= personTemp {
-				fmt.Println(minTemp)
-			} else {
-				fmt.Println("-1")
-				return
+				if minTemp <= personTemp {
+					fmt.Println(minTemp)
+				} else {
+					fmt.Println("-1")
+					return
+				}
 			}
 		}
 	}
