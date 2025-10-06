@@ -29,7 +29,7 @@ func main() {
 		result = firstNumber + secondNumber
 	case "-":
 		result = firstNumber - secondNumber
-	case "*"
+	case "*":
 		result = firstNumber * secondNumber
 	case "/":
 		if secondNumber == 0 {
