@@ -7,14 +7,19 @@ import (
 func main() {
 	var daysCount, peopleCount int
 	_, err := fmt.Scanln(&daysCount)
+
 	if err != nil {
 		fmt.Println("Error reading days count:", err)
+
 		return
 	}
+
 	for i := 0; i < daysCount; i++ {
 		_, err = fmt.Scanln(&peopleCount)
+
 		if err != nil {
 			fmt.Println("Error reading people count:", err)
+
 			return
 		}
 
@@ -26,8 +31,10 @@ func main() {
 			var personTemp int
 
 			_, err := fmt.Scan(&operation, &personTemp)
+
 			if err != nil {
 				fmt.Println("Error reading operation and temperature:", err)
+
 				return
 			}
 
@@ -36,6 +43,7 @@ func main() {
 				if personTemp >= minTemp && personTemp <= maxTemp {
 					minTemp = personTemp
 				}
+
 				if maxTemp >= personTemp {
 					fmt.Println(minTemp)
 				} else {
@@ -47,6 +55,7 @@ func main() {
 				if personTemp <= maxTemp && personTemp >= minTemp {
 					maxTemp = personTemp
 				}
+
 				if minTemp <= personTemp {
 					fmt.Println(minTemp)
 				} else {
