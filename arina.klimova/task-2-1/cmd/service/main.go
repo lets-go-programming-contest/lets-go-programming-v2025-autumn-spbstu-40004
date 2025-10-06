@@ -31,7 +31,8 @@ func main() {
 				return
 			}
 
-			if operation == ">=" {
+			switch operation {
+			case ">=":
 				if personTemp >= minTemp && personTemp <= maxTemp {
 					minTemp = personTemp
 				}
@@ -39,9 +40,10 @@ func main() {
 					fmt.Println(minTemp)
 				} else {
 					fmt.Println("-1")
+
 					return
 				}
-			} else if operation == "<=" {
+			case "<=":
 				if personTemp <= maxTemp && personTemp >= minTemp {
 					maxTemp = personTemp
 				}
@@ -49,10 +51,12 @@ func main() {
 					fmt.Println(minTemp)
 				} else {
 					fmt.Println("-1")
+
 					return
 				}
-			} else {
+			default:
 				fmt.Println("invalid operation")
+
 				return
 			}
 		}
