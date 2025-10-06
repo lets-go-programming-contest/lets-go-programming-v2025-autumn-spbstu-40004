@@ -35,6 +35,9 @@ func main() {
 					fmt.Println("-1")
 					return
 				}
+			} else {
+				fmt.Println("invalid operation")
+				return
 			}
 		}
 	}
