@@ -12,13 +12,29 @@ func main() {
 
 	leftBorder, rightBorder := 0, 30
 
-	fmt.Scan(&departNum)
-	for dep := 0; dep < departNum; dep++ {
-		fmt.Scan(&employNum)
-		for empl := 0; empl < employNum; empl++ {
-			fmt.Scan(&operator)
-			fmt.Scan(&newTemp)
+	_, err := fmt.Scan(&departNum)
+	if err != nil {
+		fmt.Println("ERROR in getting the number of departments")
+	}
+
+	for range departNum {
+		_, err = fmt.Scan(&employNum)
+		if err != nil {
+			fmt.Println("ERROR in getting the number of employees")
+		}
+
+		for range employNum {
+			readNum, err := fmt.Scan(&operator, &newTemp)
+			if err != nil {
+				if readNum == 0 {
+					fmt.Println("ERROR in getting operator")
+				} else {
+					fmt.Println("ERROR in getting new temperature")
+				}
+			}
+
 			if rightBorder == -1 {
+
 				continue
 			}
 
@@ -32,11 +48,12 @@ func main() {
 			if rightBorder < leftBorder {
 				rightBorder = -1
 				leftBorder = -1
-				fmt.Println("-1")
+				fmt.Println(leftBorder)
+
 				continue
 			}
 
-			fmt.Println((rightBorder + leftBorder) / 2)
+			fmt.Println(leftBorder)
 		}
 	}
 }
