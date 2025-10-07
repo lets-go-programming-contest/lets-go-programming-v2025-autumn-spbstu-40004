@@ -4,13 +4,11 @@ import "fmt"
 
 func main() {
 	var (
-		departNum int
-		employNum int
-		newTemp   int
-		operator  string
+		departNum, employNum    int
+		leftBorder, rightBorder int
+		newTemp                 int
+		operator                string
 	)
-
-	leftBorder, rightBorder := 15, 30
 
 	_, err := fmt.Scan(&departNum)
 	if err != nil {
@@ -27,6 +25,7 @@ func main() {
 			return
 		}
 
+		leftBorder, rightBorder = 15, 30
 		for range employNum {
 			readNum, err := fmt.Scan(&operator, &newTemp)
 			if err != nil {
@@ -42,6 +41,7 @@ func main() {
 			}
 
 			if leftBorder == -1 {
+				fmt.Println(leftBorder)
 				continue
 			}
 
@@ -53,8 +53,7 @@ func main() {
 			}
 
 			if rightBorder < leftBorder {
-				rightBorder = -1
-				leftBorder = -1
+				leftBorder, rightBorder = -1, -1
 				fmt.Println(leftBorder)
 
 				continue
@@ -62,7 +61,5 @@ func main() {
 
 			fmt.Println(leftBorder)
 		}
-
-		leftBorder, rightBorder = 15, 30
 	}
 }
