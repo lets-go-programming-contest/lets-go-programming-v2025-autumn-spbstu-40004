@@ -17,16 +17,16 @@ func main() {
 	}
 	switch operator {
 	case "+":
-		fmt.Print(operand1 + operand2)
+		fmt.Println(operand1 + operand2)
 	case "-":
-		fmt.Print(operand1 - operand2)
+		fmt.Println(operand1 - operand2)
 	case "*":
-		fmt.Print(operand1 * operand2)
+		fmt.Println(operand1 * operand2)
 	case "/":
 		if operand2 == 0 {
-			fmt.Print("Division by zero")
+			fmt.Println("Division by zero")
 		} else {
-			fmt.Print(operand1 / operand2)
+			fmt.Println(operand1 / operand2)
 		}
 	default:
 		fmt.Println("Invalid operation")
