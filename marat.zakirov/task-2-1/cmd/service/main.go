@@ -15,12 +15,14 @@ func main() {
 	_, err := fmt.Scan(&departNum)
 	if err != nil {
 		fmt.Println("ERROR in getting the number of departments")
+		return
 	}
 
 	for range departNum {
 		_, err = fmt.Scan(&employNum)
 		if err != nil {
 			fmt.Println("ERROR in getting the number of employees")
+			return
 		}
 
 		for range employNum {
@@ -28,13 +30,14 @@ func main() {
 			if err != nil {
 				if readNum == 0 {
 					fmt.Println("ERROR in getting operator")
+					return
 				} else {
 					fmt.Println("ERROR in getting new temperature")
+					return
 				}
 			}
 
 			if rightBorder == -1 {
-
 				continue
 			}
 
