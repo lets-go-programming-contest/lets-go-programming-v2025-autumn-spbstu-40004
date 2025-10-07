@@ -8,19 +8,19 @@ func main() {
 
 	_, err := fmt.Scanln(&firstNumber)
 	if err != nil {
-		fmt.Println("Invalid first operand!")
+		fmt.Println("Invalid first operand")
 		return
 	}
 
 	_, err = fmt.Scanln(&secondNumber)
 	if err != nil {
-		fmt.Println("Invalid second operand!")
+		fmt.Println("Invalid second operand")
 		return
 	}
 
 	_, err = fmt.Scanln(&operator)
 	if err != nil {
-		fmt.Println("Invalid operation!")
+		fmt.Println("Invalid operation")
 		return
 	}
 
@@ -33,12 +33,12 @@ func main() {
 		result = firstNumber * secondNumber
 	case "/":
 		if secondNumber == 0 {
-			fmt.Println("Division by zero!")
+			fmt.Println("Division by zero")
 			return
 		}
 		result = firstNumber / secondNumber
 	default:
-		fmt.Println("Unknown operator!")
+		fmt.Println("Unknown operation")
 		return
 	}
 	fmt.Println(result)
