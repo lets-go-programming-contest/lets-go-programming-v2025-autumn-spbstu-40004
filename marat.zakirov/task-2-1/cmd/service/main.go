@@ -26,6 +26,7 @@ func main() {
 		}
 
 		leftBorder, rightBorder = 15, 30
+
 		for range employNum {
 			readNum, err := fmt.Scan(&operator, &newTemp)
 			if err != nil {
@@ -42,6 +43,7 @@ func main() {
 
 			if leftBorder == -1 {
 				fmt.Println(leftBorder)
+
 				continue
 			}
 
