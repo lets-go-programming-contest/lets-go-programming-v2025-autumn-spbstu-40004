@@ -41,7 +41,7 @@ func main() {
 				}
 			}
 
-			if rightBorder == -1 {
+			if leftBorder == -1 {
 				continue
 			}
 
@@ -62,5 +62,7 @@ func main() {
 
 			fmt.Println(leftBorder)
 		}
+
+		leftBorder, rightBorder = 15, 30
 	}
 }
