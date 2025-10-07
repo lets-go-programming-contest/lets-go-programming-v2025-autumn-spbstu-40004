@@ -10,11 +10,12 @@ func main() {
 		operator  string
 	)
 
-	leftBorder, rightBorder := 0, 30
+	leftBorder, rightBorder := 15, 30
 
 	_, err := fmt.Scan(&departNum)
 	if err != nil {
 		fmt.Println("ERROR in getting the number of departments")
+
 		return
 	}
 
@@ -22,6 +23,7 @@ func main() {
 		_, err = fmt.Scan(&employNum)
 		if err != nil {
 			fmt.Println("ERROR in getting the number of employees")
+
 			return
 		}
 
@@ -30,9 +32,11 @@ func main() {
 			if err != nil {
 				if readNum == 0 {
 					fmt.Println("ERROR in getting operator")
+
 					return
 				} else {
 					fmt.Println("ERROR in getting new temperature")
+
 					return
 				}
 			}
