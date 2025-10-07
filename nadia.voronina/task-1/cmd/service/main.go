@@ -1,30 +1,26 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 )
 
 func main() {
 	var firstOperand int
-	_, errFirst := fmt.Scan(&firstOperand)
+	_, errFirst := fmt.Scanln(&firstOperand)
 	if errFirst != nil {
 		fmt.Println("Invalid first operand")
-		_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
 		return
 	}
 
 	var secondOperand int
-	_, errSecond := fmt.Scan(&secondOperand)
+	_, errSecond := fmt.Scanln(&secondOperand)
 	if errSecond != nil {
 		fmt.Println("Invalid second operand")
-		_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
 		return
 	}
 
 	var operator string
-	_, _ = fmt.Scan(&operator)
+	_, _ = fmt.Scanln(&operator)
 
 	switch operator {
 	case "+":
@@ -41,7 +37,6 @@ func main() {
 		}
 	default:
 		fmt.Println("Invalid operation")
-		_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
 		return
 	}
 }
