@@ -69,7 +69,7 @@ func temperatureHandling(op string, rBorder *int, lBorder *int, newValue int) {
 		}
 
 	case ">=":
-		if *lBorder > newValue {
+		if *lBorder < newValue {
 			*lBorder = newValue
 		}
 	}
