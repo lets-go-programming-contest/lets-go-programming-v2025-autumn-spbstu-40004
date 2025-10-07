@@ -38,7 +38,7 @@ func main() {
 		}
 		result = firstNumber / secondNumber
 	default:
-		fmt.Println("Unknown operation")
+		fmt.Println("Invalid operation")
 		return
 	}
 	fmt.Println(result)
