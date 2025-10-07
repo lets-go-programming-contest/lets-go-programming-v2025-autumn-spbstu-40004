@@ -12,7 +12,7 @@ func main() {
 		dishesNum   int
 		currentPref int
 		orderPred   int
-		h           maxheap.MaxHeap
+		customHeap  maxheap.MaxHeap
 	)
 
 	_, err := fmt.Scan(&dishesNum)
@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 
-	heap.Init(&h)
+	heap.Init(&customHeap)
 
 	for range dishesNum {
 		_, err = fmt.Scan(&currentPref)
@@ -32,7 +32,7 @@ func main() {
 			return
 		}
 
-		heap.Push(&h, currentPref)
+		heap.Push(&customHeap, currentPref)
 	}
 
 	_, err = fmt.Scan(&orderPred)
@@ -43,10 +43,10 @@ func main() {
 	}
 
 	for range orderPred - 1 {
-		heap.Pop(&h)
+		heap.Pop(&customHeap)
 	}
 
-	result, ok := heap.Pop(&h).(int)
+	result, ok := heap.Pop(&customHeap).(int)
 	if ok {
 		fmt.Println(result)
 	}

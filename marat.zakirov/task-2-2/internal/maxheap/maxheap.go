@@ -11,9 +11,7 @@ func (maxHeap *MaxHeap) Less(indexSt, indexNd int) bool {
 }
 
 func (maxHeap *MaxHeap) Swap(indexSt, indexNd int) {
-	stub := (*maxHeap)[indexSt]
-	(*maxHeap)[indexSt] = (*maxHeap)[indexNd]
-	(*maxHeap)[indexNd] = stub
+	(*maxHeap)[indexSt], (*maxHeap)[indexNd] = (*maxHeap)[indexNd], (*maxHeap)[indexSt]
 }
 
 func (maxHeap *MaxHeap) Push(value any) {
