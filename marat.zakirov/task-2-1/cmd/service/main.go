@@ -47,12 +47,7 @@ func main() {
 				continue
 			}
 
-			switch operator {
-			case "<=":
-				rightBorder = newTemp
-			case ">=":
-				leftBorder = newTemp
-			}
+			temperatureHandling(operator, &leftBorder, &rightBorder, newTemp)
 
 			if rightBorder < leftBorder {
 				leftBorder, rightBorder = -1, -1
@@ -62,6 +57,20 @@ func main() {
 			}
 
 			fmt.Println(leftBorder)
+		}
+	}
+}
+
+func temperatureHandling(op string, rBorder *int, lBorder *int, newValue int) {
+	switch op {
+	case "<=":
+		if *rBorder > newValue {
+			*rBorder = newValue
+		}
+
+	case ">=":
+		if *lBorder > newValue {
+			*lBorder = newValue
 		}
 	}
 }
