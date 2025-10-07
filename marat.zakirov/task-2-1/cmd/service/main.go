@@ -61,7 +61,7 @@ func main() {
 	}
 }
 
-func temperatureHandling(op string, rBorder *int, lBorder *int, newValue int) {
+func temperatureHandling(op string, lBorder *int, rBorder *int, newValue int) {
 	switch op {
 	case "<=":
 		if *rBorder > newValue {
