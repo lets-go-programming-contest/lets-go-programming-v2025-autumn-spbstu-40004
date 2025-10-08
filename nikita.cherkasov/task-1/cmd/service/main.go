@@ -20,4 +20,20 @@ func main() {
 		fmt.Println("Invalid operator")
 		return
 	}
+	switch operator {
+	case "+":
+		fmt.Println(operand1 + operand2)
+	case "-":
+		fmt.Println(operand1 - operand2)
+	case "*":
+		fmt.Println(operand1 * operand2)
+	case "/":
+		if operand2 == 0 {
+			fmt.Println("Division by zero")
+		} else {
+			fmt.Println(operand1 / operand2)
+		}
+	default:
+		fmt.Println("Invalid operator")
+	}
 }
