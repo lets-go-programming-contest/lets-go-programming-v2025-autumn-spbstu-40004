@@ -17,7 +17,7 @@ func main() {
 	var operator string
 	_, err = fmt.Scan(&operator)
 	if err != nil {
-		fmt.Println("Invalid operator")
+		fmt.Println("Invalid operation")
 		return
 	}
 	switch operator {
@@ -34,6 +34,6 @@ func main() {
 			fmt.Println(operand1 / operand2)
 		}
 	default:
-		fmt.Println("Invalid operator")
+		fmt.Println("Invalid operation")
 	}
 }
