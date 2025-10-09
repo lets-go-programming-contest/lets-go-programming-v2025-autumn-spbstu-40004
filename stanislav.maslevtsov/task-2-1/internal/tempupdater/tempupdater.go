@@ -30,14 +30,14 @@ func (tempUpd *TempUpdater) Update(cmpOperator string, temp uint) error {
 		if temp > tempUpd.maxTemp {
 			tempUpd.minTemp = temp
 			return ErrTempOutOfRange
-		} else if temp >= tempUpd.minTemp && temp <= tempUpd.maxTemp{
+		} else if temp > tempUpd.minTemp {
 			tempUpd.minTemp = temp
 		}
 	case "<=":
 		if temp < tempUpd.minTemp {
 			tempUpd.maxTemp = temp
 			return ErrTempOutOfRange
-		} else if temp <= tempUpd.maxTemp && temp >= tempUpd.minTemp {
+		} else if temp < tempUpd.maxTemp {
 			tempUpd.maxTemp = temp
 		}
 	default:

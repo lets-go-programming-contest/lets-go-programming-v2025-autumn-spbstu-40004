@@ -41,7 +41,11 @@ func main() {
 
 			err := tempUpd.Update(cmpOperator, newBorder)
 			if err != nil {
-				fmt.Println(err)
+				if err.Error() == "-1" {
+					fmt.Println(-1)
+				} else {
+					fmt.Println(err)
+				}
 			} else {
 				fmt.Println(tempUpd.GetCurrentTemp())
 			}
