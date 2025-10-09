@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
 	var (
@@ -11,7 +13,7 @@ func main() {
 
 	const (
 		leftBorder  = 15
-		rightBorder = 20
+		rightBorder = 30
 	)
 
 	_, err := fmt.Scan(&departNum)
