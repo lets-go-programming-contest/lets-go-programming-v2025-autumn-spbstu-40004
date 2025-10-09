@@ -1,3 +1,4 @@
+// cmd/service/main.go
 package main
 
 import (
@@ -10,8 +11,8 @@ import (
 )
 
 const (
-	initBufSizeBytes = 1 << 16 // 65_536
-	maxBufSizeBytes  = 1 << 20 // 1_048_576
+	initBufSizeBytes = 1 << 16
+	maxBufSizeBytes  = 1 << 20
 )
 
 type MinHeap []int
@@ -31,7 +32,6 @@ func (h *MinHeap) Swap(i, j int) {
 func (h *MinHeap) Push(x any) {
 	val, ok := x.(int)
 	if !ok {
-
 		return
 	}
 
@@ -58,7 +58,6 @@ func (h *MinHeap) Top() (int, bool) {
 func makeScanner() *bufio.Scanner {
 	sc := bufio.NewScanner(os.Stdin)
 	sc.Buffer(make([]byte, 0, initBufSizeBytes), maxBufSizeBytes)
-
 	return sc
 }
 
@@ -66,7 +65,6 @@ func readLine(scanner *bufio.Scanner) (string, bool) {
 	if !scanner.Scan() {
 		return "", false
 	}
-
 	return strings.TrimSpace(scanner.Text()), true
 }
 
@@ -93,12 +91,15 @@ func readNInts(scanner *bufio.Scanner, expectedCount int) ([]int, bool) {
 			return nil, false
 		}
 
-		for _, tok := range strings.Fields(line) {
-			val, err := strconv.Atoi(tok)
+		tokens := strings.Fields(line)
+		for _, token := range tokens {
+			val, err := strconv.Atoi(token)
 			if err != nil {
 				return nil, false
 			}
+
 			collected = append(collected, val)
+
 			if len(collected) == expectedCount {
 				break
 			}
@@ -108,23 +109,26 @@ func readNInts(scanner *bufio.Scanner, expectedCount int) ([]int, bool) {
 	return collected, true
 }
 
-func kthLargest(values []int, k int) (int, bool) {
-	h := &MinHeap{}
-	heap.Init(h)
+func kthLargest(values []int, kth int) (int, bool) {
+	minHeap := &MinHeap{}
+	heap.Init(minHeap)
 
-	for _, v := range values {
-		if h.Len() < k {
-			heap.Push(h, v)
+	for _, value := range values {
+		if minHeap.Len() < kth {
+			heap.Push(minHeap, value)
+
 			continue
 		}
-		top, _ := h.Top()
-		if v > top {
-			heap.Pop(h)
-			heap.Push(h, v)
+
+		top, _ := minHeap.Top()
+
+		if value > top {
+			heap.Pop(minHeap)
+			heap.Push(minHeap, value)
 		}
 	}
 
-	result, ok := h.Top()
+	result, ok := minHeap.Top()
 	if !ok {
 		return 0, false
 	}
@@ -135,8 +139,8 @@ func kthLargest(values []int, k int) (int, bool) {
 func main() {
 	scanner := makeScanner()
 
-	numbersCount, success := readInt(scanner)
-	if !success || numbersCount < 1 {
+	numbersCount, ok := readInt(scanner)
+	if !ok || numbersCount < 1 {
 		return
 	}
 
@@ -145,13 +149,13 @@ func main() {
 		return
 	}
 
-	kth, ok2 := readInt(scanner)
-	if !ok2 || kth < 1 || kth > numbersCount {
+	kth, ok := readInt(scanner)
+	if !ok || kth < 1 || kth > numbersCount {
 		return
 	}
 
-	answer, ok3 := kthLargest(values, kth)
-	if !ok3 {
+	answer, ok := kthLargest(values, kth)
+	if !ok {
 		return
 	}
 
