@@ -12,7 +12,13 @@ func (h MaxHeap) Less(i, j int) bool { return h[i] > h[j] }
 func (h MaxHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
 func (h *MaxHeap) Push(x interface{}) {
-	*h = append(*h, x.(int))
+	val, ok := x.(int)
+	if !ok {
+		fmt.Println("Type assertion failed")
+
+		return
+	}
+	*h = append(*h, val)
 }
 
 func (h *MaxHeap) Pop() interface{} {
@@ -26,9 +32,12 @@ func (h *MaxHeap) Pop() interface{} {
 
 func main() {
 	var numberOfDishes int
+
 	_, err := fmt.Scanln(&numberOfDishes)
 	if err != nil {
 		fmt.Println("invalid numberOfDishes")
+
+		return
 	}
 
 	myHeap := &MaxHeap{}
@@ -40,18 +49,28 @@ func main() {
 		if err != nil {
 			fmt.Println("invalid dish")
 		}
+
 		heap.Push(myHeap, dish)
 	}
 
-	var k int
-	_, err1 := fmt.Scanln(&k)
+	var kthLargest int
+
+	_, err1 := fmt.Scanln(&kthLargest)
 	if err1 != nil {
 		fmt.Println("invalid k")
+
+		return
 	}
 
 	var result int
-	for range k {
-		result = heap.Pop(myHeap).(int)
+	for range kthLargest {
+		val, ok := heap.Pop(myHeap).(int)
+		if !ok {
+			fmt.Println("Type assertion failed")
+
+			return
+		}
+		result = val
 	}
 
 	fmt.Println(result)
