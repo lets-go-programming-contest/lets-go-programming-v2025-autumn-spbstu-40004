@@ -5,12 +5,10 @@ import (
 )
 
 func findTemperature(peopleCount int) {
-
 	minTemp := 15
 	maxTemp := 30
 
 	for range peopleCount {
-
 		var operation string
 
 		var personTemp int
