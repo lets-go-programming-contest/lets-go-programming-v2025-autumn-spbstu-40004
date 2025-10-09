@@ -9,11 +9,12 @@ const (
 )
 
 func printOptimalTemperature(employeesCount int) {
-	min := minTemperature
-	max := maxTemperature
+	minTemperatureValue := minTemperature
+	maxTemperatureValue := maxTemperature
 
 	for range employeesCount {
 		var comparisonSign string
+
 		_, err := fmt.Scan(&comparisonSign)
 		if err != nil {
 			fmt.Println("Invalid comparison sign for temperature!")
@@ -22,6 +23,7 @@ func printOptimalTemperature(employeesCount int) {
 		}
 
 		var temperature int
+
 		_, err = fmt.Scan(&temperature)
 		if err != nil {
 			fmt.Println("Invalid temperature value!")
@@ -36,12 +38,12 @@ func printOptimalTemperature(employeesCount int) {
 
 		switch comparisonSign {
 		case ">=":
-			if temperature > min {
-				min = temperature
+			if temperature > minTemperatureValue {
+				minTemperatureValue = temperature
 			}
 		case "<=":
-			if temperature < max {
-				max = temperature
+			if temperature < maxTemperatureValue {
+				maxTemperatureValue = temperature
 			}
 		default:
 			fmt.Println("Unsupported comparison sign for temperature!")
@@ -49,16 +51,17 @@ func printOptimalTemperature(employeesCount int) {
 			continue
 		}
 
-		if min > max {
+		if minTemperatureValue > maxTemperatureValue {
 			fmt.Println(invalidTemperature)
 		} else {
-			fmt.Println(min)
+			fmt.Println(minTemperatureValue)
 		}
 	}
 }
 
 func main() {
 	var departmentsCount int
+
 	_, err := fmt.Scanln(&departmentsCount)
 	if err != nil || departmentsCount < 1 || departmentsCount > 1000 {
 		fmt.Println("Invalid departments count!")
@@ -68,12 +71,14 @@ func main() {
 
 	for range departmentsCount {
 		var employeesCount int
+
 		_, err = fmt.Scanln(&employeesCount)
 		if err != nil || employeesCount < 1 || employeesCount > 1000 {
 			fmt.Println("Invalid employees count!")
 
 			continue
 		}
+
 		printOptimalTemperature(employeesCount)
 	}
 }
