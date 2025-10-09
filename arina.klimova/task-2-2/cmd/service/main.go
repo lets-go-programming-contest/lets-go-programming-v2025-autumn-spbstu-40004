@@ -30,6 +30,12 @@ func main() {
 	h := &MaxHeap{}
 	heap.Init(h)
 
+	for i := 0; i < n; i++ {
+		var dish int
+		fmt.Scan(&dish)
+		heap.Push(h, dish)
+	}
+
 	var k int
 	fmt.Scan(&k)
 }
