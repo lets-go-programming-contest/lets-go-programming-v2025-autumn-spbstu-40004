@@ -11,4 +11,21 @@ func main() {
 
 		return
 	}
+
+	dishes := make([]int, dishesCount)
+
+	for index := range dishesCount {
+		_, err = fmt.Scan(&dishes[index])
+		if err != nil {
+			fmt.Println("Invalid dish description!")
+
+			return
+		}
+
+		if dishes[index] < -10000 || dishes[index] > 10000 {
+			fmt.Println("Unsupported dish description!")
+
+			return
+		}
+	}
 }
