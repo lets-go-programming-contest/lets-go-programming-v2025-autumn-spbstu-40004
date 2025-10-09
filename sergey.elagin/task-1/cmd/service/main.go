@@ -13,7 +13,6 @@ func main() {
 		}
 		return true
 	}
-
 	if scan(&a, "Invalid first operand") &&
 		scan(&b, "Invalid second operand") &&
 		scan(&op, "Invalid operation") {
