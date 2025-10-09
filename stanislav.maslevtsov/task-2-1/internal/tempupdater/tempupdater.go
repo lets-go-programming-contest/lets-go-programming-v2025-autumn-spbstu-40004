@@ -27,18 +27,18 @@ func NewTempUpdater() *TempUpdater {
 func (tempUpd *TempUpdater) Update(cmpOperator string, temp uint) error {
 	switch cmpOperator {
 	case ">=":
-		if temp > tempUpd.minTemp {
+		if temp > tempUpd.maxTemp {
+			tempUpd.minTemp = temp
+			return ErrTempOutOfRange
+		} else if temp >= tempUpd.minTemp && temp <= tempUpd.maxTemp{
 			tempUpd.minTemp = temp
 		}
-		if temp > tempUpd.maxTemp {
-			return ErrTempOutOfRange
-		}
 	case "<=":
-		if temp < tempUpd.maxTemp {
-			tempUpd.maxTemp = temp
-		}
 		if temp < tempUpd.minTemp {
+			tempUpd.maxTemp = temp
 			return ErrTempOutOfRange
+		} else if temp <= tempUpd.maxTemp && temp >= tempUpd.minTemp {
+			tempUpd.maxTemp = temp
 		}
 	default:
 		return ErrInvalidCmpOperator
