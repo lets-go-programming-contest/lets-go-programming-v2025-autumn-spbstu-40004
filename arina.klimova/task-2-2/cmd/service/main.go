@@ -5,5 +5,9 @@ import (
 )
 
 func main() {
-	fmt.Println("task-2-2")
+	var n int
+	fmt.Scanln(&n)
+
+	var k int
+	fmt.Scan(&k)
 }
