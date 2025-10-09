@@ -2,14 +2,11 @@ package tempupdater
 
 import "errors"
 
-var (
-	ErrInvalidCmpOperator = errors.New("invalid compare operator")
-	ErrTempOutOfRange     = errors.New("-1")
-)
+var ErrInvalidCmpOperator = errors.New("invalid compare operator")
 
 type TempUpdater struct {
-	minTemp uint
-	maxTemp uint
+	minTemp int
+	maxTemp int
 }
 
 func NewTempUpdater() *TempUpdater {
@@ -24,19 +21,19 @@ func NewTempUpdater() *TempUpdater {
 	}
 }
 
-func (tempUpd *TempUpdater) Update(cmpOperator string, temp uint) error {
+func (tempUpd *TempUpdater) Update(cmpOperator string, temp int) error {
 	switch cmpOperator {
 	case ">=":
 		if temp > tempUpd.maxTemp {
-			tempUpd.minTemp = temp
-			return ErrTempOutOfRange
+			tempUpd.minTemp = -1
+			tempUpd.maxTemp = -1
 		} else if temp > tempUpd.minTemp {
 			tempUpd.minTemp = temp
 		}
 	case "<=":
 		if temp < tempUpd.minTemp {
-			tempUpd.maxTemp = temp
-			return ErrTempOutOfRange
+			tempUpd.minTemp = -1
+			tempUpd.maxTemp = -1
 		} else if temp < tempUpd.maxTemp {
 			tempUpd.maxTemp = temp
 		}
@@ -47,6 +44,6 @@ func (tempUpd *TempUpdater) Update(cmpOperator string, temp uint) error {
 	return nil
 }
 
-func (tempUpd *TempUpdater) GetCurrentTemp() uint {
+func (tempUpd *TempUpdater) GetCurrentTemp() int {
 	return tempUpd.minTemp
 }

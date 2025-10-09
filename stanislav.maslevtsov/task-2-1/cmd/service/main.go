@@ -11,7 +11,7 @@ func main() {
 		departmentNum uint
 		employeeNum   uint
 		cmpOperator   string
-		newBorder     uint
+		newBorder     int
 	)
 
 	_, err := fmt.Scan(&departmentNum)
@@ -41,11 +41,7 @@ func main() {
 
 			err := tempUpd.Update(cmpOperator, newBorder)
 			if err != nil {
-				if err.Error() == "-1" {
-					fmt.Println(-1)
-				} else {
-					fmt.Println(err)
-				}
+				fmt.Println(err)
 			} else {
 				fmt.Println(tempUpd.GetCurrentTemp())
 			}
