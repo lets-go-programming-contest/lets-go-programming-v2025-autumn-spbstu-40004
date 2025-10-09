@@ -7,9 +7,9 @@ import (
 
 type MaxHeap []int
 
-func (h MaxHeap) Len() int           { return len(h) }
-func (h MaxHeap) Less(i, j int) bool { return h[i] > h[j] }
-func (h MaxHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *MaxHeap) Len() int           { return len(*h) }
+func (h *MaxHeap) Less(i, j int) bool { return (*h)[i] > (*h)[j] }
+func (h *MaxHeap) Swap(i, j int)      { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
 
 func (h *MaxHeap) Push(x interface{}) {
 	val, ok := x.(int)
@@ -18,6 +18,7 @@ func (h *MaxHeap) Push(x interface{}) {
 
 		return
 	}
+
 	*h = append(*h, val)
 }
 
@@ -56,6 +57,7 @@ func main() {
 	var kthLargest int
 
 	_, err1 := fmt.Scanln(&kthLargest)
+
 	if err1 != nil {
 		fmt.Println("invalid k")
 
@@ -70,6 +72,7 @@ func main() {
 
 			return
 		}
+
 		result = val
 	}
 
