@@ -28,4 +28,13 @@ func main() {
 			return
 		}
 	}
+
+	var preferredDishNumber int
+
+	_, err = fmt.Scanln(&preferredDishNumber)
+	if err != nil || preferredDishNumber < 1 || preferredDishNumber > dishesCount {
+		fmt.Println("Invalid number of a dish in buffet!")
+
+		return
+	}
 }
