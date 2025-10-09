@@ -62,7 +62,7 @@ func main() {
 
 			return
 		}
+
 		processDep(emplQuantity)
 	}
-
 }
