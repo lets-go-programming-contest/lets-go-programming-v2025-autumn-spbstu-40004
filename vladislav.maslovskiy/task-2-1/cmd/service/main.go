@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 )
+
 var errOperator = errors.New("invalid operation")
 
 func adjustTempurature(lowesttemp int, highesttemp int, askingTemp int, operation string) (int, int, error) {
@@ -84,6 +85,6 @@ func main() {
 
 			return
 		}
-		processDepart(employeeAmount, minTempurature,highesttemp)
+		processDepart(employeeAmount, minTempurature, highesttemp)
 	}
 }
