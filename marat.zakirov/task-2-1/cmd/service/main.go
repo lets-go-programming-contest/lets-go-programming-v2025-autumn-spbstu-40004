@@ -45,8 +45,8 @@ func main() {
 				}
 			}
 
-			if leftBorder == -1 {
-				fmt.Println(leftBorder)
+			if currLeftBorder == -1 {
+				fmt.Println(currLeftBorder)
 
 				continue
 			}
