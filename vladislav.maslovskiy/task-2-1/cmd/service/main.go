@@ -44,6 +44,7 @@ func processDepart(employeeAmount int, minTempurature int, maxTempurature int) {
 
 	for range employeeAmount {
 		_, err := fmt.Scanln(&operation, &askingTemp)
+
 		if err != nil || askingTemp < 15 || askingTemp > 30 {
 			fmt.Println("Wrong employee input")
 
@@ -64,9 +65,11 @@ func processDepart(employeeAmount int, minTempurature int, maxTempurature int) {
 func main() {
 	const (
 		minTempurature = 15
-		highesttemp = 30
+		highesttemp    = 30
 	)
+
 	var departmentAmount, employeeAmount int
+
 	_, err := fmt.Scanln(&departmentAmount)
 	if err != nil || departmentAmount < 1 || departmentAmount > 1000 {
 		fmt.Println("Wrong  department amount")
