@@ -47,7 +47,7 @@ func processDepart(employeeAmount int, minTempurature int, maxTempurature int) {
 
 			return
 		}
-		lowTempurature, highTempurature, err = adjustTemperature(lowTempurature, highTempurature, askingTempurature, operation)
+		lowTempurature, highTempurature, err = adjustTempurature(lowTempurature, highTempurature, askingTempurature, operation)
 		if err != nil {
 			fmt.Println(err)
 
