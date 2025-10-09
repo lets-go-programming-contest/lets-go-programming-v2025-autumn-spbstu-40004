@@ -46,6 +46,7 @@ func main() {
 
 	for range numberOfDishes {
 		var dish int
+
 		_, err := fmt.Scan(&dish)
 		if err != nil {
 			fmt.Println("invalid dish")
@@ -57,7 +58,6 @@ func main() {
 	var kthLargest int
 
 	_, err1 := fmt.Scanln(&kthLargest)
-
 	if err1 != nil {
 		fmt.Println("invalid k")
 
@@ -65,6 +65,7 @@ func main() {
 	}
 
 	var result int
+
 	for range kthLargest {
 		val, ok := heap.Pop(myHeap).(int)
 		if !ok {
