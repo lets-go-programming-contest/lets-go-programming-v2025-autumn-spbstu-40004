@@ -1,3 +1,3 @@
-module github.com/faxryzen/task-2-1
+module github.com/ysffmn/task-2-1
 
 go 1.22.7
