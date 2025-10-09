@@ -31,6 +31,7 @@ func main() {
 
 			return
 		}
+
 		heap.Push(&myHeap, rate)
 	}
 
