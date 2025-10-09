@@ -25,8 +25,7 @@ func main() {
 		return
 	}
 
-	switch ch
-	{
+	switch ch {
 		case "+":
 			fmt.Println(a + b)
 		case "-":
