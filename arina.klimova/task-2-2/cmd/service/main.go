@@ -38,4 +38,11 @@ func main() {
 
 	var k int
 	fmt.Scan(&k)
+
+	var result int
+	for i := 0; i < k; i++ {
+		result = heap.Pop(h).(int)
+	}
+
+	fmt.Println(result)
 }
