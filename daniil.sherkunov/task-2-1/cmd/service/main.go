@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,74 +10,113 @@ import (
 )
 
 const (
-	minTemp = 15
-	maxTemp = 30
+	defaultMinTemperature   = 15
+	defaultMaxTemperature   = 30
+	scannerInitBufSizeBytes = 1 << 16
+	scannerMaxBufSizeBytes  = 1 << 20
+	expectedFieldsPerLine   = 2
 )
 
-func main() {
-	in := bufio.NewScanner(os.Stdin)
-	in.Buffer(make([]byte, 0, 1<<16), 1<<20)
+var (
+	errInvalidLineFormat = errors.New("invalid constraint line format")
+	errInvalidOperator   = errors.New("invalid operator")
+)
 
-	readInt := func() (int, bool) {
-		if !in.Scan() {
-			return 0, false
-		}
-		s := strings.TrimSpace(in.Text())
-		v, err := strconv.Atoi(s)
-		if err != nil {
-			return 0, false
-		}
-		return v, true
+// readInt reads one line and parses int; returns (value, ok).
+func readInt(scanner *bufio.Scanner) (int, bool) {
+	if !scanner.Scan() {
+		return 0, false
 	}
-	
-	N, ok := readInt()
-	if !ok || N < 1 {
+
+	text := strings.TrimSpace(scanner.Text())
+	value, convErr := strconv.Atoi(text)
+	if convErr != nil {
+		return 0, false
+	}
+
+	return value, true
+}
+
+func applyConstraint(lowerBound, upperBound int, operatorToken string, operatorValue int) (int, int, error) {
+	switch operatorToken {
+	case ">=", "≥":
+		if operatorValue > lowerBound {
+			lowerBound = operatorValue
+		}
+	case "<=", "≤":
+		if operatorValue < upperBound {
+			upperBound = operatorValue
+		}
+	default:
+		return lowerBound, upperBound, errInvalidOperator
+	}
+
+	return lowerBound, upperBound, nil
+}
+
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Buffer(make([]byte, 0, scannerInitBufSizeBytes), scannerMaxBufSizeBytes)
+
+	departmentsCount, ok := readInt(scanner)
+	if !ok || departmentsCount < 1 {
 		return
 	}
 
 	writer := bufio.NewWriter(os.Stdout)
-	defer writer.Flush()
+	defer func() {
+		if flushErr := writer.Flush(); flushErr != nil {
+			_ = flushErr
+		}
+	}()
 
-	for dept := 0; dept < N; dept++ {
-		K, ok := readInt()
-		if !ok || K < 1 {
+	for departmentIndex := range departmentsCount {
+		employeesCount, readOK := readInt(scanner)
+		if !readOK || employeesCount < 1 {
 			return
 		}
-		lo, hi := minTemp, maxTemp
 
-		for i := 0; i < K; i++ {
-			if !in.Scan() {
+		lowerBound := defaultMinTemperature
+		upperBound := defaultMaxTemperature
+
+		for employeeIndex := range employeesCount {
+			if !scanner.Scan() {
 				return
 			}
-			line := strings.TrimSpace(in.Text())
+
+			line := strings.TrimSpace(scanner.Text())
 			fields := strings.Fields(line)
-			if len(fields) != 2 {
-				return
-			}
-			op := fields[0]
-			val, err := strconv.Atoi(fields[1])
-			if err != nil {
+			if len(fields) != expectedFieldsPerLine {
 				return
 			}
 
-			switch op {
-			case ">=", "≥":
-				if val > lo {
-					lo = val
-				}
-			case "<=", "≤":
-				if val < hi {
-					hi = val
-				}
-			default:
+			operatorToken := fields[0]
+			operatorValue, convErr := strconv.Atoi(fields[1])
+			if convErr != nil {
 				return
 			}
 
-			if lo > hi {
-				fmt.Fprintln(writer, -1)
+			var applyErr error
+
+			lowerBound, upperBound, applyErr = applyConstraint(lowerBound, upperBound, operatorToken, operatorValue)
+			if applyErr != nil {
+				return
+			}
+
+			var printErr error
+
+			if lowerBound > upperBound {
+				_, printErr = fmt.Fprintln(writer, -1)
 			} else {
-				fmt.Fprintln(writer, lo)
+				_, printErr = fmt.Fprintln(writer, lowerBound)
 			}
+
+			if printErr != nil {
+				return
+			}
+
+			_ = employeeIndex
 		}
+
+		_ = departmentIndex
 	}
-}
