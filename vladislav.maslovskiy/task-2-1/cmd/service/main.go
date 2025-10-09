@@ -85,6 +85,7 @@ func main() {
 
 			return
 		}
+
 		processDepart(employeeAmount, minTempurature, highesttemp)
 	}
 }
