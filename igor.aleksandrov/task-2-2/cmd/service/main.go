@@ -1,6 +1,26 @@
 package main
 
-import "fmt"
+import (
+	"container/heap"
+	"fmt"
+
+	intMaxHeap "github.com/MrMels625/task-2-2/internal/intmaxheap"
+)
+
+func readEmployeeMind(dishes []int, preferredDishNumber int) int {
+	var resultDish int
+
+	dishesHeap := intMaxHeap.InitIntMaxHeap(dishes)
+
+	for range preferredDishNumber {
+		dish, popped := heap.Pop(dishesHeap).(int)
+		if popped {
+			resultDish = dish
+		}
+	}
+
+	return resultDish
+}
 
 func main() {
 	var dishesCount int
@@ -37,4 +57,6 @@ func main() {
 
 		return
 	}
+
+	fmt.Println(readEmployeeMind(dishes, preferredDishNumber))
 }
