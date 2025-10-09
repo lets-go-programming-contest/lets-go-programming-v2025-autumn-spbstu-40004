@@ -15,7 +15,7 @@ func main() {
 		myHeap        intheap.IntHeap
 	)
 
-	_, err := fmt.Scanln(&numOfDishes)
+	_, err := fmt.Scan(&numOfDishes)
 	if err != nil {
 		fmt.Println("Wrong input")
 
@@ -25,7 +25,7 @@ func main() {
 	heap.Init(&myHeap)
 
 	for range numOfDishes {
-		_, err = fmt.Scanln(&rate)
+		_, err = fmt.Scan(&rate)
 		if err != nil {
 			fmt.Println("Wrong input")
 
@@ -35,7 +35,7 @@ func main() {
 		heap.Push(&myHeap, rate)
 	}
 
-	_, err = fmt.Scanln(&numOfPrefDish)
+	_, err = fmt.Scan(&numOfPrefDish)
 	if err != nil || numOfPrefDish > myHeap.Len() {
 		fmt.Println("Wrong input")
 
