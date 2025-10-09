@@ -4,18 +4,63 @@ import (
 	"fmt"
 )
 
+func findTemperature(peopleCount int) {
+
+	minTemp := 15
+	maxTemp := 30
+
+	for range peopleCount {
+
+		var operation string
+
+		var personTemp int
+
+		_, err := fmt.Scan(&operation, &personTemp)
+
+		if err != nil {
+			fmt.Println("Error reading operation or tempperature", err)
+
+			return
+		}
+
+		switch operation {
+		case ">=":
+			if personTemp > minTemp {
+				minTemp = personTemp
+			}
+		case "<=":
+			if personTemp < maxTemp {
+				maxTemp = personTemp
+			}
+		default:
+			fmt.Println("invalid operation")
+
+			return
+		}
+
+		if minTemp > maxTemp {
+			fmt.Println("-1")
+		} else {
+			fmt.Println(minTemp)
+		}
+	}
+}
+
 func main() {
-	var daysCount, peopleCount int
-	_, err := fmt.Scanln(&daysCount)
+	var departmentCount int
+
+	_, err := fmt.Scanln(&departmentCount)
 
 	if err != nil {
-		fmt.Println("Error reading days count:", err)
+		fmt.Println("Error reading department count:", err)
 
 		return
 	}
 
-	for i := 0; i < daysCount; i++ {
-		_, err = fmt.Scanln(&peopleCount)
+	for range departmentCount {
+		var peopleCount int
+
+		_, err := fmt.Scanln(&peopleCount)
 
 		if err != nil {
 			fmt.Println("Error reading people count:", err)
@@ -23,51 +68,6 @@ func main() {
 			return
 		}
 
-		maxTemp := 30
-		minTemp := 15
-
-		for j := 0; j < peopleCount; j++ {
-			var operation string
-			var personTemp int
-
-			_, err := fmt.Scan(&operation, &personTemp)
-
-			if err != nil {
-				fmt.Println("Error reading operation and temperature:", err)
-
-				return
-			}
-
-			switch operation {
-			case ">=":
-				if personTemp >= minTemp && personTemp <= maxTemp {
-					minTemp = personTemp
-				}
-
-				if maxTemp >= personTemp {
-					fmt.Println(minTemp)
-				} else {
-					fmt.Println("-1")
-
-					return
-				}
-			case "<=":
-				if personTemp <= maxTemp && personTemp >= minTemp {
-					maxTemp = personTemp
-				}
-
-				if minTemp <= personTemp {
-					fmt.Println(minTemp)
-				} else {
-					fmt.Println("-1")
-
-					return
-				}
-			default:
-				fmt.Println("invalid operation")
-
-				return
-			}
-		}
+		findTemperature(peopleCount)
 	}
 }
