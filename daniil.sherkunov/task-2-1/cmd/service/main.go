@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,12 +16,6 @@ const (
 	expectedFieldsPerLine   = 2
 )
 
-var (
-	errInvalidLineFormat = errors.New("invalid constraint line format")
-	errInvalidOperator   = errors.New("invalid operator")
-)
-
-// readInt reads one line and parses int; returns (value, ok).
 func readInt(scanner *bufio.Scanner) (int, bool) {
 	if !scanner.Scan() {
 		return 0, false
@@ -30,6 +23,7 @@ func readInt(scanner *bufio.Scanner) (int, bool) {
 
 	text := strings.TrimSpace(scanner.Text())
 	value, convErr := strconv.Atoi(text)
+
 	if convErr != nil {
 		return 0, false
 	}
@@ -37,7 +31,28 @@ func readInt(scanner *bufio.Scanner) (int, bool) {
 	return value, true
 }
 
-func applyConstraint(lowerBound, upperBound int, operatorToken string, operatorValue int) (int, int, error) {
+func readConstraint(scanner *bufio.Scanner) (string, int, bool) {
+	if !scanner.Scan() {
+		return "", 0, false
+	}
+
+	line := strings.TrimSpace(scanner.Text())
+	fields := strings.Fields(line)
+	if len(fields) != expectedFieldsPerLine {
+		return "", 0, false
+	}
+
+	operatorToken := fields[0]
+	operatorValue, convErr := strconv.Atoi(fields[1])
+
+	if convErr != nil {
+		return "", 0, false
+	}
+
+	return operatorToken, operatorValue, true
+}
+
+func applyConstraint(lowerBound, upperBound int, operatorToken string, operatorValue int) (int, int, bool) {
 	switch operatorToken {
 	case ">=", "≥":
 		if operatorValue > lowerBound {
@@ -48,10 +63,10 @@ func applyConstraint(lowerBound, upperBound int, operatorToken string, operatorV
 			upperBound = operatorValue
 		}
 	default:
-		return lowerBound, upperBound, errInvalidOperator
+		return lowerBound, upperBound, false
 	}
 
-	return lowerBound, upperBound, nil
+	return lowerBound, upperBound, true
 }
 
 func main() {
@@ -70,7 +85,7 @@ func main() {
 		}
 	}()
 
-	for departmentIndex := range departmentsCount {
+	for departmentIndex := 0; departmentIndex < departmentsCount; departmentIndex++ {
 		employeesCount, readOK := readInt(scanner)
 		if !readOK || employeesCount < 1 {
 			return
@@ -79,45 +94,28 @@ func main() {
 		lowerBound := defaultMinTemperature
 		upperBound := defaultMaxTemperature
 
-		for employeeIndex := range employeesCount {
-			if !scanner.Scan() {
+		for employeeIndex := 0; employeeIndex < employeesCount; employeeIndex++ {
+			operatorToken, operatorValue, okConstraint := readConstraint(scanner)
+			if !okConstraint {
 				return
 			}
 
-			line := strings.TrimSpace(scanner.Text())
-			fields := strings.Fields(line)
-			if len(fields) != expectedFieldsPerLine {
+			var okApply bool
+			lowerBound, upperBound, okApply = applyConstraint(lowerBound, upperBound, operatorToken, operatorValue)
+			if !okApply {
 				return
 			}
 
-			operatorToken := fields[0]
-			operatorValue, convErr := strconv.Atoi(fields[1])
-			if convErr != nil {
-				return
-			}
-
-			var applyErr error
-
-			lowerBound, upperBound, applyErr = applyConstraint(lowerBound, upperBound, operatorToken, operatorValue)
-			if applyErr != nil {
-				return
-			}
-
-			var printErr error
-
+			var out int
 			if lowerBound > upperBound {
-				_, printErr = fmt.Fprintln(writer, -1)
+				out = -1
 			} else {
-				_, printErr = fmt.Fprintln(writer, lowerBound)
+				out = lowerBound
 			}
 
-			if printErr != nil {
+			if _, err := fmt.Fprintln(writer, out); err != nil {
 				return
 			}
-
-			_ = employeeIndex
 		}
-
-		_ = departmentIndex
 	}
 }
