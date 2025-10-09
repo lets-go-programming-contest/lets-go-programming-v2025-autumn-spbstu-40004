@@ -9,48 +9,44 @@ const (
 	maxTemp = 30
 )
 
-func findOptimalTemp(minTempBound, maxTempBound *int) {
-	var (
-		currTemp int
-		sign     string
-	)
+func changeMaxBound(minTempBound, maxTempBound *int, currTemp int) {
+	if *minTempBound == -1 {
+		return
+	}
 
-	_, err := fmt.Scanln(&sign, &currTemp)
-	if err != nil {
-		fmt.Println("Wrong input")
+	if currTemp < *minTempBound {
+		*minTempBound = -1
 
 		return
 	}
 
+	if currTemp <= *maxTempBound {
+		*maxTempBound = currTemp
+	}
+}
+
+func changeMinBound(minTempBound, maxTempBound *int, currTemp int) {
+	if *minTempBound == -1 {
+		return
+	}
+
+	if currTemp > *maxTempBound {
+		*minTempBound = -1
+
+		return
+	}
+
+	if currTemp >= *minTempBound {
+		*minTempBound = currTemp
+	}
+}
+
+func findOptimalTemp(minTempBound, maxTempBound *int, currTemp int, sign string) {
 	switch sign {
 	case ">=":
-		if *minTempBound == -1 {
-			return
-		}
-
-		if currTemp > *maxTempBound {
-			*minTempBound = -1
-
-			return
-		}
-
-		if currTemp >= *minTempBound {
-			*minTempBound = currTemp
-		}
+		changeMinBound(minTempBound, maxTempBound, currTemp)
 	case "<=":
-		if *minTempBound == -1 {
-			return
-		}
-
-		if currTemp < *minTempBound {
-			*minTempBound = -1
-
-			return
-		}
-
-		if currTemp <= *maxTempBound {
-			*maxTempBound = currTemp
-		}
+		changeMaxBound(minTempBound, maxTempBound, currTemp)
 	default:
 		fmt.Println("Wrong input")
 
@@ -59,7 +55,10 @@ func findOptimalTemp(minTempBound, maxTempBound *int) {
 }
 
 func main() {
-	var numOfDeparts, numOfWorkers int
+	var (
+		numOfDeparts, numOfWorkers, currTemp int
+		sign                                 string
+	)
 
 	_, err := fmt.Scanln(&numOfDeparts)
 	if err != nil {
@@ -80,7 +79,14 @@ func main() {
 		maxTempBound := maxTemp
 
 		for j := 1; j <= numOfWorkers; j++ {
-			findOptimalTemp(&minTempBound, &maxTempBound)
+			_, err = fmt.Scanln(&sign, &currTemp)
+			if err != nil {
+				fmt.Println("Wrong input")
+
+				return
+			}
+
+			findOptimalTemp(&minTempBound, &maxTempBound, currTemp, sign)
 			fmt.Println(minTempBound)
 		}
 	}
