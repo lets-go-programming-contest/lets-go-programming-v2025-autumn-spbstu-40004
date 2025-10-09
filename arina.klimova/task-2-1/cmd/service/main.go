@@ -14,7 +14,6 @@ func findTemperature(peopleCount int) {
 		var personTemp int
 
 		_, err := fmt.Scan(&operation, &personTemp)
-
 		if err != nil {
 			fmt.Println("Error reading operation or tempperature", err)
 
@@ -48,7 +47,6 @@ func main() {
 	var departmentCount int
 
 	_, err := fmt.Scanln(&departmentCount)
-
 	if err != nil {
 		fmt.Println("Error reading department count:", err)
 
@@ -59,7 +57,6 @@ func main() {
 		var peopleCount int
 
 		_, err := fmt.Scanln(&peopleCount)
-
 		if err != nil {
 			fmt.Println("Error reading people count:", err)
 
