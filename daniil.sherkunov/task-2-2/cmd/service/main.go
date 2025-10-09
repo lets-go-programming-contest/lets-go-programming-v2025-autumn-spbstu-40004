@@ -33,9 +33,7 @@ func (h *MinHeap) Push(x any) {
 	if !ok {
 		return
 	}
-
 	*h = append(*h, val)
-
 }
 
 func (h *MinHeap) Pop() any {
@@ -43,7 +41,6 @@ func (h *MinHeap) Pop() any {
 	n := len(old)
 	val := old[n-1]
 	*h = old[:n-1]
-
 	return val
 }
 
@@ -51,14 +48,12 @@ func (h *MinHeap) Top() (int, bool) {
 	if len(*h) == 0 {
 		return 0, false
 	}
-
 	return (*h)[0], true
 }
 
 func makeScanner() *bufio.Scanner {
 	sc := bufio.NewScanner(os.Stdin)
 	sc.Buffer(make([]byte, 0, initBufSizeBytes), maxBufSizeBytes)
-
 	return sc
 }
 
@@ -66,7 +61,6 @@ func readLine(scanner *bufio.Scanner) (string, bool) {
 	if !scanner.Scan() {
 		return "", false
 	}
-
 	return strings.TrimSpace(scanner.Text()), true
 }
 
@@ -75,95 +69,74 @@ func readInt(scanner *bufio.Scanner) (int, bool) {
 	if !textOK {
 		return 0, false
 	}
-
 	value, err := strconv.Atoi(text)
 	if err != nil {
 		return 0, false
 	}
-
 	return value, true
 }
 
 func readNInts(scanner *bufio.Scanner, expectedCount int) ([]int, bool) {
 	collected := make([]int, 0, expectedCount)
-
 	for len(collected) < expectedCount {
 		line, lineOK := readLine(scanner)
 		if !lineOK {
 			return nil, false
 		}
-
 		tokens := strings.Fields(line)
-
 		for _, token := range tokens {
 			val, err := strconv.Atoi(token)
 			if err != nil {
 				return nil, false
 			}
-
 			collected = append(collected, val)
-
 			if len(collected) == expectedCount {
 				break
 			}
 		}
 	}
-
 	return collected, true
 }
 
 func kthLargest(values []int, kth int) (int, bool) {
 	minHeap := &MinHeap{}
 	heap.Init(minHeap)
-
 	for _, value := range values {
 		if minHeap.Len() < kth {
 			heap.Push(minHeap, value)
-
 			continue
 		}
-
 		top, _ := minHeap.Top()
-
 		if value > top {
 			heap.Pop(minHeap)
 			heap.Push(minHeap, value)
 		}
 	}
-
 	result, ok := minHeap.Top()
 	if !ok {
 		return 0, false
 	}
-
 	return result, true
 }
 
 func main() {
 	scanner := makeScanner()
-
 	numbersCount, numbersCountOK := readInt(scanner)
 	if !numbersCountOK || numbersCount < 1 {
 		return
 	}
-
 	values, valuesOK := readNInts(scanner, numbersCount)
-
 	if !valuesOK {
 		return
 	}
-
 	kth, kthOK := readInt(scanner)
-
 	if !kthOK || kth < 1 || kth > numbersCount {
 		return
 	}
-
 	answer, answerOK := kthLargest(values, kth)
 	if !answerOK {
 		return
 	}
-
 	if _, err := fmt.Println(answer); err != nil {
 		_ = err
 	}
