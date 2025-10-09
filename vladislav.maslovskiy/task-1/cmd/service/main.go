@@ -3,40 +3,39 @@ package main
 import "fmt"
 
 func main() {
-	var firstNum, secondNum, result int
-	var operator string
-	_, err := fmt.Scanln(&firstNum)
+	var firstNumber, secondNumber, res int
+	var operand string
+	_, err := fmt.Scanln(&firstNumber)
 	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
-	_, err = fmt.Scanln(&secondNum)
+	_, err = fmt.Scanln(&secondNumber)
 	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
-	_, err = fmt.Scanln(&operator)
+	_, err = fmt.Scanln(&operand)
 	if err != nil {
 		fmt.Println("Invalid operation")
 		return
 	}
-	switch operator {
+	switch operand {
 	case "+":
-		result = firstNum + secondNum
+		res = firstNumber + secondNumber
 	case "-":
-		result = firstNum - secondNum
+		res = firstNumber - secondNumber
 	case "/":
-		if secondNum == 0 {
+		if secondNumber == 0 {
 			fmt.Println("Division by zero")
 			return
 		}
-		result = firstNum / secondNum
+		res = firstNumber / secondNumber
 	case "*":
-		result = firstNum * secondNum
+		res = firstNumber * secondNumber
 	default:
 		fmt.Println("Invalid operation")
 		return
 	}
-	fmt.Println(result)
+	fmt.Println(res)
 }
-
