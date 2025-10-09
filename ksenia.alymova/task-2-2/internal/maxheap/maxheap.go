@@ -23,6 +23,10 @@ func (maxHeap *MaxHeap) Push(value any) {
 
 func (maxHeap *MaxHeap) Pop() any {
 	oldLen := len(*maxHeap)
+	if oldLen == 0 {
+		return nil
+	}
+
 	returnValue := (*maxHeap)[oldLen-1]
 	*maxHeap = (*maxHeap)[:oldLen-1]
 
