@@ -30,6 +30,7 @@ func printOptimalTemperature(employeesCount int) {
 
 			continue
 		}
+
 		if temperature < minTemperature || temperature > maxTemperature {
 			fmt.Println("Unsupported temperature value!")
 
