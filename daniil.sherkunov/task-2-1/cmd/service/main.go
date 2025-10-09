@@ -38,6 +38,7 @@ func readConstraint(scanner *bufio.Scanner) (string, int, bool) {
 
 	line := strings.TrimSpace(scanner.Text())
 	fields := strings.Fields(line)
+
 	if len(fields) != expectedFieldsPerLine {
 		return "", 0, false
 	}
@@ -85,7 +86,9 @@ func main() {
 		}
 	}()
 
-	for departmentIndex := 0; departmentIndex < departmentsCount; departmentIndex++ {
+	for departmentIndex := range departmentsCount {
+		_ = departmentIndex
+
 		employeesCount, readOK := readInt(scanner)
 		if !readOK || employeesCount < 1 {
 			return
@@ -94,7 +97,9 @@ func main() {
 		lowerBound := defaultMinTemperature
 		upperBound := defaultMaxTemperature
 
-		for employeeIndex := 0; employeeIndex < employeesCount; employeeIndex++ {
+		for employeeIndex := range employeesCount {
+			_ = employeeIndex
+
 			operatorToken, operatorValue, okConstraint := readConstraint(scanner)
 			if !okConstraint {
 				return
@@ -102,6 +107,7 @@ func main() {
 
 			var okApply bool
 			lowerBound, upperBound, okApply = applyConstraint(lowerBound, upperBound, operatorToken, operatorValue)
+
 			if !okApply {
 				return
 			}
