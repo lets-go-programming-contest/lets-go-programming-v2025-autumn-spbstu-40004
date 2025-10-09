@@ -13,25 +13,32 @@ type TempUpdater struct {
 }
 
 func NewTempUpdater() *TempUpdater {
+	const (
+		lowerBorder = 15
+		upperBorder = 30
+	)
+
 	return &TempUpdater{
-		minTemp: 15,
-		maxTemp: 30,
+		minTemp: lowerBorder,
+		maxTemp: upperBorder,
 	}
 }
 
 func (tempUpd *TempUpdater) Update(cmpOperator string, temp uint) error {
 	switch cmpOperator {
 	case ">=":
-		if temp > tempUpd.maxTemp {
-			return ErrTempOutOfRange
-		} else if temp > tempUpd.minTemp {
+		if temp > tempUpd.minTemp {
 			tempUpd.minTemp = temp
 		}
+		if temp > tempUpd.maxTemp {
+			return ErrTempOutOfRange
+		}
 	case "<=":
+		if temp < tempUpd.maxTemp {
+			tempUpd.maxTemp = temp
+		}
 		if temp < tempUpd.minTemp {
 			return ErrTempOutOfRange
-		} else if temp < tempUpd.maxTemp {
-			tempUpd.maxTemp = temp
 		}
 	default:
 		return ErrInvalidCmpOperator
