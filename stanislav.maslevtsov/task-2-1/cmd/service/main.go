@@ -1,62 +1,32 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+
+	"github.com/jambii1/task-2-1/internal/tempupdater"
 )
 
-var ErrInvalidCmpOperator = errors.New("invalid compare operator")
-
-func setBorders(leftBorder uint, rightBorder uint, cmpOperator string, newBorder uint) (uint, uint, error) {
-	switch cmpOperator {
-	case ">=":
-		if newBorder > rightBorder {
-			return 0, 0, nil
-		} else if newBorder > leftBorder {
-			leftBorder = newBorder
-		}
-	case "<=":
-		if newBorder < leftBorder {
-			return 0, 0, nil
-		} else if newBorder < rightBorder {
-			rightBorder = newBorder
-		}
-	default:
-		return 0, 0, ErrInvalidCmpOperator
-	}
-
-	return leftBorder, rightBorder, nil
-}
-
 func main() {
-	const (
-		lowerBorder = 15
-		upperBorder = 30
-	)
-
 	var (
 		departmentNum uint
 		employeeNum   uint
-		leftBorder    uint
-		rightBorder   uint
 		cmpOperator   string
 		newBorder     uint
 	)
 
 	_, err := fmt.Scan(&departmentNum)
 	if err != nil {
-		fmt.Println("Error: invalid department number")
+		fmt.Println(err)
 
 		return
 	}
 
 	for range departmentNum {
-		leftBorder = lowerBorder
-		rightBorder = upperBorder
+		tempUpd := tempupdater.NewTempUpdater()
 
 		_, err = fmt.Scan(&employeeNum)
 		if err != nil {
-			fmt.Println("invalid employee number")
+			fmt.Println(err)
 
 			return
 		}
@@ -64,22 +34,16 @@ func main() {
 		for range employeeNum {
 			_, err = fmt.Scan(&cmpOperator, &newBorder)
 			if err != nil {
-				fmt.Println("invalid temperature border")
-
-				return
-			}
-
-			leftBorder, rightBorder, err = setBorders(leftBorder, rightBorder, cmpOperator, newBorder)
-			if err != nil {
 				fmt.Println(err)
 
 				return
 			}
 
-			if leftBorder == 0 {
-				fmt.Println(-1)
+			err := tempUpd.Update(cmpOperator, newBorder)
+			if err != nil {
+				fmt.Println(err)
 			} else {
-				fmt.Println(leftBorder)
+				fmt.Println(tempUpd.GetCurrentTemp())
 			}
 		}
 	}
