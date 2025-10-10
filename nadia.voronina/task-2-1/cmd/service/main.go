@@ -15,6 +15,8 @@ func processCondition(maxDegree *int, minDegree *int, degree int, sign string) {
 		case (*maxDegree <= degree) && (*minDegree <= degree):
 			fmt.Println(*minDegree)
 		default:
+			*maxDegree = 0
+			*minDegree = 0
 			fmt.Println(-1)
 		}
 	case ">=":
@@ -23,6 +25,8 @@ func processCondition(maxDegree *int, minDegree *int, degree int, sign string) {
 
 			fmt.Println(*minDegree)
 		} else {
+			*maxDegree = 0
+			*minDegree = 0
 			fmt.Println(-1)
 		}
 	default:
