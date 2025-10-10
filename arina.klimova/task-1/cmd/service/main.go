@@ -14,13 +14,13 @@ func main() {
 		fmt.Println("Invalid first operand")
 		return
 	}
-	_, err := fmt.Scanln(&b)
+	_, err = fmt.Scanln(&b)
 	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
-	_, err3 := fmt.Scanln(&operation)
-	if err3 != nil {
+	_, err = fmt.Scanln(&operation)
+	if err != nil {
 		fmt.Println("Invalid operation")
 		return
 	}
