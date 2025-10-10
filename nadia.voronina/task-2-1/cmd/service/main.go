@@ -10,11 +10,11 @@ func main() {
 	_, errN := fmt.Scanln(&numberOfDepartments)
 	if errN != nil {
 		fmt.Println("Invalid number of departments")
+
 		return
 	}
 
 	for range numberOfDepartments {
-
 		_, errK := fmt.Scanln(&numberOfEmployees)
 		if errK != nil {
 			fmt.Println("Invalid number of employees")
@@ -26,7 +26,6 @@ func main() {
 		minDegree := 14
 
 		for range numberOfEmployees {
-
 			var sign string
 
 			var degree int
@@ -44,15 +43,18 @@ func main() {
 
 				return
 			}
+
 			switch sign {
 			case "<=":
-				if (maxDegree >= degree) && (minDegree <= degree) {
+
+				switch {
+				case (maxDegree >= degree) && (minDegree <= degree):
 					maxDegree = degree
 
 					fmt.Println(minDegree)
-				} else if (maxDegree <= degree) && (minDegree <= degree) {
+				case (maxDegree <= degree) && (minDegree <= degree):
 					fmt.Println(minDegree)
-				} else {
+				default:
 					fmt.Println(-1)
 				}
 			case ">=":
