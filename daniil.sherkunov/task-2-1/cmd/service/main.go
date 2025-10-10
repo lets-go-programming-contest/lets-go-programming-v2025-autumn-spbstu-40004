@@ -41,6 +41,7 @@ func (t *TemperatureController) Apply(operatorToken string, operatorValue int) e
 	default:
 		return errInvalidOperator
 	}
+
 	return nil
 }
 
@@ -48,6 +49,7 @@ func (t *TemperatureController) Current() (int, bool) {
 	if t.lower > t.upper {
 		return 0, false
 	}
+
 	return t.lower, true
 }
 
@@ -55,11 +57,14 @@ func readInt(scanner *bufio.Scanner) (int, bool) {
 	if !scanner.Scan() {
 		return 0, false
 	}
+
 	text := strings.TrimSpace(scanner.Text())
+
 	value, convErr := strconv.Atoi(text)
 	if convErr != nil {
 		return 0, false
 	}
+
 	return value, true
 }
 
@@ -67,16 +72,21 @@ func readConstraint(scanner *bufio.Scanner) (string, int, bool) {
 	if !scanner.Scan() {
 		return "", 0, false
 	}
+
 	line := strings.TrimSpace(scanner.Text())
+
 	fields := strings.Fields(line)
 	if len(fields) != expectedFieldsPerLine {
 		return "", 0, false
 	}
+
 	operatorToken := fields[0]
+
 	operatorValue, convErr := strconv.Atoi(fields[1])
 	if convErr != nil {
 		return "", 0, false
 	}
+
 	return operatorToken, operatorValue, true
 }
 
@@ -120,6 +130,7 @@ func main() {
 			}
 
 			value, okCurrent := ctrl.Current()
+
 			out := -1
 			if okCurrent {
 				out = value
