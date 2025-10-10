@@ -5,15 +5,17 @@ import (
 )
 
 func main() {
-	var a, b int
-	var operation string
-	_, err1 := fmt.Scanln(&a)
-	if err1 != nil {
+	var (
+		a, b      int
+		operation string
+	)
+	_, err := fmt.Scanln(&a)
+	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
-	_, err2 := fmt.Scanln(&b)
-	if err2 != nil {
+	_, err := fmt.Scanln(&b)
+	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
