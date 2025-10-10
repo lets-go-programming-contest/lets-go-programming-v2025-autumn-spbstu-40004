@@ -15,7 +15,9 @@ func (h *MinHeap) Push(x any) {
 	if !ok {
 		panic("kmax: Push non-int")
 	}
-	*h = append(*h, v)
+
+	buf := append(*h, v)
+	*h = buf
 }
 
 func (h *MinHeap) Pop() any {
@@ -23,9 +25,11 @@ func (h *MinHeap) Pop() any {
 	if len(old) == 0 {
 		panic("kmax: Pop from empty heap")
 	}
+
 	n := len(old)
 	v := old[n-1]
 	*h = old[:n-1]
+
 	return v
 }
 
@@ -33,26 +37,33 @@ func (h *MinHeap) Top() (int, bool) {
 	if len(*h) == 0 {
 		return 0, false
 	}
+
 	return (*h)[0], true
 }
 
 func KthLargest(values []int, kth int) (int, bool) {
-	mh := &MinHeap{}
-	heap.Init(mh)
+	minHeap := &MinHeap{}
+	heap.Init(minHeap)
+
 	for _, value := range values {
-		if mh.Len() < kth {
-			heap.Push(mh, value)
+		if minHeap.Len() < kth {
+			heap.Push(minHeap, value)
+
 			continue
 		}
-		top, _ := mh.Top()
+
+		top, _ := minHeap.Top()
+
 		if value > top {
-			heap.Pop(mh)
-			heap.Push(mh, value)
+			heap.Pop(minHeap)
+			heap.Push(minHeap, value)
 		}
 	}
-	res, ok := mh.Top()
+
+	res, ok := minHeap.Top()
 	if !ok {
 		return 0, false
 	}
+
 	return res, true
 }
