@@ -46,7 +46,6 @@ func main() {
 
 			switch sign {
 			case "<=":
-
 				switch {
 				case (maxDegree >= degree) && (minDegree <= degree):
 					maxDegree = degree
