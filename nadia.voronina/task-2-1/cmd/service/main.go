@@ -7,13 +7,14 @@ import (
 func processCondition(maxDegree *int, minDegree *int, degree int, sign string) {
 	switch sign {
 	case "<=":
-		if (*maxDegree >= degree) && (*minDegree <= degree) {
+		switch {
+		case (*maxDegree >= degree) && (*minDegree <= degree):
 			*maxDegree = degree
 
 			fmt.Println(*minDegree)
-		} else if (*maxDegree <= degree) && (*minDegree <= degree) {
+		case (*maxDegree <= degree) && (*minDegree <= degree):
 			fmt.Println(*minDegree)
-		} else {
+		default:
 			fmt.Println(-1)
 		}
 	case ">=":
@@ -30,6 +31,7 @@ func processCondition(maxDegree *int, minDegree *int, degree int, sign string) {
 		return
 	}
 }
+
 func main() {
 	var numberOfDepartments, numberOfEmployees int
 
@@ -69,6 +71,7 @@ func main() {
 
 				return
 			}
+
 			processCondition(&maxDegree, &minDegree, degree, sign)
 		}
 	}
