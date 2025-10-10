@@ -4,10 +4,10 @@ import "fmt"
 
 func main() {
 	var (
-		firstNumber int
+		firstNumber  int
 		secondNumber int
-		result int
-		operator string
+		result       int
+		operator     string
 	)
 
 	_, err := fmt.Scanln(&firstNumber)
