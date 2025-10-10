@@ -4,9 +4,14 @@ import (
 	"fmt"
 )
 
+const (
+	minimalTemp = 15
+	maximalTemp = 30
+)
+
 func findTemperature(peopleCount int) {
-	minTemp := 15
-	maxTemp := 30
+	minTemp := minimalTemp
+	maxTemp := maximalTemp
 
 	for range peopleCount {
 		var operation string
