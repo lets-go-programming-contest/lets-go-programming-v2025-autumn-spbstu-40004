@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/xml"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 
-	"golang.org/x/net/html/charset"
 	"gopkg.in/yaml.v2"
 )
 
@@ -24,7 +24,7 @@ const ValuteName = "Valute"
 
 type Valute struct {
 	XMLName   xml.Name `xml:"Valute"`
-	Id        []rune   `xml:"ID,attr"`
+	Id        string   `xml:"ID,attr"`
 	NumCode   int      `xml:"NumCode"`
 	CharCode  string   `xml:"CharCode"`
 	Nominal   int      `xml:"Nominal"`
@@ -32,6 +32,13 @@ type Valute struct {
 	Value     string  `xml:"Value"`
 	VunitRate string  `xml:"VunitRate"`
 }
+
+type ValuteShort struct {
+	NumCode  int `json:"num_code"`
+	CharCode   string    `json:"char_code"`
+	Value string `json:"value"`
+}
+
 
 func main() {
 	var fileDir string
@@ -63,7 +70,6 @@ func main() {
 	defer valuteCurs.Close()
 
 	parser := xml.NewDecoder(valuteCurs)
-	parser.CharsetReader = charset.NewReaderLabel
 
 	curs := new(ValCurs)
 
@@ -73,10 +79,30 @@ func main() {
 			if se.Name.Local == ValuteName {
 				var item Valute
 				parser.DecodeElement(&item, &se)
-				//fmt.Println("Id: " + item.Name)
 				curs.Valutes = append(curs.Valutes, item)
-				fmt.Println(item.Id)
 			}
 		}
 	}
+
+	var cursTemp[] ValuteShort
+
+	for _, value := range curs.Valutes {
+
+		valTemp := ValuteShort {
+			NumCode: value.NumCode,
+			CharCode: value.CharCode,
+			Value: value.Value,
+		}
+
+		cursTemp = append(cursTemp, valTemp)
+	}
+
+	jsonData, err := json.MarshalIndent(cursTemp, "", "  ")
+	if err != nil {
+		fmt.Println("bruh")
+
+		return
+	}
+
+	fmt.Println(string(jsonData))
 }
