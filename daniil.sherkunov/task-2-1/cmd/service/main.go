@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -15,6 +16,44 @@ const (
 	scannerMaxBufSizeBytes  = 1 << 20
 	expectedFieldsPerLine   = 2
 )
+
+var (
+	errInvalidOperator = errors.New("invalid operator")
+)
+
+type TemperatureController struct {
+	lower int
+	upper int
+}
+
+func NewTemperatureController(minT, maxT int) *TemperatureController {
+	return &TemperatureController{lower: minT, upper: maxT}
+}
+
+func (t *TemperatureController) Apply(operatorToken string, operatorValue int) error {
+	switch operatorToken {
+	case ">=", "≥":
+		if operatorValue > t.lower {
+			t.lower = operatorValue
+		}
+	case "<=", "≤":
+		if operatorValue < t.upper {
+			t.upper = operatorValue
+		}
+	default:
+		return errInvalidOperator
+	}
+
+	return nil
+}
+
+func (t *TemperatureController) Current() (int, bool) {
+	if t.lower > t.upper {
+		return 0, false
+	}
+
+	return t.lower, true
+}
 
 func readInt(scanner *bufio.Scanner) (int, bool) {
 	if !scanner.Scan() {
@@ -53,23 +92,6 @@ func readConstraint(scanner *bufio.Scanner) (string, int, bool) {
 	return operatorToken, operatorValue, true
 }
 
-func applyConstraint(lowerBound, upperBound int, operatorToken string, operatorValue int) (int, int, bool) {
-	switch operatorToken {
-	case ">=", "≥":
-		if operatorValue > lowerBound {
-			lowerBound = operatorValue
-		}
-	case "<=", "≤":
-		if operatorValue < upperBound {
-			upperBound = operatorValue
-		}
-	default:
-		return lowerBound, upperBound, false
-	}
-
-	return lowerBound, upperBound, true
-}
-
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 0, scannerInitBufSizeBytes), scannerMaxBufSizeBytes)
@@ -94,8 +116,7 @@ func main() {
 			return
 		}
 
-		lowerBound := defaultMinTemperature
-		upperBound := defaultMaxTemperature
+		ctrl := NewTemperatureController(defaultMinTemperature, defaultMaxTemperature)
 
 		for employeeIndex := range employeesCount {
 			_ = employeeIndex
@@ -105,18 +126,17 @@ func main() {
 				return
 			}
 
-			var okApply bool
-			lowerBound, upperBound, okApply = applyConstraint(lowerBound, upperBound, operatorToken, operatorValue)
+			applyErr := ctrl.Apply(operatorToken, operatorValue)
 
-			if !okApply {
+			if applyErr != nil {
 				return
 			}
 
-			var out int
-			if lowerBound > upperBound {
-				out = -1
-			} else {
-				out = lowerBound
+			value, okCurrent := ctrl.Current()
+
+			out := -1
+			if okCurrent {
+				out = value
 			}
 
 			if _, err := fmt.Fprintln(writer, out); err != nil {
