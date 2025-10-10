@@ -5,6 +5,12 @@ import (
 )
 
 func processCondition(maxDegree *int, minDegree *int, degree int, sign string) {
+	if *minDegree == 0 && *maxDegree == 0 {
+		fmt.Println(-1)
+
+		return
+	}
+
 	switch sign {
 	case "<=":
 		switch {
