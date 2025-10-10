@@ -4,6 +4,35 @@ import (
 	"fmt"
 )
 
+func processLessEq(maxDegree *int, minDegree *int, degree int) {
+	switch {
+	case (*maxDegree >= degree) && (*minDegree <= degree):
+		*maxDegree = degree
+
+		fmt.Println(*minDegree)
+	case (*maxDegree <= degree) && (*minDegree <= degree):
+		fmt.Println(*minDegree)
+	default:
+		*maxDegree = 0
+		*minDegree = 0
+
+		fmt.Println(-1)
+	}
+}
+
+func processGreaterEq(maxDegree *int, minDegree *int, degree int) {
+	if (*minDegree <= degree) && (*maxDegree >= degree) {
+		*minDegree = degree
+
+		fmt.Println(*minDegree)
+	} else {
+		*maxDegree = 0
+		*minDegree = 0
+
+		fmt.Println(-1)
+	}
+}
+
 func processCondition(maxDegree *int, minDegree *int, degree int, sign string) {
 	if *minDegree == 0 && *maxDegree == 0 {
 		fmt.Println(-1)
@@ -13,30 +42,9 @@ func processCondition(maxDegree *int, minDegree *int, degree int, sign string) {
 
 	switch sign {
 	case "<=":
-		switch {
-		case (*maxDegree >= degree) && (*minDegree <= degree):
-			*maxDegree = degree
-
-			fmt.Println(*minDegree)
-		case (*maxDegree <= degree) && (*minDegree <= degree):
-			fmt.Println(*minDegree)
-		default:
-			*maxDegree = 0
-			*minDegree = 0
-
-			fmt.Println(-1)
-		}
+		processLessEq(maxDegree, minDegree, degree)
 	case ">=":
-		if (*minDegree <= degree) && (*maxDegree >= degree) {
-			*minDegree = degree
-
-			fmt.Println(*minDegree)
-		} else {
-			*maxDegree = 0
-			*minDegree = 0
-
-			fmt.Println(-1)
-		}
+		processGreaterEq(maxDegree, minDegree, degree)
 	default:
 		fmt.Println("Wrong sign has been added")
 
