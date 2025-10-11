@@ -1,4 +1,4 @@
-package config_handler
+package internal
 
 import (
 	"os"
@@ -6,18 +6,18 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type ConfigurationFile struct {
+type configurationFile struct {
 	InputFile  string `yaml:"input-file"`
 	OutputFile string `yaml:"output-file"`
 }
 
-func LoadConfig(configFilePath string) (*ConfigurationFile, error) {
+func LoadConfig(configFilePath string) (*configurationFile, error) {
 	file, err := os.ReadFile(configFilePath)
 	if err != nil {
 		return nil, err
 	}
 
-	var configFile ConfigurationFile
+	var configFile configurationFile
 	if err = yaml.Unmarshal(file, &configFile); err != nil {
 		return nil, err
 	}
