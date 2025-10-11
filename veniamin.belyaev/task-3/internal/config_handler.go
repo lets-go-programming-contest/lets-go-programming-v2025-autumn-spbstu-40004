@@ -1,7 +1,6 @@
 package config_handler
 
 import (
-	"flag"
 	"os"
 
 	yaml "gopkg.in/yaml.v3"
@@ -12,12 +11,7 @@ type ConfigurationFile struct {
 	OutputFile string `yaml:"output-file"`
 }
 
-func loadConfig() (*ConfigurationFile, error) {
-	var configFilePath string
-
-	flag.StringVar(&configFilePath, "config", "none", "Configuration file path")
-	flag.Parse()
-
+func LoadConfig(configFilePath string) (*ConfigurationFile, error) {
 	file, err := os.ReadFile(configFilePath)
 	if err != nil {
 		return nil, err
