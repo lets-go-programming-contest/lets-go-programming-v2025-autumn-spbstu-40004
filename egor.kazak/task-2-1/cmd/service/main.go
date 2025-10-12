@@ -6,20 +6,25 @@ import (
 )
 
 func main() {
-	var count, constraints int
+	var count int
 
-	_, err := fmt.Scan(&count, &constraints)
+	_, err := fmt.Scan(&count)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for range count {
+		var constraints int
+		_, err := fmt.Scan(&constraints)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		minTemp := 15
 		maxTemp := 30
 
 		for range constraints {
 			var operator string
-
 			var temperature int
 
 			_, err := fmt.Scan(&operator, &temperature)
