@@ -9,49 +9,70 @@ const (
 	maxTemp = 30
 )
 
-func changeMaxBound(minTempBound, maxTempBound *int, currTemp int) {
-	if *minTempBound == -1 {
-		return
-	}
+type TemperatureController struct {
+	minBound int
+	maxBound int
+}
 
-	if currTemp < *minTempBound {
-		*minTempBound = -1
-
-		return
-	}
-
-	if currTemp <= *maxTempBound {
-		*maxTempBound = currTemp
+func newTemperatureController() *TemperatureController {
+	return &TemperatureController{
+		minBound: minTemp,
+		maxBound: maxTemp,
 	}
 }
 
-func changeMinBound(minTempBound, maxTempBound *int, currTemp int) {
-	if *minTempBound == -1 {
+func (tempcontr *TemperatureController) changeMaxBound(currTemp int) {
+	if tempcontr.minBound == -1 {
 		return
 	}
 
-	if currTemp > *maxTempBound {
-		*minTempBound = -1
+	if currTemp < tempcontr.minBound {
+		tempcontr.minBound = -1
 
 		return
 	}
 
-	if currTemp >= *minTempBound {
-		*minTempBound = currTemp
+	if currTemp <= tempcontr.maxBound {
+		tempcontr.maxBound = currTemp
 	}
 }
 
-func findOptimalTemp(minTempBound, maxTempBound *int, currTemp int, sign string) {
+func (tempcontr *TemperatureController) changeMinBound(currTemp int) {
+	if tempcontr.minBound == -1 {
+		return
+	}
+
+	if currTemp > tempcontr.maxBound {
+		tempcontr.minBound = -1
+
+		return
+	}
+
+	if currTemp >= tempcontr.minBound {
+		tempcontr.minBound = currTemp
+	}
+}
+
+func (tempcontr *TemperatureController) findOptimalTemp(currTemp int, sign string) {
 	switch sign {
 	case ">=":
-		changeMinBound(minTempBound, maxTempBound, currTemp)
+		tempcontr.changeMinBound(currTemp)
 	case "<=":
-		changeMaxBound(minTempBound, maxTempBound, currTemp)
+		tempcontr.changeMaxBound(currTemp)
 	default:
 		fmt.Println("Wrong input")
 
 		return
 	}
+}
+
+func (tempcontr *TemperatureController) getTemperature() int {
+	if tempcontr.minBound == -1 || tempcontr.minBound > tempcontr.maxBound {
+		return -1
+	}
+
+	// Оптимальная температура - минимальная из допустимых
+	return tempcontr.minBound
 }
 
 func main() {
@@ -75,8 +96,7 @@ func main() {
 			return
 		}
 
-		minTempBound := minTemp
-		maxTempBound := maxTemp
+		controller := newTemperatureController()
 
 		for j := 1; j <= numOfWorkers; j++ {
 			_, err = fmt.Scanln(&sign, &currTemp)
@@ -86,8 +106,9 @@ func main() {
 				return
 			}
 
-			findOptimalTemp(&minTempBound, &maxTempBound, currTemp, sign)
-			fmt.Println(minTempBound)
+			controller.findOptimalTemp(currTemp, sign)
+			optimalTemp := controller.getTemperature()
+			fmt.Println(optimalTemp)
 		}
 	}
 }
