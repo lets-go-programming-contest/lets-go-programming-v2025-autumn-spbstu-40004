@@ -9,7 +9,6 @@ func main() {
   var count, constraints int
 
   _, err := fmt.Scan(&count, &constraints)
-
   if err != nil {
     log.Fatal(err)
   }
@@ -26,7 +25,6 @@ func main() {
       var temperature int
 
       _, err := fmt.Scan(&operator, &temperature)
-
       if err != nil {
         log.Fatal(err)
       }
