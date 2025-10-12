@@ -14,11 +14,8 @@ func main() {
 	}
 
 	for range count {
-		const minTemp = 15
-		currentMin := minTemp
-
-		const maxTemp = 30
-		currentMax := maxTemp
+		minTemp := 15
+		maxTemp := 30
 
 		for range constraints {
 			var operator string
@@ -32,20 +29,20 @@ func main() {
 
 			switch operator {
 			case ">=":
-				if temperature > currentMin {
-					currentMin = temperature
+				if temperature > minTemp {
+					minTemp = temperature
 				}
 			case "<=":
-				if temperature < currentMax {
-					currentMax = temperature
+				if temperature < maxTemp {
+					maxTemp = temperature
 				}
 			}
+		}
 
-			if currentMin <= currentMax {
-				fmt.Println(currentMin)
-			} else {
-				fmt.Println(-1)
-			}
+		if minTemp <= maxTemp {
+			fmt.Println(minTemp)
+		} else {
+			fmt.Println(-1)
 		}
 	}
 }
