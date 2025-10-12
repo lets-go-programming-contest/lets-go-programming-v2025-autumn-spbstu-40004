@@ -13,14 +13,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for i := 0; i < count; i++ {
+	for range count {
 		const minTemp = 15
 		currentMin := minTemp
 
 		const maxTemp = 30
 		currentMax := maxTemp
 
-		for j := 0; j < constraints; j++ {
+		for range constraints {
 			var operator string
 			var temperature int
 
