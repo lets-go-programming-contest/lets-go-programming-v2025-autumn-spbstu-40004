@@ -1,40 +1,48 @@
+go
 package main
 
 import (
-	"fmt"
+  "fmt"
+  "log"
 )
 
 func main() {
-	var N, K int
-	fmt.Scan(&N, &K)
+  var count, constraints int
+  _, err := fmt.Scan(&count, &constraints)
+  if err != nil {
+    log.Fatal(err)
+  }
 
-	for i := 0; i < N; i++ {
-		const min_T = 15
-		min_t := 15
-		const max_T = 30
-		max_t := 30
+  for i := 0; i < count; i++ {
+    const minTemp = 15
+    currentMin := minTemp
+    const maxTemp = 30
+    currentMax := maxTemp
 
-		for j := 0; j < K; j++ {
-			var op string
-			var t int
-			fmt.Scan(&op, &t)
+    for j := 0; j < constraints; j++ {
+      var operator string
+      var temperature int
+      _, err := fmt.Scan(&operator, &temperature)
+      if err != nil {
+        log.Fatal(err)
+      }
 
-			switch op {
-			case ">=":
-				if t > min_t {
-					min_t = t
-				}
-			case "<=":
-				if t < max_t {
-					max_t = t
-				}
-			}
+      switch operator {
+      case ">=":
+        if temperature > currentMin {
+          currentMin = temperature
+        }
+      case "<=":
+        if temperature < currentMax {
+          currentMax = temperature
+        }
+      }
 
-			if min_t <= max_t {
-				fmt.Println(min_t)
-			} else if min_t >= max_t || t <= min_T || t >= max_T {
-				fmt.Println(-1)
-			}
-		}
-	}
+      if currentMin <= currentMax {
+        fmt.Println(currentMin)
+      } else {
+        fmt.Println(-1)
+      }
+    }
+  }
 }
