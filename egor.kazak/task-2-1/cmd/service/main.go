@@ -15,6 +15,7 @@ func main() {
 
 	for range count {
 		var constraints int
+
 		_, err := fmt.Scan(&constraints)
 		if err != nil {
 			log.Fatal(err)
@@ -25,7 +26,6 @@ func main() {
 
 		for range constraints {
 			var operator string
-			
 			var temperature int
 
 			_, err := fmt.Scan(&operator, &temperature)
