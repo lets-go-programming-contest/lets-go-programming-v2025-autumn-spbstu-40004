@@ -7,6 +7,7 @@ import (
 
 func main() {
   var count, constraints int
+
   _, err := fmt.Scan(&count, &constraints)
   if err != nil {
     log.Fatal(err)
@@ -15,12 +16,14 @@ func main() {
   for i := 0; i < count; i++ {
     const minTemp = 15
     currentMin := minTemp
+
     const maxTemp = 30
     currentMax := maxTemp
 
     for j := 0; j < constraints; j++ {
       var operator string
       var temperature int
+
       _, err := fmt.Scan(&operator, &temperature)
       if err != nil {
         log.Fatal(err)
