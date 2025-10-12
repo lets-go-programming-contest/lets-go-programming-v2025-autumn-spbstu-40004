@@ -25,7 +25,10 @@ func main() {
 		maxTemp := 30
 
 		for range constraints {
-			var operator string, temperature int
+			var (
+				operator string
+				temperature int
+			)
 
 			_, err := fmt.Scan(&operator, &temperature)
 			if err != nil {
