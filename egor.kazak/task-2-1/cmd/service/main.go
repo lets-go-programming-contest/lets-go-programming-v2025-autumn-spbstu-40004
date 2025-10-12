@@ -26,7 +26,7 @@ func main() {
 
 		for range constraints {
 			var (
-				operator string
+				operator    string
 				temperature int
 			)
 
