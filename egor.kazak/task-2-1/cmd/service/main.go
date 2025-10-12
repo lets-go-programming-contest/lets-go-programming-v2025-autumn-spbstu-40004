@@ -25,6 +25,7 @@ func main() {
 
 		for range constraints {
 			var operator string
+			
 			var temperature int
 
 			_, err := fmt.Scan(&operator, &temperature)
