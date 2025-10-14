@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ysffmn/task-2-2/internal/intmaxheap"
+	intmaxheap "github.com/ysffmn/task-2-2/internal/intMaxHeap"
 )
 
 var errInput = errors.New("incorrect input")
