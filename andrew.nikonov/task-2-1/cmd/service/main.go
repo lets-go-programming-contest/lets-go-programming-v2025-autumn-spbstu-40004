@@ -1,18 +1,52 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 const (
-	minTemp = 15
-	maxTemp = 30
+	minAllowedTemp = 15
+	maxAllowedTemp = 30
+)
+
+type Temperature struct {
+	minTemp int
+	maxTemp int
+}
+
+func (t *Temperature) adjustTemperature(operator string, val int) error {
+	switch operator {
+	case "<=":
+		t.maxTemp = min(t.maxTemp, val)
+
+		return nil
+	case ">=":
+		t.minTemp = max(t.minTemp, val)
+
+		return nil
+	default:
+		return errOperator
+	}
+}
+
+func (t *Temperature) getOptimalTemperature() int {
+	if t.minTemp > t.maxTemp {
+		return -1
+	} else {
+		return t.minTemp
+	}
+}
+
+var (
+	errDataFormat = errors.New("invalid temperature data")
+	errOperator   = errors.New("invalid operator")
+	errDepNumber  = errors.New("invalid departments number")
+	errEmplNumber = errors.New("invalid employee number")
 )
 
 func processDep(emplQuantity int) {
-	var (
-		minDepTemp = minTemp
-		maxDepTemp = maxTemp
-	)
-
+	depTemperature := Temperature{minTemp: minAllowedTemp, maxTemp: maxAllowedTemp}
 	for range emplQuantity {
 		var (
 			operator string
@@ -20,28 +54,20 @@ func processDep(emplQuantity int) {
 		)
 
 		_, err := fmt.Scanln(&operator, &temp)
-		if err != nil || temp < minTemp || temp > maxTemp {
-			fmt.Println("Invalid temperature data")
+		if err != nil || temp < minAllowedTemp || temp > maxAllowedTemp {
+			fmt.Println(errDataFormat)
 
 			return
 		}
 
-		switch operator {
-		case "<=":
-			maxDepTemp = min(maxDepTemp, temp)
-		case ">=":
-			minDepTemp = max(minDepTemp, temp)
-		default:
-			fmt.Println("Invalid operator")
+		err = depTemperature.adjustTemperature(operator, temp)
+		if err != nil {
+			fmt.Println(err)
 
 			return
 		}
 
-		if minDepTemp > maxDepTemp {
-			fmt.Println("-1")
-		} else {
-			fmt.Println(minDepTemp)
-		}
+		fmt.Println(depTemperature.getOptimalTemperature())
 	}
 }
 
@@ -50,7 +76,7 @@ func main() {
 
 	_, err := fmt.Scanln(&depQuantity)
 	if err != nil || depQuantity == 0 || depQuantity > 1000 {
-		fmt.Println("Invalid departments number")
+		fmt.Println(errDepNumber)
 
 		return
 	}
@@ -58,7 +84,7 @@ func main() {
 	for range depQuantity {
 		_, err := fmt.Scanln(&emplQuantity)
 		if err != nil || emplQuantity == 0 || emplQuantity > 1000 {
-			fmt.Println("Invalid employee number")
+			fmt.Println(errEmplNumber)
 
 			return
 		}
