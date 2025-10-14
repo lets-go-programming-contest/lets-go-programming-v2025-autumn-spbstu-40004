@@ -46,8 +46,8 @@ func main() {
 	}
 
 	for range preferredNum - 1 {
-		dishesHeap.Pop()
+		heap.Pop(dishesHeap)
 	}
 
-	fmt.Println(dishesHeap.Pop())
+	fmt.Println(heap.Pop(dishesHeap))
 }
