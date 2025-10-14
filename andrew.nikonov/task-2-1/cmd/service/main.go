@@ -49,7 +49,6 @@ func processDep(emplQuantity int) {
 	depTemperature := Temperature{minTemp: minAllowedTemp, maxTemp: maxAllowedTemp}
 
 	for range emplQuantity {
-
 		var (
 			operator string
 			temp     int
