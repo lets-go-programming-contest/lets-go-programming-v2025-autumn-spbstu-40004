@@ -1,6 +1,7 @@
-package config_parser
+package configparser
 
 import (
+	"fmt"
 	"os"
 
 	"go.yaml.in/yaml/v4"
@@ -14,14 +15,14 @@ type configRecord struct {
 func ParseConfig(configPath string) (*configRecord, error) {
 	configFile, err := os.ReadFile(configPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
-	conRec := configRecord{}
+	var conRec configRecord
 
 	err = yaml.Unmarshal(configFile, &conRec)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal yaml file: %w", err)
 	}
 
 	return &conRec, nil

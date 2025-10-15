@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jambii1/task-3/internal/config_parser"
+	"github.com/jambii1/task-3/internal/configparser"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 		panic("configuration file not set")
 	}
 
-	config, err := config_parser.ParseConfig(os.Args[2])
+	config, err := configparser.ParseConfig(os.Args[2])
 	if err != nil {
 		panic(err)
 	}
