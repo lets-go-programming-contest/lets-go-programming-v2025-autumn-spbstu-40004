@@ -4,12 +4,15 @@ import (
 	"fmt"
 )
 
+// <= degree
 func processLessEq(maxDegree *int, minDegree *int, degree int) {
 	switch {
+	// minDegree <=	degree <=	maxDegree - should move maxDegree
 	case (*maxDegree >= degree) && (*minDegree <= degree):
 		*maxDegree = degree
 
 		fmt.Println(*minDegree)
+	// minDegree	<=	maxDegree	<=	degree
 	case (*maxDegree <= degree) && (*minDegree <= degree):
 		fmt.Println(*minDegree)
 	default:
@@ -20,12 +23,17 @@ func processLessEq(maxDegree *int, minDegree *int, degree int) {
 	}
 }
 
+// >= degree
 func processGreaterEq(maxDegree *int, minDegree *int, degree int) {
-	if (*minDegree <= degree) && (*maxDegree >= degree) {
+	// minDegree <=	degree	<=	maxDegree
+	switch {
+	case ((*minDegree <= degree) && (*maxDegree >= degree)):
 		*minDegree = degree
 
 		fmt.Println(*minDegree)
-	} else {
+	case ((*minDegree >= degree) && (*maxDegree >= degree)):
+		fmt.Println(*minDegree)
+	default:
 		*maxDegree = 0
 		*minDegree = 0
 
@@ -70,8 +78,8 @@ func main() {
 			return
 		}
 
-		maxDegree := 31
-		minDegree := 14
+		maxDegree := 30
+		minDegree := 15
 
 		for range numberOfEmployees {
 			var sign string
