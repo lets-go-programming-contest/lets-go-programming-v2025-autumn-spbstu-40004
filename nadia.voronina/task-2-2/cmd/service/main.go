@@ -60,5 +60,5 @@ func main() {
 	for range numberOfDishes - preferredDish {
 		heap.Pop(&dishes)
 	}
-	fmt.Printf("%d ", heap.Pop(&dishes))
+	fmt.Printf("%d.", heap.Pop(&dishes))
 }
