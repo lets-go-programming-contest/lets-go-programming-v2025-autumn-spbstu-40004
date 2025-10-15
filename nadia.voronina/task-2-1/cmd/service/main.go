@@ -4,15 +4,12 @@ import (
 	"fmt"
 )
 
-// <= degree
 func processLessEq(maxDegree *int, minDegree *int, degree int) {
 	switch {
-	// minDegree <=	degree <=	maxDegree - should move maxDegree
 	case (*maxDegree >= degree) && (*minDegree <= degree):
 		*maxDegree = degree
 
 		fmt.Println(*minDegree)
-	// minDegree	<=	maxDegree	<=	degree
 	case (*maxDegree <= degree) && (*minDegree <= degree):
 		fmt.Println(*minDegree)
 	default:
@@ -23,9 +20,7 @@ func processLessEq(maxDegree *int, minDegree *int, degree int) {
 	}
 }
 
-// >= degree
 func processGreaterEq(maxDegree *int, minDegree *int, degree int) {
-	// minDegree <=	degree	<=	maxDegree
 	switch {
 	case ((*minDegree <= degree) && (*maxDegree >= degree)):
 		*minDegree = degree
