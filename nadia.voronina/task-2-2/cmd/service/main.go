@@ -12,7 +12,12 @@ func (h *IntHeap) Less(i, j int) bool { return (*h)[i] < (*h)[j] }
 func (h *IntHeap) Swap(i, j int)      { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
 
 func (h *IntHeap) Push(x interface{}) {
-	_ = x.(int)
+	_, err := x.(int)
+	if !err {
+		fmt.Println("Invalid type")
+
+		return
+	}
 	*h = append(*h, x.(int))
 }
 
@@ -66,5 +71,5 @@ func main() {
 		heap.Pop(&dishes)
 	}
 
-	fmt.Printf("%d.", heap.Pop(&dishes))
+	fmt.Printf("%d\n", heap.Pop(&dishes))
 }
