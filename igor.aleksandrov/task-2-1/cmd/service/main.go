@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 const (
@@ -66,17 +66,20 @@ func processEmployeesData(employeesCount int) {
 
 	for range employeesCount {
 		var comparisonSign string
+
 		var temperature int
 
 		_, err := fmt.Scan(&comparisonSign)
 		if err != nil {
 			fmt.Println(ErrInvalidComparisonSignFormat.Error())
+
 			continue
 		}
 
 		_, err = fmt.Scan(&temperature)
 		if err != nil {
 			fmt.Println(ErrInvalidTemperatureValue.Error())
+
 			continue
 		}
 
@@ -84,6 +87,7 @@ func processEmployeesData(employeesCount int) {
 
 		if err != nil {
 			fmt.Println(err.Error())
+
 			continue
 		}
 
