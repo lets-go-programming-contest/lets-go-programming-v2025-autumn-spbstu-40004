@@ -18,6 +18,13 @@ func Parse(path string) (*ConfigRecord, error) {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	var (
 		conRec  ConfigRecord
 		decoder = yaml.NewDecoder(file)
