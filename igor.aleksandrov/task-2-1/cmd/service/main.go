@@ -84,7 +84,6 @@ func processEmployeesData(employeesCount int) {
 		}
 
 		err = optimalTemp.Update(comparisonSign, temperature)
-
 		if err != nil {
 			fmt.Println(err.Error())
 
