@@ -6,4 +6,6 @@ type Currency struct {
 	Value    float32 `json:"value"     xml:"Value"`
 }
 
-type Currencies []*Currency
+type Currencies struct {
+	Data []*Currency `xml:"Valute"`
+}
