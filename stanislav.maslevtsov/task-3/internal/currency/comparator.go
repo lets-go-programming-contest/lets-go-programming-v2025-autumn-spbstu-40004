@@ -6,5 +6,6 @@ func Compare(right, left *Currency) int {
 	} else if right.Value < left.Value {
 		return 1
 	}
+
 	return 0
 }
