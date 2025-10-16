@@ -19,6 +19,7 @@ func (h *IntHeap) Push(x interface{}) {
 	if !ok {
 		log.Fatal("type assertion to int failed")
 	}
+
 	*h = append(*h, num)
 }
 
@@ -33,12 +34,14 @@ func (h *IntHeap) Pop() interface{} {
 
 func main() {
 	var dishCount, preferenceOrder int
+
 	_, err := fmt.Scan(&dishCount)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ratings := make([]int, dishCount)
+
 	for index := range ratings {
 		_, err := fmt.Scan(&ratings[index])
 		if err != nil {
@@ -59,12 +62,15 @@ func main() {
 	}
 
 	var result int
-	for range preferenceOrder {
+
+	for i := 0; i < preferenceOrder; i++ {
 		item := heap.Pop(heapInstance)
 		num, ok := item.(int)
+
 		if !ok {
 			log.Fatal("type assertion to int failed")
 		}
+
 		result = num
 	}
 
