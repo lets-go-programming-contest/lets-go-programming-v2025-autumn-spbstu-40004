@@ -1,12 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"strings"
 
-	config_handler "github.com/belyaevEDU/task-3/internal"
-	xml_parser "github.com/belyaevEDU/task-3/internal/xml_handling"
-	xml_to_json "github.com/belyaevEDU/task-3/internal/xml_handling"
+	configHandler "github.com/belyaevEDU/task-3/internal/config_handling"
+	IOHandler "github.com/belyaevEDU/task-3/internal/io_handling"
+	xmlHandler "github.com/belyaevEDU/task-3/internal/xml_handling"
 )
 
 func main() {
@@ -19,16 +20,25 @@ func main() {
 		panic("config file path via flag not specified")
 	}
 
-	config, err := config_handler.LoadConfig(configFilePath)
+	config, err := configHandler.LoadConfig(configFilePath)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	currenciesXML, err := xml_parser.ParseXML(config.InputFile)
+	currenciesXML, err := xmlHandler.ParseXML(config.InputFile)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	currenciesJSON := xml_to_json.ConvertXMLStructsToJson(*currenciesXML)
+	currenciesJSON := xmlHandler.ConvertXMLStructsToJson(*currenciesXML)
 
+	jsonMarshalled, err := json.MarshalIndent(currenciesJSON, "", "\t")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	err = IOHandler.WriteStringToFile(config.OutputFile, jsonMarshalled)
+	if err != nil {
+		panic(err.Error())
+	}
 }
