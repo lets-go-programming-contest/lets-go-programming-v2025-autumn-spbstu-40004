@@ -24,12 +24,14 @@ func processGroup(scanner *bufio.Scanner, expressionCount int) []int {
 
 		if !valid {
 			results = append(results, -1)
+
 			continue
 		}
 
 		const minPartsCount = 2
 		if len(parts) < minPartsCount {
 			results = append(results, minValue)
+
 			continue
 		}
 
@@ -38,6 +40,7 @@ func processGroup(scanner *bufio.Scanner, expressionCount int) []int {
 
 		if parseErr != nil {
 			results = append(results, minValue)
+
 			continue
 		}
 
@@ -53,6 +56,7 @@ func processGroup(scanner *bufio.Scanner, expressionCount int) []int {
 
 		if minValue > maxValue {
 			valid = false
+
 			results = append(results, -1)
 		} else {
 			results = append(results, minValue)
