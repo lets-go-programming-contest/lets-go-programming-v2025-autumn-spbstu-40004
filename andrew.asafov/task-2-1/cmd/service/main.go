@@ -8,6 +8,48 @@ import (
 	"strings"
 )
 
+func processGroup(scanner *bufio.Scanner, expressionCount int) int {
+	minValue := 15
+	maxValue := 30
+
+	for range expressionCount {
+		if !scanner.Scan() {
+			break
+		}
+
+		expression := scanner.Text()
+		parts := strings.Fields(expression)
+
+		const minPartsCount = 2
+		if len(parts) < minPartsCount {
+			continue
+		}
+
+		operator := parts[0]
+		value, parseErr := strconv.Atoi(parts[1])
+
+		if parseErr != nil {
+			continue
+		}
+
+		if operator == ">=" {
+			if value > minValue {
+				minValue = value
+			}
+		} else if operator == "<=" {
+			if value < maxValue {
+				maxValue = value
+			}
+		}
+
+		if minValue > maxValue {
+			return -1
+		}
+	}
+
+	return minValue
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -26,50 +68,8 @@ func main() {
 			continue
 		}
 
-		minValue := 15
-		maxValue := 30
-		valid := true
-
-		for range expressionCount {
-			if !scanner.Scan() {
-				break
-			}
-
-			expression := scanner.Text()
-			parts := strings.Fields(expression)
-
-			const minPartsCount = 2
-			if len(parts) < minPartsCount {
-				continue
-			}
-
-			operator := parts[0]
-			value, parseErr := strconv.Atoi(parts[1])
-
-			if parseErr != nil {
-				continue
-			}
-
-			if operator == ">=" {
-				if value > minValue {
-					minValue = value
-				}
-			} else if operator == "<=" {
-				if value < maxValue {
-					maxValue = value
-				}
-			}
-
-			if minValue > maxValue {
-				valid = false
-			}
-		}
-
-		if valid {
-			results = append(results, minValue)
-		} else {
-			results = append(results, -1)
-		}
+		result := processGroup(scanner, expressionCount)
+		results = append(results, result)
 	}
 
 	for _, result := range results {
