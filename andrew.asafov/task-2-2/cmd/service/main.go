@@ -31,7 +31,6 @@ func (h *MaxHeap) Pop() interface{} {
 func main() {
 	var dishCount, kthPreference int
 	_, err := fmt.Scan(&dishCount)
-
 	if err != nil {
 		return
 	}
@@ -39,14 +38,12 @@ func main() {
 	arr := make([]int, dishCount)
 	for i := range dishCount {
 		_, err = fmt.Scan(&arr[i])
-
 		if err != nil {
 			return
 		}
 	}
 
 	_, err = fmt.Scan(&kthPreference)
-
 	if err != nil {
 		return
 	}
