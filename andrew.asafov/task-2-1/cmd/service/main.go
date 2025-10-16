@@ -62,7 +62,6 @@ func main() {
 		scanner.Scan()
 		expressionCountText := scanner.Text()
 		expressionCount, err := strconv.Atoi(expressionCountText)
-
 		if err != nil {
 			results = append(results, -1)
 
