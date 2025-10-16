@@ -8,9 +8,11 @@ import (
 	"strings"
 )
 
-func processGroup(scanner *bufio.Scanner, expressionCount int) int {
+func processGroup(scanner *bufio.Scanner, expressionCount int) []int {
 	minValue := 15
 	maxValue := 30
+	results := make([]int, 0, expressionCount)
+	valid := true
 
 	for range expressionCount {
 		if !scanner.Scan() {
@@ -20,8 +22,14 @@ func processGroup(scanner *bufio.Scanner, expressionCount int) int {
 		expression := scanner.Text()
 		parts := strings.Fields(expression)
 
+		if !valid {
+			results = append(results, -1)
+			continue
+		}
+
 		const minPartsCount = 2
 		if len(parts) < minPartsCount {
+			results = append(results, minValue)
 			continue
 		}
 
@@ -29,6 +37,7 @@ func processGroup(scanner *bufio.Scanner, expressionCount int) int {
 		value, parseErr := strconv.Atoi(parts[1])
 
 		if parseErr != nil {
+			results = append(results, minValue)
 			continue
 		}
 
@@ -43,11 +52,14 @@ func processGroup(scanner *bufio.Scanner, expressionCount int) int {
 		}
 
 		if minValue > maxValue {
-			return -1
+			valid = false
+			results = append(results, -1)
+		} else {
+			results = append(results, minValue)
 		}
 	}
 
-	return minValue
+	return results
 }
 
 func main() {
