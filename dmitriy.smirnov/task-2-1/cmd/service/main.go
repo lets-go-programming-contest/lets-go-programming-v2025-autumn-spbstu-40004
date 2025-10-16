@@ -27,13 +27,15 @@ func main() {
 	_, err := fmt.Scan(&numDep)
 	if err != nil {
 		fmt.Println(ErrNumOfDep)
+
 		return
 	}
 
-	for i := 0; i < numDep; i++ {
+	for range numDep {
 		err := processDepartment()
 		if err != nil {
 			fmt.Println(invalidVal)
+
 			return
 		}
 	}
@@ -52,7 +54,7 @@ func processDepartment() error {
 	lowerLimit := minTemp
 	upperLimit := maxTemp
 
-	for i := 0; i < employees; i++ {
+	for range employees {
 		var (
 			operator  string
 			tempValue int
@@ -74,12 +76,12 @@ func processDepartment() error {
 		default:
 			return fmt.Errorf("%w: %s", ErrInvalidOperator, operator)
 		}
-	}
 
-	if lowerLimit <= upperLimit {
-		fmt.Println(lowerLimit, upperLimit)
-	} else {
-		fmt.Println(invalidTemp)
+		if lowerLimit <= upperLimit {
+			fmt.Println(lowerLimit)
+		} else {
+			fmt.Println(invalidTemp)
+		}
 	}
 
 	return nil
