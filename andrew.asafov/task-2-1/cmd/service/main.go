@@ -68,24 +68,20 @@ func main() {
 	scanner.Scan()
 	groupCount, _ := strconv.Atoi(scanner.Text())
 
-	results := make([]int, 0, groupCount)
-
 	for range groupCount {
 		scanner.Scan()
 		expressionCountText := scanner.Text()
 
 		expressionCount, err := strconv.Atoi(expressionCountText)
 		if err != nil {
-			results = append(results, -1)
+			fmt.Println(-1)
 
 			continue
 		}
 
-		result := processGroup(scanner, expressionCount)
-		results = append(results, result)
-	}
-
-	for _, result := range results {
-		fmt.Println(result)
+		results := processGroup(scanner, expressionCount)
+		for _, result := range results {
+			fmt.Println(result)
+		}
 	}
 }
