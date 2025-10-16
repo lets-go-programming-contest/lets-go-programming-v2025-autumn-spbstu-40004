@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	configHandler "github.com/belyaevEDU/task-3/internal/config_handling"
-	IOHandler "github.com/belyaevEDU/task-3/internal/io_handling"
+	ioHandler "github.com/belyaevEDU/task-3/internal/io_handling"
 	xmlHandler "github.com/belyaevEDU/task-3/internal/xml_handling"
 )
 
@@ -30,7 +30,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	currenciesJSON, err := xmlHandler.ConvertXMLStructsToJson(*currenciesXML)
+	currenciesJSON, err := xmlHandler.ConvertXMLStructsToJSON(*currenciesXML)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -40,7 +40,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	err = IOHandler.WriteStringToFile(config.OutputFile, jsonMarshalled)
+	err = ioHandler.WriteStringToFile(config.OutputFile, jsonMarshalled)
 	if err != nil {
 		panic(err.Error())
 	}

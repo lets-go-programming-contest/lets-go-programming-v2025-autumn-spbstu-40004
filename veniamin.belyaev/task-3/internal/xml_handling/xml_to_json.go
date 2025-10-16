@@ -1,4 +1,4 @@
-package xml_handling
+package xmlhandling
 
 import (
 	"strconv"
@@ -11,10 +11,10 @@ type CurrencyJSON struct {
 	Value         float32 `json:"value"`
 }
 
-func ConvertXMLStructsToJson(currenciesXML CurrenciesXML) ([]CurrencyJSON, error) {
+func ConvertXMLStructsToJSON(currenciesXML CurrenciesXML) ([]CurrencyJSON, error) {
 	arrayLength := len(currenciesXML.Currencies)
 
-	var currenciesJSON = make([]CurrencyJSON, arrayLength)
+	currenciesJSON := make([]CurrencyJSON, arrayLength)
 
 	for index := 0; index < arrayLength; index++ {
 		valueString := currenciesXML.Currencies[index].Value

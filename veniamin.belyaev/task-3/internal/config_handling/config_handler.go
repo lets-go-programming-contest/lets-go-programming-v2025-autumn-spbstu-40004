@@ -1,6 +1,7 @@
-package internal
+package confighandling
 
 import (
+	"errors"
 	"os"
 
 	yaml "gopkg.in/yaml.v3"
@@ -19,6 +20,11 @@ func LoadConfig(configFilePath string) (*configurationFile, error) {
 
 	var configFile configurationFile
 	if err = yaml.Unmarshal(file, &configFile); err != nil {
+		return nil, err
+	}
+
+	if configFile.InputFile == "" || configFile.OutputFile == "" {
+		err = errors.New("did not find expected key")
 		return nil, err
 	}
 
