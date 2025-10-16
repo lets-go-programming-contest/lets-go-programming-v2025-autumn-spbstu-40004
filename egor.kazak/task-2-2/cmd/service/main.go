@@ -3,24 +3,24 @@ package main
 import (
 	"container/heap"
 	"fmt"
+	"log"
 )
 
+// IntHeap - максимальная куча для целых чисел
 type IntHeap []int
 
-func (h IntHeap) Len() int {
-	return len(h)
-}
+func (h IntHeap) Len() int { return len(h) }
 
-func (h IntHeap) Less(i, j int) bool {
-	return h[i] > h[j]
-}
+func (h IntHeap) Less(i, j int) bool { return h[i] > h[j] }
 
-func (h IntHeap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
-}
+func (h IntHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
 
 func (h *IntHeap) Push(x interface{}) {
-	*h = append(*h, x.(int))
+	num, ok := x.(int)
+	if !ok {
+		log.Fatal("type assertion to int failed")
+	}
+	*h = append(*h, num)
 }
 
 func (h *IntHeap) Pop() interface{} {
@@ -28,30 +28,48 @@ func (h *IntHeap) Pop() interface{} {
 	n := len(old)
 	x := old[n-1]
 	*h = old[0 : n-1]
+
 	return x
 }
 
 func main() {
-	var n, k int
-	fmt.Scan(&n)
-
-	arr := make([]int, n)
-	for i := 0; i < n; i++ {
-		fmt.Scan(&arr[i])
+	var dishCount, preferenceOrder int
+	_, err := fmt.Scan(&dishCount)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	fmt.Scan(&k)
-
-	h := &IntHeap{}
-	heap.Init(h)
-
-	for i := 0; i < n; i++ {
-		heap.Push(h, arr[i])
+	ratings := make([]int, dishCount)
+	for index := range ratings {
+		_, err := fmt.Scan(&ratings[index])
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
+	_, err = fmt.Scan(&preferenceOrder)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Создаем максимальную кучу
+	heapInstance := &IntHeap{}
+	heap.Init(heapInstance)
+
+	// Добавляем все элементы в кучу
+	for _, rating := range ratings {
+		heap.Push(heapInstance, rating)
+	}
+
+	// Извлекаем k-1 элементов, чтобы добраться до k-го наибольшего
 	var result int
-	for i := 0; i < k; i++ {
-		result = heap.Pop(h).(int)
+	for range preferenceOrder {
+		item := heap.Pop(heapInstance)
+		num, ok := item.(int)
+		if !ok {
+			log.Fatal("type assertion to int failed")
+		}
+		result = num
 	}
 
 	fmt.Println(result)
