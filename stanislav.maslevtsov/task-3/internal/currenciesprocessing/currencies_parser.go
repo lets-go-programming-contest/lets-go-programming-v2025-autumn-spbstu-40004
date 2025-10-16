@@ -1,21 +1,10 @@
-package currenciesparser
+package currenciesprocessing
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
-
-	"encoding/xml"
 )
-
-type Currency struct {
-	NumCode  int    `xml:"NumCode"`
-	CharCode string `xml:"CharCode"`
-	Value    string `xml:"Value"`
-}
-
-type Currencies struct {
-	Сurncs []Currency `xml:"Valute"`
-}
 
 func ParseCurrencies(path string) (*Currencies, error) {
 	file, err := os.Open(path)
