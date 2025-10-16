@@ -1,62 +1,93 @@
 package main
 
-import "fmt"
-
-const (
-	minTemperature     = 15
-	maxTemperature     = 30
-	invalidTemperature = -1
+import (
+	"fmt"
+	"errors"
 )
 
-func printOptimalTemperature(employeesCount int) {
-	minTemperatureValue := minTemperature
-	maxTemperatureValue := maxTemperature
+const (
+	minAbsoluteTemperature = 15
+	maxAbsoluteTemperature = 30
+	invalidTemperature     = -1
+)
+
+var (
+	ErrInvalidComparisonSign       = errors.New("unsupported comparison sign for temperature")
+	ErrUnsupportedTemperature      = errors.New("unsupported temperature value")
+	ErrInvalidTemperatureValue     = errors.New("invalid temperature value format")
+	ErrInvalidDepartmentCount      = errors.New("invalid departments count")
+	ErrInvalidEmployeesCount       = errors.New("invalid employees count")
+	ErrInvalidComparisonSignFormat = errors.New("invalid comparison sign format for temperature")
+)
+
+type OptimalTemperature struct {
+	min int
+	max int
+}
+
+func NewOptimalTemperature() OptimalTemperature {
+	return OptimalTemperature{
+		min: minAbsoluteTemperature,
+		max: maxAbsoluteTemperature,
+	}
+}
+
+func (ot *OptimalTemperature) Update(comparisonSign string, temperature int) error {
+	if temperature < minAbsoluteTemperature || temperature > maxAbsoluteTemperature {
+		return ErrUnsupportedTemperature
+	}
+
+	switch comparisonSign {
+	case ">=":
+		if temperature > ot.min {
+			ot.min = temperature
+		}
+	case "<=":
+		if temperature < ot.max {
+			ot.max = temperature
+		}
+	default:
+		return ErrInvalidComparisonSign
+	}
+
+	return nil
+}
+
+func (ot *OptimalTemperature) GetOptimal() int {
+	if ot.min > ot.max {
+		return invalidTemperature
+	}
+
+	return ot.min
+}
+
+func processEmployeesData(employeesCount int) {
+	optimalTemp := NewOptimalTemperature()
 
 	for range employeesCount {
 		var comparisonSign string
+		var temperature int
 
 		_, err := fmt.Scan(&comparisonSign)
 		if err != nil {
-			fmt.Println("Invalid comparison sign for temperature!")
-
+			fmt.Println(ErrInvalidComparisonSignFormat.Error())
 			continue
 		}
-
-		var temperature int
 
 		_, err = fmt.Scan(&temperature)
 		if err != nil {
-			fmt.Println("Invalid temperature value!")
-
+			fmt.Println(ErrInvalidTemperatureValue.Error())
 			continue
 		}
 
-		if temperature < minTemperature || temperature > maxTemperature {
-			fmt.Println("Unsupported temperature value!")
+		err = optimalTemp.Update(comparisonSign, temperature)
 
+		if err != nil {
+			fmt.Println(err.Error())
 			continue
 		}
 
-		switch comparisonSign {
-		case ">=":
-			if temperature > minTemperatureValue {
-				minTemperatureValue = temperature
-			}
-		case "<=":
-			if temperature < maxTemperatureValue {
-				maxTemperatureValue = temperature
-			}
-		default:
-			fmt.Println("Unsupported comparison sign for temperature!")
-
-			continue
-		}
-
-		if minTemperatureValue > maxTemperatureValue {
-			fmt.Println(invalidTemperature)
-		} else {
-			fmt.Println(minTemperatureValue)
-		}
+		fmt.Println(optimalTemp.GetOptimal())
 	}
 }
 
@@ -65,7 +96,7 @@ func main() {
 
 	_, err := fmt.Scanln(&departmentsCount)
 	if err != nil || departmentsCount < 1 || departmentsCount > 1000 {
-		fmt.Println("Invalid departments count!")
+		fmt.Println(ErrInvalidDepartmentCount.Error())
 
 		return
 	}
@@ -75,11 +106,11 @@ func main() {
 
 		_, err = fmt.Scanln(&employeesCount)
 		if err != nil || employeesCount < 1 || employeesCount > 1000 {
-			fmt.Println("Invalid employees count!")
+			fmt.Println(ErrInvalidEmployeesCount.Error())
 
 			continue
 		}
 
-		printOptimalTemperature(employeesCount)
+		processEmployeesData(employeesCount)
 	}
 }
