@@ -25,33 +25,33 @@ func (h *MaxHeap) Pop() interface{} {
 
 func main() {
 	var dishCount, kthPreference int
-	_, scanErr := fmt.Scan(&dishCount)
-	if scanErr != nil {
+	_, err := fmt.Scan(&dishCount)
+	if err != nil {
 		return
 	}
 
-	dishRatings := make([]int, dishCount)
-	for index := range dishCount {
-		_, scanErr = fmt.Scan(&dishRatings[index])
-		if scanErr != nil {
+	arr := make([]int, dishCount)
+	for i := 0; i < dishCount; i++ {
+		_, err = fmt.Scan(&arr[i])
+		if err != nil {
 			return
 		}
 	}
 
-	_, scanErr = fmt.Scan(&kthPreference)
-	if scanErr != nil {
+	_, err = fmt.Scan(&kthPreference)
+	if err != nil {
 		return
 	}
 
 	maxHeap := &MaxHeap{}
 	heap.Init(maxHeap)
 
-	for _, rating := range dishRatings {
-		heap.Push(maxHeap, rating)
+	for i := 0; i < dishCount; i++ {
+		heap.Push(maxHeap, arr[i])
 	}
 
 	var result int
-	for range kthPreference {
+	for i := 0; i < kthPreference; i++ {
 		result = heap.Pop(maxHeap).(int)
 	}
 
