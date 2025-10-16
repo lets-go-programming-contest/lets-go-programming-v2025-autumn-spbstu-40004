@@ -11,6 +11,7 @@ func WriteCurrencies(path string, currencies *Currencies) error {
 	var file *os.File
 
 	_, err := os.Stat(path)
+
 	switch {
 	case err == nil:
 		file, err = os.Open(path)

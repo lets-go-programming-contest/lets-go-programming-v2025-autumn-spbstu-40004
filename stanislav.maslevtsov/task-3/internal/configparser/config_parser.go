@@ -20,7 +20,7 @@ func ParseConfig(path string) (*ConfigRecord, error) {
 
 	var (
 		conRec  ConfigRecord
-		decoder *yaml.Decoder = yaml.NewDecoder(file)
+		decoder = yaml.NewDecoder(file)
 	)
 
 	err = decoder.Decode(&conRec)
