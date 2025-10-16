@@ -3,9 +3,12 @@ package currency
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
+
+	"golang.org/x/text/encoding/charmap"
 )
 
 type xmlCurrency struct {
@@ -36,12 +39,19 @@ func Parse(path string) (*Currencies, error) {
 		decoder = xml.NewDecoder(file)
 	)
 
+	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
+		if charset == "windows-1251" {
+			return charmap.Windows1251.NewDecoder().Reader(input), nil
+		}
+		return input, nil
+	}
+
 	err = decoder.Decode(&xmlCurs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode xml file: %w", err)
 	}
 
-	curs, err := convertXmlToCurrency(&xmlCurs)
+	curs, err := convertXMLToCurrency(&xmlCurs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert xml currency: %w", err)
 	}
@@ -49,7 +59,7 @@ func Parse(path string) (*Currencies, error) {
 	return curs, nil
 }
 
-func convertXmlToCurrency(xmlCurs *xmlCurrencies) (*Currencies, error) {
+func convertXMLToCurrency(xmlCurs *xmlCurrencies) (*Currencies, error) {
 	var curs Currencies
 
 	for xmlCurIdx := range xmlCurs.Data {
