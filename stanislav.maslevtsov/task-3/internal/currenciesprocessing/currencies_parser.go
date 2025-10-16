@@ -12,8 +12,10 @@ func ParseCurrencies(path string) (*Currencies, error) {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 
-	var currencies Currencies
-	decoder := xml.NewDecoder(file)
+	var (
+		currencies Currencies
+		decoder    *xml.Decoder = xml.NewDecoder(file)
+	)
 
 	err = decoder.Decode(&currencies)
 	if err != nil {
