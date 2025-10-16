@@ -27,7 +27,7 @@ func WriteStringToFile(filename string, data []byte) error {
 
 	file, err := os.Create(filename)
 	if err != nil {
-		return fmt.Errorf("i/o: %s", err)
+		return fmt.Errorf("i/o: %w", err)
 	}
 
 	defer func() {
@@ -38,7 +38,7 @@ func WriteStringToFile(filename string, data []byte) error {
 
 	_, err = file.Write(data)
 	if err != nil {
-		return fmt.Errorf("i/o: %s", err)
+		return fmt.Errorf("i/o: %w", err)
 	} else {
 		return nil
 	}

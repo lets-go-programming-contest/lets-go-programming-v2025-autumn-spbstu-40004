@@ -25,7 +25,7 @@ func ConvertXMLStructsToJSON(currenciesXML CurrenciesXML) ([]CurrencyJSON, error
 
 		valueFloat, err := strconv.ParseFloat(valueString, 32)
 		if err != nil {
-			return nil, fmt.Errorf("strconv: %s", err)
+			return nil, fmt.Errorf("strconv: %w", err)
 		}
 
 		currenciesJSON[index] = CurrencyJSON{
