@@ -35,6 +35,7 @@ func Parse(path string) (*Currencies, error) {
 	}
 
 	var curs Currencies
+
 	for xmlCurIdx := range xmlCurs.Data {
 		strValue := strings.Replace(xmlCurs.Data[xmlCurIdx].Value, ",", ".", 1)
 
@@ -43,7 +44,7 @@ func Parse(path string) (*Currencies, error) {
 			return nil, fmt.Errorf("failed to parse currency value: %w", err)
 		}
 
-		curs = append(curs, &Currency{
+		curs.Data = append(curs.Data, &Currency{
 			NumCode:  xmlCurs.Data[xmlCurIdx].NumCode,
 			CharCode: xmlCurs.Data[xmlCurIdx].CharCode,
 			Value:    float32(floatValue),
