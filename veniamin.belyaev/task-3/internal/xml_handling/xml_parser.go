@@ -1,4 +1,4 @@
-package xml_handling
+package xmlhandling
 
 import (
 	"encoding/xml"
@@ -24,7 +24,13 @@ func ParseXML(filePath string) (*CurrenciesXML, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			panic(err.Error())
+		}
+	}()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
