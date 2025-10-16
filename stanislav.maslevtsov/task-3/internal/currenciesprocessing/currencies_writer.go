@@ -11,17 +11,18 @@ func WriteCurrencies(path string, currencies *Currencies) error {
 	var file *os.File
 
 	_, err := os.Stat(path)
-	if err == nil {
+	switch {
+	case err == nil:
 		file, err = os.Open(path)
 		if err != nil {
 			return fmt.Errorf("failed to open file: %w", err)
 		}
-	} else if errors.Is(err, os.ErrNotExist) {
+	case errors.Is(err, os.ErrNotExist):
 		file, err = os.Create(path)
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
-	} else {
+	default:
 		return fmt.Errorf("failed to get file info: %w", err)
 	}
 
