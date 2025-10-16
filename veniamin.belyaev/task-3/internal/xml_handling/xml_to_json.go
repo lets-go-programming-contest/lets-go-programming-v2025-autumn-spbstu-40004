@@ -1,4 +1,4 @@
-package internal
+package xml_handling
 
 type CurrencyJSON struct {
 	NumericalCode int     `json:"num_code"`

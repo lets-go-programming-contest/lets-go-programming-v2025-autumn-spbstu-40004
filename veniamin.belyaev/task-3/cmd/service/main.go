@@ -5,7 +5,8 @@ import (
 	"strings"
 
 	config_handler "github.com/belyaevEDU/task-3/internal"
-	xml_parser "github.com/belyaevEDU/task-3/internal"
+	xml_parser "github.com/belyaevEDU/task-3/internal/xml_handling"
+	xml_to_json "github.com/belyaevEDU/task-3/internal/xml_handling"
 )
 
 func main() {
@@ -23,8 +24,11 @@ func main() {
 		panic(err.Error())
 	}
 
-	currencies, err := xml_parser.ParseXML(config.InputFile)
+	currenciesXML, err := xml_parser.ParseXML(config.InputFile)
 	if err != nil {
 		panic(err.Error())
 	}
+
+	currenciesJSON := xml_to_json.ConvertXMLStructsToJson(*currenciesXML)
+
 }
