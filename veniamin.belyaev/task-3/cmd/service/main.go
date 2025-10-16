@@ -30,7 +30,10 @@ func main() {
 		panic(err.Error())
 	}
 
-	currenciesJSON := xmlHandler.ConvertXMLStructsToJson(*currenciesXML)
+	currenciesJSON, err := xmlHandler.ConvertXMLStructsToJson(*currenciesXML)
+	if err != nil {
+		panic(err.Error())
+	}
 
 	jsonMarshalled, err := json.MarshalIndent(currenciesJSON, "", "\t")
 	if err != nil {

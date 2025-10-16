@@ -3,12 +3,14 @@ package xml_handling
 import (
 	"encoding/xml"
 	"os"
+
+	"golang.org/x/net/html/charset"
 )
 
 type CurrencyXML struct {
-	NumericalCode int     `xml:"NumCode"`
-	CharacterCode string  `xml:"CharCode"`
-	Value         float32 `xml:"Value"`
+	NumericalCode int    `xml:"NumCode"`
+	CharacterCode string `xml:"CharCode"`
+	Value         string `xml:"Value"`
 }
 
 type CurrenciesXML struct {
@@ -22,8 +24,10 @@ func ParseXML(filePath string) (*CurrenciesXML, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
+	decoder.CharsetReader = charset.NewReaderLabel
 
 	if err := decoder.Decode(&currencies); err != nil {
 		return nil, err
