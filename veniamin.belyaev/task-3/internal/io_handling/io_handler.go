@@ -22,7 +22,7 @@ func ResolveFolders(filename string) error {
 func WriteStringToFile(filename string, data []byte) error {
 	err := ResolveFolders(filename)
 	if err != nil {
-		return err
+		return fmt.Errorf("i/o folders: %w", err)
 	}
 
 	file, err := os.Create(filename)
