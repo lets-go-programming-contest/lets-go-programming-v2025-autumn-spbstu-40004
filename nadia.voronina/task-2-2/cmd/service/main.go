@@ -30,6 +30,7 @@ func (h *IntHeap) Pop() interface{} {
 
 	return x
 }
+
 func main() {
 	var numberOfDishes int
 
