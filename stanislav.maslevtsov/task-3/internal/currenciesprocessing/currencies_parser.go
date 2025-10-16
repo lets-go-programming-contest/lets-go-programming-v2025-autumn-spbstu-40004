@@ -14,7 +14,7 @@ func ParseCurrencies(path string) (*Currencies, error) {
 
 	var (
 		currencies Currencies
-		decoder    *xml.Decoder = xml.NewDecoder(file)
+		decoder    = xml.NewDecoder(file)
 	)
 
 	err = decoder.Decode(&currencies)
