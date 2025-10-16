@@ -24,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	slices.SortFunc(currencies.Data, currency.Compare)
+	slices.SortFunc(*currencies, currency.Compare)
 
 	err = currency.Write(config.OutputFile, currencies)
 	if err != nil {

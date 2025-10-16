@@ -4,7 +4,19 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
+
+type xmlCurrency struct {
+	NumCode  int    `xml:"NumCode"`
+	CharCode string `xml:"CharCode"`
+	Value    string `xml:"Value"`
+}
+
+type xmlCurrencies struct {
+	Data []*xmlCurrency `xml:"Valute"`
+}
 
 func Parse(path string) (*Currencies, error) {
 	file, err := os.Open(path)
@@ -13,14 +25,30 @@ func Parse(path string) (*Currencies, error) {
 	}
 
 	var (
-		currencies Currencies
-		decoder    = xml.NewDecoder(file)
+		xmlCurs xmlCurrencies
+		decoder = xml.NewDecoder(file)
 	)
 
-	err = decoder.Decode(&currencies)
+	err = decoder.Decode(&xmlCurs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode xml file: %w", err)
 	}
 
-	return &currencies, nil
+	var curs Currencies
+	for xmlCurIdx := range xmlCurs.Data {
+		strValue := strings.Replace(xmlCurs.Data[xmlCurIdx].Value, ",", ".", 1)
+
+		floatValue, err := strconv.ParseFloat(strValue, 32)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse currency value: %w", err)
+		}
+
+		curs = append(curs, &Currency{
+			NumCode:  xmlCurs.Data[xmlCurIdx].NumCode,
+			CharCode: xmlCurs.Data[xmlCurIdx].CharCode,
+			Value:    float32(floatValue),
+		})
+	}
+
+	return &curs, nil
 }
