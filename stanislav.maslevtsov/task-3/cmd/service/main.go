@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/jambii1/task-3/internal/configparser"
-	curproc "github.com/jambii1/task-3/internal/currenciesprocessing"
+	"github.com/jambii1/task-3/internal/currency"
 )
 
 func main() {
@@ -13,17 +14,21 @@ func main() {
 		fmt.Println("invalid command parameters")
 	}
 
-	config, err := configparser.ParseConfig(os.Args[2])
+	config, err := configparser.Parse(os.Args[2])
 	if err != nil {
 		panic(err)
 	}
 
-	currencies, err := curproc.ParseCurrencies(config.InputFile)
+	currencies, err := currency.Parse(config.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	err = curproc.WriteCurrencies(config.OutputFile, currencies)
+	slices.SortFunc(currencies.Data, func(right, left *currency.Currency) int {
+		return currency.Compare(right, left)
+	})
+
+	err = currency.Write(config.OutputFile, currencies)
 	if err != nil {
 		panic(err)
 	}

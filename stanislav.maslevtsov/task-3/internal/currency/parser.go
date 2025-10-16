@@ -1,4 +1,4 @@
-package currenciesprocessing
+package currency
 
 import (
 	"encoding/xml"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func ParseCurrencies(path string) (*Currencies, error) {
+func Parse(path string) (*Currencies, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
