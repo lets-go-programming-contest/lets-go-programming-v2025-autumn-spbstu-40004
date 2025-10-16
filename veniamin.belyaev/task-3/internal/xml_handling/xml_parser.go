@@ -23,7 +23,7 @@ func ParseXML(filePath string) (*CurrenciesXML, error) {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("i/o: %s", err)
+		return nil, fmt.Errorf("i/o: %w", err)
 	}
 
 	defer func() {
@@ -36,7 +36,7 @@ func ParseXML(filePath string) (*CurrenciesXML, error) {
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	if err := decoder.Decode(&currencies); err != nil {
-		return nil, fmt.Errorf("decoder: %s", err)
+		return nil, fmt.Errorf("decoder: %w", err)
 	}
 
 	return &currencies, nil
