@@ -5,18 +5,18 @@ import (
 	"os"
 )
 
-type Currencies struct {
+type CurrencyXML struct {
+	NumericalCode int     `xml:"NumCode"`
+	CharacterCode string  `xml:"CharCode"`
+	Value         float32 `xml:"Value"`
+}
+
+type CurrenciesXML struct {
 	Currencies []CurrencyXML `xml:"Valute"`
 }
 
-type CurrencyXML struct {
-	numericalCode int     `xml:"NumCode"`
-	characterCode string  `xml:"CharCode"`
-	value         float32 `xml:"Value"`
-}
-
-func ParseXML(filePath string) (*Currencies, error) {
-	var currencies Currencies
+func ParseXML(filePath string) (*CurrenciesXML, error) {
+	var currencies CurrenciesXML
 
 	file, err := os.Open(filePath)
 	if err != nil {
