@@ -16,13 +16,13 @@ func ResolveFolders(filename string) error {
 
 	err := os.MkdirAll(folderPath, os.ModePerm)
 
-	return err
+	return fmt.Errorf("i/o folders: %w", err)
 }
 
 func WriteStringToFile(filename string, data []byte) error {
 	err := ResolveFolders(filename)
 	if err != nil {
-		return fmt.Errorf("i/o folders: %w", err)
+		return err
 	}
 
 	file, err := os.Create(filename)
