@@ -30,7 +30,7 @@ func Write(path string, currencies *Currencies) error {
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 
-	err = encoder.Encode(currencies.Data)
+	err = encoder.Encode(currencies)
 	if err != nil {
 		return fmt.Errorf("failed to encode to file: %w", err)
 	}
