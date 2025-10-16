@@ -24,6 +24,13 @@ func Parse(path string) (*Currencies, error) {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	var (
 		xmlCurs xmlCurrencies
 		decoder = xml.NewDecoder(file)
@@ -34,6 +41,15 @@ func Parse(path string) (*Currencies, error) {
 		return nil, fmt.Errorf("failed to decode xml file: %w", err)
 	}
 
+	curs, err := convertXmlToCurrency(&xmlCurs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert xml currency: %w", err)
+	}
+
+	return curs, nil
+}
+
+func convertXmlToCurrency(xmlCurs *xmlCurrencies) (*Currencies, error) {
 	var curs Currencies
 
 	for xmlCurIdx := range xmlCurs.Data {

@@ -27,6 +27,13 @@ func Write(path string, currencies *Currencies) error {
 		return fmt.Errorf("failed to get file info: %w", err)
 	}
 
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 
