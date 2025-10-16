@@ -18,10 +18,11 @@ func (h *IntMaxHeap) Swap(i, j int) {
 
 func (h *IntMaxHeap) Push(element interface{}) {
 	num, success := element.(int)
-	if !success {
+	if success {
 		panic("push expects an int element")
+	} else {
+		*h = append(*h, num)
 	}
-	*h = append(*h, num)
 }
 
 func (h *IntMaxHeap) Pop() interface{} {
