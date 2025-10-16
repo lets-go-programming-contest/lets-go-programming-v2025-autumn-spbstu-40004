@@ -8,11 +8,11 @@ import (
 
 type IntHeap []int
 
-func (h IntHeap) Len() int { return len(h) }
+func (h *IntHeap) Len() int { return len(*h) }
 
-func (h IntHeap) Less(i, j int) bool { return h[i] > h[j] }
+func (h *IntHeap) Less(i, j int) bool { return (*h)[i] > (*h)[j] }
 
-func (h IntHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+func (h *IntHeap) Swap(i, j int) { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
 
 func (h *IntHeap) Push(x interface{}) {
 	num, ok := x.(int)
@@ -63,7 +63,7 @@ func main() {
 
 	var result int
 
-	for i := 0; i < preferenceOrder; i++ {
+	for range preferenceOrder {
 		item := heap.Pop(heapInstance)
 		num, ok := item.(int)
 
