@@ -6,7 +6,6 @@ import (
 	"log"
 )
 
-// IntHeap - максимальная куча для целых чисел
 type IntHeap []int
 
 func (h IntHeap) Len() int { return len(h) }
@@ -52,16 +51,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Создаем максимальную кучу
 	heapInstance := &IntHeap{}
 	heap.Init(heapInstance)
 
-	// Добавляем все элементы в кучу
 	for _, rating := range ratings {
 		heap.Push(heapInstance, rating)
 	}
 
-	// Извлекаем k-1 элементов, чтобы добраться до k-го наибольшего
 	var result int
 	for range preferenceOrder {
 		item := heap.Pop(heapInstance)
