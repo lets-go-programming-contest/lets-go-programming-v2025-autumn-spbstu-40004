@@ -1,4 +1,4 @@
-package currenciesprocessing
+package currency
 
 type Currency struct {
 	NumCode  int    `json:"num_code"  xml:"NumCode"`
@@ -7,5 +7,5 @@ type Currency struct {
 }
 
 type Currencies struct {
-	Data []Currency `xml:"Valute"`
+	Data []*Currency `xml:"Valute"`
 }

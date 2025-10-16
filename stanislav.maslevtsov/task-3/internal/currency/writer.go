@@ -1,4 +1,4 @@
-package currenciesprocessing
+package currency
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func WriteCurrencies(path string, currencies *Currencies) error {
+func Write(path string, currencies *Currencies) error {
 	var file *os.File
 
 	_, err := os.Stat(path)

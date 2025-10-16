@@ -12,7 +12,7 @@ type ConfigRecord struct {
 	OutputFile string `yaml:"output-file"`
 }
 
-func ParseConfig(path string) (*ConfigRecord, error) {
+func Parse(path string) (*ConfigRecord, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
