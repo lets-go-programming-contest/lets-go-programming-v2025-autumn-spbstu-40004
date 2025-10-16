@@ -65,6 +65,7 @@ func main() {
 
 		if err != nil {
 			results = append(results, -1)
+
 			continue
 		}
 
