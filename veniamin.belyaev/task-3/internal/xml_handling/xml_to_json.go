@@ -1,6 +1,8 @@
 package xmlhandling
 
 import (
+	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -16,14 +18,14 @@ func ConvertXMLStructsToJSON(currenciesXML CurrenciesXML) ([]CurrencyJSON, error
 
 	currenciesJSON := make([]CurrencyJSON, arrayLength)
 
-	for index := 0; index < arrayLength; index++ {
+	for index := range arrayLength {
 		valueString := currenciesXML.Currencies[index].Value
 
 		valueString = strings.Replace(valueString, ",", ".", 1)
 
 		valueFloat, err := strconv.ParseFloat(valueString, 32)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("strconv: %s", err)
 		}
 
 		currenciesJSON[index] = CurrencyJSON{
@@ -32,6 +34,10 @@ func ConvertXMLStructsToJSON(currenciesXML CurrenciesXML) ([]CurrencyJSON, error
 			Value:         float32(valueFloat),
 		}
 	}
+
+	sort.Slice(currenciesJSON, func(i, j int) bool {
+		return currenciesJSON[i].Value > currenciesJSON[j].Value
+	})
 
 	return currenciesJSON, nil
 }

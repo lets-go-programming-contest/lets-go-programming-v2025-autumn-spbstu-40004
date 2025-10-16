@@ -1,6 +1,7 @@
 package iohandler
 
 import (
+	"fmt"
 	"os"
 	"strings"
 )
@@ -26,17 +27,19 @@ func WriteStringToFile(filename string, data []byte) error {
 
 	file, err := os.Create(filename)
 	if err != nil {
-		return err
+		return fmt.Errorf("i/o: %s", err)
 	}
 
 	defer func() {
-		err := file.Close()
-		if err != nil {
+		if err := file.Close(); err != nil {
 			panic(err.Error())
 		}
 	}()
 
 	_, err = file.Write(data)
-
-	return err
+	if err != nil {
+		return fmt.Errorf("i/o: %s", err)
+	} else {
+		return nil
+	}
 }

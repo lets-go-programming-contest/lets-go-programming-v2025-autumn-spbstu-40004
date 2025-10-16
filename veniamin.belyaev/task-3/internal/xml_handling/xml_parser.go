@@ -2,6 +2,7 @@ package xmlhandling
 
 import (
 	"encoding/xml"
+	"fmt"
 	"os"
 
 	"golang.org/x/net/html/charset"
@@ -22,12 +23,11 @@ func ParseXML(filePath string) (*CurrenciesXML, error) {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("i/o: %s", err)
 	}
 
 	defer func() {
-		err := file.Close()
-		if err != nil {
+		if err := file.Close(); err != nil {
 			panic(err.Error())
 		}
 	}()
@@ -36,7 +36,7 @@ func ParseXML(filePath string) (*CurrenciesXML, error) {
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	if err := decoder.Decode(&currencies); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decoder: %s", err)
 	}
 
 	return &currencies, nil
