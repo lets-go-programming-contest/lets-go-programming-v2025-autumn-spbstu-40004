@@ -11,61 +11,62 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	if !scanner.Scan() {
-		return
-	}
-	A, _ := strconv.Atoi(scanner.Text())
+	scanner.Scan()
+	groupCount, _ := strconv.Atoi(scanner.Text())
 
-	results := make([]int, 0, A)
+	results := make([]int, 0, groupCount)
 
-	for i := 0; i < A; i++ {
-		if !scanner.Scan() {
-			break
-		}
-		n, err := strconv.Atoi(scanner.Text())
+	for range groupCount {
+		scanner.Scan()
+		expressionCountText := scanner.Text()
+		expressionCount, err := strconv.Atoi(expressionCountText)
+
 		if err != nil {
 			results = append(results, -1)
 			continue
 		}
 
-		minVal := 15
-		maxVal := 30
+		minValue := 15
+		maxValue := 30
 		valid := true
 
-		for j := 0; j < n; j++ {
+		for range expressionCount {
 			if !scanner.Scan() {
 				break
 			}
+
 			expression := scanner.Text()
 			parts := strings.Fields(expression)
 
-			if len(parts) < 2 {
+			const minPartsCount = 2
+			if len(parts) < minPartsCount {
 				continue
 			}
 
 			operator := parts[0]
-			value, err := strconv.Atoi(parts[1])
-			if err != nil {
+			value, parseErr := strconv.Atoi(parts[1])
+
+			if parseErr != nil {
 				continue
 			}
 
 			if operator == ">=" {
-				if value > minVal {
-					minVal = value
+				if value > minValue {
+					minValue = value
 				}
 			} else if operator == "<=" {
-				if value < maxVal {
-					maxVal = value
+				if value < maxValue {
+					maxValue = value
 				}
 			}
 
-			if minVal > maxVal {
+			if minValue > maxValue {
 				valid = false
 			}
 		}
 
 		if valid {
-			results = append(results, minVal)
+			results = append(results, minValue)
 		} else {
 			results = append(results, -1)
 		}
