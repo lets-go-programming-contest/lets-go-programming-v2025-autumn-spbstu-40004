@@ -3,8 +3,10 @@ package main
 import "fmt"
 
 func main() {
-	var operandFirst, operandSecond int
-	var sign string
+	var (
+		operandFirst, operandSecond int
+		sign                        string
+	)
 
 	_, err := fmt.Scanln(&operandFirst)
 	if err != nil {
