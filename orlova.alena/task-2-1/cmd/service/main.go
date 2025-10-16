@@ -71,7 +71,6 @@ func (tempcontr *TemperatureController) getTemperature() int {
 		return -1
 	}
 
-	// Оптимальная температура - минимальная из допустимых
 	return tempcontr.minBound
 }
 
