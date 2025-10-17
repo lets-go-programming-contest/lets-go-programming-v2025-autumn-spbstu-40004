@@ -6,101 +6,77 @@ import (
 	"strings"
 )
 
-const (
-	minAllowedTemp = 15
-	maxAllowedTemp = 30
-)
+func processDepartment(numOfWork int) []string {
+	const (
+		minAllowedTemp = 15
+		maxAllowedTemp = 30
+	)
 
-type TemperatureController struct {
-	minT  int
-	maxT  int
-	valid bool
-}
+	minT := 15
+	maxT := 30
+	departmentResults := make([]string, 0, numOfWork)
 
-func newTemperatureController() *TemperatureController {
-	return &TemperatureController{
-		minT:  minAllowedTemp,
-		maxT:  maxAllowedTemp,
-		valid: true,
-	}
-}
+	for range numOfWork {
+		var str string
+		var Temp int
 
-func (tc *TemperatureController) applyConstraint(op string, temp int) {
-	if !tc.valid {
-		return
-	}
+		_, err := fmt.Scan(&str, &Temp)
+		if err != nil || Temp > maxAllowedTemp || Temp < minAllowedTemp {
+			fmt.Println("Invalid temperature")
 
-	switch op {
-	case ">=":
-		if temp > tc.maxT {
-			tc.valid = false
-		} else if temp > tc.minT {
-			tc.minT = temp
+			return nil
 		}
-	case "<=":
-		if temp < tc.minT {
-			tc.valid = false
-		} else if temp < tc.maxT {
-			tc.maxT = temp
+
+		if str == ">=" {
+			if Temp > minT {
+				minT = Temp
+			}
+		} else if str == "<=" {
+			if Temp < maxT {
+				maxT = Temp
+			}
 		}
-	}
 
-	if tc.minT > tc.maxT {
-		tc.valid = false
-	}
-}
-
-func (tc *TemperatureController) getTemperature() string {
-	if !tc.valid {
-		return "-1"
-	}
-	return strconv.Itoa(tc.minT)
-}
-
-func processDepartment(numWork int) []string {
-	controller := newTemperatureController()
-	departmentResults := make([]string, 0, numWork)
-
-	for i := 0; i < numWork; i++ {
-		var op string
-		var temp int
-
-		_, err := fmt.Scan(&op, &temp)
-		if err != nil {
-			controller.valid = false
-		} else if temp < minAllowedTemp || temp > maxAllowedTemp {
-			controller.valid = false
+		if minT <= maxT {
+			departmentResults = append(departmentResults, strconv.Itoa(minT))
 		} else {
-			controller.applyConstraint(op, temp)
+			departmentResults = append(departmentResults, "-1")
 		}
-
-		departmentResults = append(departmentResults, controller.getTemperature())
 	}
 
 	return departmentResults
 }
 
 func main() {
-	var numDepartments int
+	var numOfDepart int
 
-	_, err := fmt.Scan(&numDepartments)
+	_, err := fmt.Scan(&numOfDepart)
 	if err != nil {
+		fmt.Println("Invalid number of departments")
+
 		return
 	}
 
-	allResults := make([]string, 0)
+	results := make([]string, 0)
 
-	for i := 0; i < numDepartments; i++ {
-		var numWork int
+	for range numOfDepart {
+		var numOfWork int
 
-		_, err := fmt.Scan(&numWork)
+		_, err := fmt.Scan(&numOfWork)
 		if err != nil {
+			fmt.Println("invalid number of workers")
+
 			return
 		}
 
-		departmentResults := processDepartment(numWork)
-		allResults = append(allResults, departmentResults...)
+		departmentResults := processDepartment(numOfWork)
+		if departmentResults == nil {
+
+			return
+		}
+
+		results = append(results, departmentResults...)
 	}
 
-	fmt.Println(strings.Join(allResults, "\n"))
+	fmt.Println(strings.Join(results, "\n"))
 }
