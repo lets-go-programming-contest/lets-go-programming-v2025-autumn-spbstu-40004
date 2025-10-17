@@ -61,14 +61,17 @@ func (tc *TemperatureController) findOptimalTemp(currentTemp int, str string) {
 		tc.changeMaxBound(currentTemp)
 	default:
 		fmt.Println("Wrong input")
+
 		return
 	}
 }
 
 func (tc *TemperatureController) getTemperature() string {
 	if tc.minT == -1 || tc.minT > tc.maxT {
+
 		return "-1"
 	}
+
 	return strconv.Itoa(tc.minT)
 }
 
@@ -77,12 +80,15 @@ func processDepartment(numWork int) []string {
 	departmentResults := make([]string, 0, numWork)
 
 	for range numWork {
+
 		var str string
+
 		var currentTemp int
 
 		_, err := fmt.Scan(&str, &currentTemp)
 		if err != nil || currentTemp > maxAllowedTemp || currentTemp < minAllowedTemp {
 			fmt.Println("Invalid temperature")
+
 			return nil
 		}
 
@@ -100,6 +106,7 @@ func main() {
 	_, err := fmt.Scan(&numDepartments)
 	if err != nil {
 		fmt.Println("Invalid number of departments")
+
 		return
 	}
 
@@ -111,6 +118,7 @@ func main() {
 		_, err := fmt.Scan(&numWork)
 		if err != nil {
 			fmt.Println("invalid number of workers")
+
 			return
 		}
 
