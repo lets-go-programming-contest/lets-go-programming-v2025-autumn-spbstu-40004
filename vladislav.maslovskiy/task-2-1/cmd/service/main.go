@@ -5,87 +5,133 @@ import (
 	"fmt"
 )
 
-var errOperator = errors.New("invalid operation")
+var (
+	ErrInvalidOperation = errors.New("invalid operation")
+	ErrWrongDepartment  = errors.New("wrong department amount")
+	ErrWrongEmployee    = errors.New("wrong employee amount")
+	ErrWrongInput       = errors.New("wrong employee input")
+	ErrInvalidTemp      = errors.New("invalid temperature")
+)
 
-func adjustTempurature(lowesttemp int, highesttemp int, askingTemp int, operation string) (int, int, error) {
-	if lowesttemp == -1 && highesttemp == -1 {
-		return lowesttemp, highesttemp, nil
+const (
+	MinTemperature = 15
+	MaxTemperature = 30
+	MinDepartments = 1
+	MaxDepartments = 1000
+	MinEmployees   = 1
+	MaxEmployees   = 1000
+)
+
+type TemperatureRange struct {
+	lowest  int
+	highest int
+}
+
+func NewTemperatureRange() *TemperatureRange {
+	return &TemperatureRange{
+		lowest:  MinTemperature,
+		highest: MaxTemperature,
+	}
+}
+
+func (tr *TemperatureRange) Adjust(askingTemp int, operation string) error {
+	if tr.lowest == -1 && tr.highest == -1 {
+		return nil
 	}
 
 	switch operation {
 	case ">=":
-		if askingTemp > highesttemp {
-			lowesttemp = -1
-			highesttemp = -1
-		} else if lowesttemp <= askingTemp && askingTemp <= highesttemp {
-			lowesttemp = askingTemp
+		if askingTemp > tr.highest {
+			tr.lowest = -1
+			tr.highest = -1
+		} else if tr.lowest <= askingTemp && askingTemp <= tr.highest {
+			tr.lowest = askingTemp
 		}
 	case "<=":
-		if askingTemp < lowesttemp {
-			lowesttemp = -1
-			highesttemp = -1
-		} else if lowesttemp <= askingTemp && askingTemp <= highesttemp {
-			highesttemp = askingTemp
+		if askingTemp < tr.lowest {
+			tr.lowest = -1
+			tr.highest = -1
+		} else if tr.lowest <= askingTemp && askingTemp <= tr.highest {
+			tr.highest = askingTemp
 		}
 	default:
-		return lowesttemp, highesttemp, errOperator
+		return ErrInvalidOperation
 	}
 
-	return lowesttemp, highesttemp, nil
+	return nil
 }
 
-func processDepart(employeeAmount int, minTempurature int, maxTempurature int) {
-	var (
-		operation  string
-		askingTemp int
-	)
-
-	lowesttemp := minTempurature
-	highesttemp := maxTempurature
-
-	for range employeeAmount {
-		_, err := fmt.Scanln(&operation, &askingTemp)
-
-		if err != nil || askingTemp < 15 || askingTemp > 30 {
-			fmt.Println("Wrong employee input")
-
-			return
-		}
-
-		lowesttemp, highesttemp, err = adjustTempurature(lowesttemp, highesttemp, askingTemp, operation)
-		if err != nil {
-			fmt.Println(err)
-
-			return
-		}
-
-		fmt.Println(lowesttemp)
+func (tr *TemperatureRange) GetCurrent() int {
+	if tr.lowest == -1 && tr.highest == -1 {
+		return -1
 	}
+	return tr.lowest
+}
+
+func ProcessDepartment(employeeAmount int, requests []struct {
+	operation  string
+	askingTemp int
+}) ([]int, error) {
+	tr := NewTemperatureRange()
+	results := make([]int, 0, employeeAmount)
+
+	for i := 0; i < employeeAmount; i++ {
+		req := requests[i]
+
+		if req.askingTemp < MinTemperature || req.askingTemp > MaxTemperature {
+			return nil, ErrInvalidTemp
+		}
+
+		err := tr.Adjust(req.askingTemp, req.operation)
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, tr.GetCurrent())
+	}
+
+	return results, nil
 }
 
 func main() {
-	const (
-		minTempurature = 15
-		highesttemp    = 30
-	)
-
-	var departmentAmount, employeeAmount int
+	var departmentAmount int
 
 	_, err := fmt.Scanln(&departmentAmount)
-	if err != nil || departmentAmount < 1 || departmentAmount > 1000 {
-		fmt.Println("Wrong  department amount")
-
+	if err != nil || departmentAmount < MinDepartments || departmentAmount > MaxDepartments {
+		fmt.Println(ErrWrongDepartment)
 		return
 	}
 
-	for range departmentAmount {
-		_, err = fmt.Scanln(&employeeAmount)
-		if err != nil || employeeAmount < 1 || employeeAmount > 1000 {
-			fmt.Println("Wrong employee amount")
+	for i := 0; i < departmentAmount; i++ {
+		var employeeAmount int
 
+		_, err := fmt.Scanln(&employeeAmount)
+		if err != nil || employeeAmount < MinEmployees || employeeAmount > MaxEmployees {
+			fmt.Println(ErrWrongEmployee)
 			return
 		}
 
-		processDepart(employeeAmount, minTempurature, highesttemp)
+		requests := make([]struct {
+			operation  string
+			askingTemp int
+		}, employeeAmount)
+
+		for j := 0; j < employeeAmount; j++ {
+			_, err := fmt.Scanln(&requests[j].operation, &requests[j].askingTemp)
+			if err != nil {
+				fmt.Println(ErrWrongInput)
+				return
+			}
+		}
+
+		results, err := ProcessDepartment(employeeAmount, requests)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		for _, result := range results {
+			fmt.Println(result)
+		}
 	}
 }
