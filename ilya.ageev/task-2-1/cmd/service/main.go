@@ -102,5 +102,5 @@ func main() {
 		allResults = append(allResults, departmentResults...)
 	}
 
-	fmt.Println(strings.Join(allResults, " "))
+	fmt.Println(strings.Join(allResults, "\n"))
 }
