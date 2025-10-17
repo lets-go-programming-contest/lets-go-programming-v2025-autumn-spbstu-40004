@@ -55,7 +55,7 @@ func main() {
 		return
 	}
 
-	preferences := &maxheap.MaxHeap{}
+	preferences := &MaxHeap{}
 	heap.Init(preferences)
 
 	for range amount {
