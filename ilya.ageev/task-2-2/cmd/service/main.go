@@ -7,9 +7,17 @@ import (
 
 type IntHeap []int
 
-func (dishHeap IntHeap) Len() int           { return len(dishHeap) }
-func (dishHeap IntHeap) Less(i, j int) bool { return dishHeap[i] < dishHeap[j] }
-func (dishHeap IntHeap) Swap(i, j int)      { dishHeap[i], dishHeap[j] = dishHeap[j], dishHeap[i] }
+func (dishHeap *IntHeap) Len() int {
+	return len(*dishHeap)
+}
+
+func (dishHeap *IntHeap) Less(i, j int) bool {
+	return (*dishHeap)[i] < (*dishHeap)[j]
+}
+
+func (dishHeap *IntHeap) Swap(i, j int) {
+	(*dishHeap)[i], (*dishHeap)[j] = (*dishHeap)[j], (*dishHeap)[i]
+}
 
 func (dishHeap *IntHeap) Push(x interface{}) {
 	if num, ok := x.(int); ok {
