@@ -30,6 +30,7 @@ func (tc *TemperatureController) changeMaxBound(currentTemp int) {
 
 	if currentTemp < tc.minT {
 		tc.minT = -1
+
 		return
 	}
 
@@ -45,6 +46,7 @@ func (tc *TemperatureController) changeMinBound(currentTemp int) {
 
 	if currentTemp > tc.maxT {
 		tc.minT = -1
+
 		return
 	}
 
@@ -68,7 +70,6 @@ func (tc *TemperatureController) findOptimalTemp(currentTemp int, str string) {
 
 func (tc *TemperatureController) getTemperature() string {
 	if tc.minT == -1 || tc.minT > tc.maxT {
-
 		return "-1"
 	}
 
@@ -80,7 +81,6 @@ func processDepartment(numWork int) []string {
 	departmentResults := make([]string, 0, numWork)
 
 	for range numWork {
-
 		var str string
 
 		var currentTemp int
