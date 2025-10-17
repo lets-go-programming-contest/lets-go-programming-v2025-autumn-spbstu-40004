@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-type MaxHeap []internal
+type MaxHeap []int
 
 func (maxHeap *MaxHeap) Len() int {
 	return len(*maxHeap)
@@ -25,7 +25,7 @@ func (maxHeap *MaxHeap) Push(value any) {
 		panic("Value must be int in MaxHeap")
 	}
 
-	*maxHeap = append(*heap, val)
+	*maxHeap = append(*maxHeap, val)
 }
 
 func (maxHeap *MaxHeap) Pop() any {
@@ -59,7 +59,7 @@ func main() {
 	heap.Init(preferences)
 
 	for range amount {
-		_, fmy.Scan(&priority)
+		_, fmt.Scan(&priority)
 		if err != nil {
 			fmt.Println("Error while reading meal priority")
 
