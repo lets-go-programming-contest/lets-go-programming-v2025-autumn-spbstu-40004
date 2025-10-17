@@ -1,13 +1,21 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 )
 
 const (
 	minimalTemp = 15
 	maximalTemp = 30
+)
+
+var (
+	ErrReadingDepartment = fmt.Errorf("error reading department count")
+	ErrReadingPeople     = fmt.Errorf("error reading people count")
+	ErrReadingTemp       = fmt.Errorf("error reading operation or temperature")
+	ErrProcessingDept    = fmt.Errorf("error processing department")
+	ErrInvalidOperation  = fmt.Errorf("invalid operation")
+	ErrInvalidTempRange  = fmt.Errorf("temperature range is invalid")
 )
 
 type TemperatureController struct {
@@ -33,7 +41,7 @@ func (tc *TemperatureController) UpdateTemperature(operation string, personTemp 
 			tc.maxTemp = personTemp
 		}
 	default:
-		return errors.New("invalid operation")
+		return ErrInvalidOperation
 	}
 
 	return nil
@@ -41,8 +49,9 @@ func (tc *TemperatureController) UpdateTemperature(operation string, personTemp 
 
 func (tc *TemperatureController) GetCurrentTemperature() (int, error) {
 	if tc.minTemp > tc.maxTemp {
-		return -1, errors.New("temperature range is invalid")
+		return -1, ErrInvalidTempRange
 	}
+
 	return tc.minTemp, nil
 }
 
@@ -51,7 +60,7 @@ func main() {
 
 	_, err := fmt.Scanln(&departmentCount)
 	if err != nil {
-		fmt.Printf("Error reading department count: %v\n", err)
+		fmt.Printf("%v: %v\n", ErrReadingDepartment, err)
 		return
 	}
 
@@ -60,35 +69,39 @@ func main() {
 
 		_, err := fmt.Scanln(&peopleCount)
 		if err != nil {
-			fmt.Printf("Error reading people count: %v\n", err)
+			fmt.Printf("%v: %v\n", ErrReadingPeople, err)
+
 			return
 		}
 
-		tc := NewTemperatureController()
+		tempControl := NewTemperatureController()
 
 		for range peopleCount {
-			var operation string
-			var personTemp int
+			var (
+				operation  string
+				personTemp int
+			)
 
 			_, err := fmt.Scan(&operation, &personTemp)
 			if err != nil {
-				fmt.Printf("Error reading operation or temperature: %v\n", err)
+				fmt.Printf("%v: %v\n", ErrReadingTemp, err)
+
 				return
 			}
 
-			err = tc.UpdateTemperature(operation, personTemp)
+			err = tempControl.UpdateTemperature(operation, personTemp)
 			if err != nil {
-				fmt.Printf("Error processing department: %v\n", err)
+				fmt.Printf("%v: %v\n", ErrProcessingDept, err)
+
 				return
 			}
 
-			currentTemp, err := tc.GetCurrentTemperature()
+			currentTemp, err := tempControl.GetCurrentTemperature()
 			if err != nil {
 				fmt.Println("-1")
 			} else {
 				fmt.Println(currentTemp)
 			}
 		}
-
 	}
 }
