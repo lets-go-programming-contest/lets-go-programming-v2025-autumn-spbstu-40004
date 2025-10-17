@@ -5,9 +5,9 @@ import (
 	"fmt"
 )
 
-var errOperation = errors.New("Invalid operation")
+var errOperation = errors.New("invalid operation")
 
-func (minTemp int, maxTemp int, targetTemp int, operation string) (int, int, error) {
+func updateTemperatureRange(minTemp int, maxTemp int, targetTemp int, operation string) (int, int, error) {
 	if minTemp == -1 && maxTemp == -1 {
 		return minTemp, maxTemp, nil
 	}
