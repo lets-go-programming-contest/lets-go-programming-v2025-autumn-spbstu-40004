@@ -12,58 +12,46 @@ const (
 )
 
 type TemperatureController struct {
-	minT int
-	maxT int
+	minT  int
+	maxT  int
+	valid bool
 }
 
 func newTemperatureController() *TemperatureController {
 	return &TemperatureController{
-		minT: minAllowedTemp,
-		maxT: maxAllowedTemp,
+		minT:  minAllowedTemp,
+		maxT:  maxAllowedTemp,
+		valid: true,
 	}
 }
 
-func (tc *TemperatureController) changeMaxBound(currentTemp int) {
-	if tc.minT == -1 {
+func (tc *TemperatureController) applyConstraint(op string, temp int) {
+	if !tc.valid {
 		return
 	}
 
-	if currentTemp < tc.maxT {
-		tc.maxT = currentTemp
-	}
-
-	if tc.minT > tc.maxT {
-		tc.minT = -1
-		tc.maxT = -1
-	}
-}
-
-func (tc *TemperatureController) changeMinBound(currentTemp int) {
-	if tc.minT == -1 {
-		return
-	}
-
-	if currentTemp > tc.minT {
-		tc.minT = currentTemp
-	}
-
-	if tc.minT > tc.maxT {
-		tc.minT = -1
-		tc.maxT = -1
-	}
-}
-
-func (tc *TemperatureController) findOptimalTemp(currentTemp int, str string) {
-	switch str {
+	switch op {
 	case ">=":
-		tc.changeMinBound(currentTemp)
+		if temp > tc.maxT {
+			tc.valid = false
+		} else if temp > tc.minT {
+			tc.minT = temp
+		}
 	case "<=":
-		tc.changeMaxBound(currentTemp)
+		if temp < tc.minT {
+			tc.valid = false
+		} else if temp < tc.maxT {
+			tc.maxT = temp
+		}
+	}
+
+	if tc.minT > tc.maxT {
+		tc.valid = false
 	}
 }
 
 func (tc *TemperatureController) getTemperature() string {
-	if tc.minT == -1 {
+	if !tc.valid {
 		return "-1"
 	}
 	return strconv.Itoa(tc.minT)
@@ -74,24 +62,19 @@ func processDepartment(numWork int) []string {
 	departmentResults := make([]string, 0, numWork)
 
 	for i := 0; i < numWork; i++ {
-		var str string
-		var currentTemp int
+		var op string
+		var temp int
 
-		_, err := fmt.Scan(&str, &currentTemp)
+		_, err := fmt.Scan(&op, &temp)
 		if err != nil {
-			controller = newTemperatureController()
-		}
-
-		// Validate temperature range
-		if currentTemp < minAllowedTemp || currentTemp > maxAllowedTemp {
-			controller.minT = -1
-			controller.maxT = -1
+			controller.valid = false
+		} else if temp < minAllowedTemp || temp > maxAllowedTemp {
+			controller.valid = false
 		} else {
-			controller.findOptimalTemp(currentTemp, str)
+			controller.applyConstraint(op, temp)
 		}
 
-		optimalTemp := controller.getTemperature()
-		departmentResults = append(departmentResults, optimalTemp)
+		departmentResults = append(departmentResults, controller.getTemperature())
 	}
 
 	return departmentResults
@@ -102,24 +85,22 @@ func main() {
 
 	_, err := fmt.Scan(&numDepartments)
 	if err != nil {
-		fmt.Println("Invalid number of departments")
 		return
 	}
 
-	results := make([]string, 0)
+	allResults := make([]string, 0)
 
 	for i := 0; i < numDepartments; i++ {
 		var numWork int
 
 		_, err := fmt.Scan(&numWork)
 		if err != nil {
-			fmt.Println("Invalid number of workers")
 			return
 		}
 
 		departmentResults := processDepartment(numWork)
-		results = append(results, departmentResults...)
+		allResults = append(allResults, departmentResults...)
 	}
 
-	fmt.Println(strings.Join(results, " "))
+	fmt.Println(strings.Join(allResults, " "))
 }
