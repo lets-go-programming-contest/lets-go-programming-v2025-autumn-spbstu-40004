@@ -14,46 +14,60 @@ var (
 )
 
 const (
-	MinTemperature = 15
-	MaxTemperature = 30
-	MinDepartments = 1
-	MaxDepartments = 1000
-	MinEmployees   = 1
-	MaxEmployees   = 1000
+	minTemp = 15
+	maxTemp = 30
 )
 
-type TemperatureRange struct {
-	lowest  int
-	highest int
+type TemperatureController struct {
+	minBound int
+	maxBound int
 }
 
-func NewTemperatureRange() *TemperatureRange {
-	return &TemperatureRange{
-		lowest:  MinTemperature,
-		highest: MaxTemperature,
+func newTemperatureController() *TemperatureController {
+	return &TemperatureController{
+		minBound: minTemp,
+		maxBound: maxTemp,
 	}
 }
 
-func (tempRange *TemperatureRange) Adjust(askingTemp int, operation string) error {
-	if tempRange.lowest == -1 && tempRange.highest == -1 {
-		return nil
+func (tempContr *TemperatureController) changeMaxBound(currTemp int) {
+	if tempContr.minBound == -1 {
+		return
 	}
 
-	switch operation {
+	if currTemp < tempContr.minBound {
+		tempContr.minBound = -1
+
+		return
+	}
+
+	if currTemp <= tempContr.maxBound {
+		tempContr.maxBound = currTemp
+	}
+}
+
+func (tempContr *TemperatureController) changeMinBound(currTemp int) {
+	if tempContr.minBound == -1 {
+		return
+	}
+
+	if currTemp > tempContr.maxBound {
+		tempContr.minBound = -1
+
+		return
+	}
+
+	if currTemp >= tempContr.minBound {
+		tempContr.minBound = currTemp
+	}
+}
+
+func (tempContr *TemperatureController) findOptimalTemp(currTemp int, sign string) error {
+	switch sign {
 	case ">=":
-		if askingTemp > tempRange.highest {
-			tempRange.lowest = -1
-			tempRange.highest = -1
-		} else if tempRange.lowest <= askingTemp && askingTemp <= tempRange.highest {
-			tempRange.lowest = askingTemp
-		}
+		tempContr.changeMinBound(currTemp)
 	case "<=":
-		if askingTemp < tempRange.lowest {
-			tempRange.lowest = -1
-			tempRange.highest = -1
-		} else if tempRange.lowest <= askingTemp && askingTemp <= tempRange.highest {
-			tempRange.highest = askingTemp
-		}
+		tempContr.changeMaxBound(currTemp)
 	default:
 		return ErrInvalidOperation
 	}
@@ -61,82 +75,54 @@ func (tempRange *TemperatureRange) Adjust(askingTemp int, operation string) erro
 	return nil
 }
 
-func (tempRange *TemperatureRange) GetCurrent() int {
-	if tempRange.lowest == -1 && tempRange.highest == -1 {
+func (tempContr *TemperatureController) getTemperature() int {
+	if tempContr.minBound == -1 || tempContr.minBound > tempContr.maxBound {
 		return -1
 	}
 
-	return tempRange.lowest
-}
-
-func ProcessDepartment(employeeAmount int, requests []struct {
-	operation  string
-	askingTemp int
-}) ([]int, error) {
-	temperatureRange := NewTemperatureRange()
-	results := make([]int, 0, employeeAmount)
-
-	for i := range employeeAmount {
-		req := requests[i]
-
-		if req.askingTemp < MinTemperature || req.askingTemp > MaxTemperature {
-			return nil, ErrInvalidTemp
-		}
-
-		err := temperatureRange.Adjust(req.askingTemp, req.operation)
-		if err != nil {
-			return nil, err
-		}
-
-		results = append(results, temperatureRange.GetCurrent())
-	}
-
-	return results, nil
+	return tempContr.minBound
 }
 
 func main() {
-	var departmentAmount int
+	var (
+		numOfDeparts, numOfWorkers, currTemp int
+		sign                                 string
+	)
 
-	_, err := fmt.Scanln(&departmentAmount)
-	if err != nil || departmentAmount < MinDepartments || departmentAmount > MaxDepartments {
+	_, err := fmt.Scanln(&numOfDeparts)
+	if err != nil || numOfDeparts < 1 || numOfDeparts > 1000 {
 		fmt.Println(ErrWrongDepartment)
 
 		return
 	}
 
-	for range departmentAmount {
-		var employeeAmount int
-
-		_, err := fmt.Scanln(&employeeAmount)
-		if err != nil || employeeAmount < MinEmployees || employeeAmount > MaxEmployees {
+	for range numOfDeparts {
+		_, err = fmt.Scanln(&numOfWorkers)
+		if err != nil || numOfWorkers < 1 || numOfWorkers > 1000 {
 			fmt.Println(ErrWrongEmployee)
 
 			return
 		}
 
-		requests := make([]struct {
-			operation  string
-			askingTemp int
-		}, employeeAmount)
+		controller := newTemperatureController()
 
-		for j := range employeeAmount {
-			_, err := fmt.Scanln(&requests[j].operation, &requests[j].askingTemp)
-			if err != nil {
+		for range numOfWorkers {
+			_, err = fmt.Scanln(&sign, &currTemp)
+			if err != nil || currTemp < minTemp || currTemp > maxTemp {
 				fmt.Println(ErrWrongInput)
 
 				return
 			}
-		}
 
-		results, err := ProcessDepartment(employeeAmount, requests)
-		if err != nil {
-			fmt.Println(err)
+			err = controller.findOptimalTemp(currTemp, sign)
+			if err != nil {
+				fmt.Println(err)
 
-			return
-		}
+				return
+			}
 
-		for _, result := range results {
-			fmt.Println(result)
+			optimalTemp := controller.getTemperature()
+			fmt.Println(optimalTemp)
 		}
 	}
 }
