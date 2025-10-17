@@ -18,6 +18,7 @@ func processDepartment(numOfWork int) []string {
 
 	for range numOfWork {
 		var str string
+
 		var Temp int
 
 		_, err := fmt.Scan(&str, &Temp)
@@ -71,7 +72,6 @@ func main() {
 
 		departmentResults := processDepartment(numOfWork)
 		if departmentResults == nil {
-
 			return
 		}
 
