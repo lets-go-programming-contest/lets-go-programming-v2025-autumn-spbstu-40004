@@ -7,19 +7,24 @@ import (
 
 type IntHeap []int
 
-func (DishHeap IntHeap) Len() int           { return len(DishHeap) }
-func (DishHeap IntHeap) Less(i, j int) bool { return DishHeap[i] < DishHeap[j] }
-func (DishHeap IntHeap) Swap(i, j int)      { DishHeap[i], DishHeap[j] = DishHeap[j], DishHeap[i] }
+func (dishHeap IntHeap) Len() int           { return len(dishHeap) }
+func (dishHeap IntHeap) Less(i, j int) bool { return dishHeap[i] < dishHeap[j] }
+func (dishHeap IntHeap) Swap(i, j int)      { dishHeap[i], dishHeap[j] = dishHeap[j], dishHeap[i] }
 
-func (DishHeap *IntHeap) Push(x interface{}) {
-	*DishHeap = append(*DishHeap, x.(int))
+func (dishHeap *IntHeap) Push(x interface{}) {
+	if num, ok := x.(int); ok {
+		*dishHeap = append(*dishHeap, num)
+	} else {
+		fmt.Println("Error: expected int type")
+	}
 }
 
-func (DishHeap *IntHeap) Pop() interface{} {
-	old := *DishHeap
+func (dishHeap *IntHeap) Pop() interface{} {
+	old := *dishHeap
 	n := len(old)
 	x := old[n-1]
-	*DishHeap = old[0 : n-1]
+	*dishHeap = old[0 : n-1]
+
 	return x
 }
 
@@ -30,6 +35,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println("Invalid number of dishes")
+
 		return
 	}
 
@@ -37,12 +43,17 @@ func main() {
 	for i := range arr {
 		_, err := fmt.Scan(&arr[i])
 		if err != nil {
-			fmt.Println("Invalid priority")
+			fmt.Println("Invalid priority of dishes")
+
 			return
 		}
 	}
 
-	fmt.Scan(&Priority)
+	_, err = fmt.Scan(&Priority)
+
+	if err != nil {
+		fmt.Println("Invalid priority dish")
+	}
 
 	DishHeap := &IntHeap{}
 	heap.Init(DishHeap)
