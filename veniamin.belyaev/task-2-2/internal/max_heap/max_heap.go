@@ -20,6 +20,8 @@ func (h *MaxHeap) Push(x interface{}) {
 	num, TACheck := x.(int)
 	if TACheck {
 		*h = append(*h, num)
+	} else {
+		panic("type assertion failed")
 	}
 }
 
