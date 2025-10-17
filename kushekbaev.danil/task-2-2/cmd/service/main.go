@@ -59,7 +59,7 @@ func main() {
 	heap.Init(preferences)
 
 	for range amount {
-		_, fmt.Scan(&priority)
+		_, err = fmt.Scan(&priority)
 		if err != nil {
 			fmt.Println("Error while reading meal priority")
 
