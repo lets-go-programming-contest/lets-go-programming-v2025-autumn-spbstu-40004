@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -9,43 +10,40 @@ const (
 	maximalTemp = 30
 )
 
-func findTemperature(peopleCount int) {
-	minTemp := minimalTemp
-	maxTemp := maximalTemp
+type TemperatureController struct {
+	minTemp int
+	maxTemp int
+}
 
-	for range peopleCount {
-		var operation string
-
-		var personTemp int
-
-		_, err := fmt.Scan(&operation, &personTemp)
-		if err != nil {
-			fmt.Println("Error reading operation or tempperature", err)
-
-			return
-		}
-
-		switch operation {
-		case ">=":
-			if personTemp > minTemp {
-				minTemp = personTemp
-			}
-		case "<=":
-			if personTemp < maxTemp {
-				maxTemp = personTemp
-			}
-		default:
-			fmt.Println("invalid operation")
-
-			return
-		}
-
-		if minTemp > maxTemp {
-			fmt.Println("-1")
-		} else {
-			fmt.Println(minTemp)
-		}
+func NewTemperatureController() *TemperatureController {
+	return &TemperatureController{
+		minTemp: minimalTemp,
+		maxTemp: maximalTemp,
 	}
+}
+
+func (tc *TemperatureController) UpdateTemperature(operation string, personTemp int) error {
+	switch operation {
+	case ">=":
+		if personTemp > tc.minTemp {
+			tc.minTemp = personTemp
+		}
+	case "<=":
+		if personTemp < tc.maxTemp {
+			tc.maxTemp = personTemp
+		}
+	default:
+		return errors.New("invalid operation")
+	}
+
+	return nil
+}
+
+func (tc *TemperatureController) GetCurrentTemperature() (int, error) {
+	if tc.minTemp > tc.maxTemp {
+		return -1, errors.New("temperature range is invalid")
+	}
+	return tc.minTemp, nil
 }
 
 func main() {
@@ -53,8 +51,7 @@ func main() {
 
 	_, err := fmt.Scanln(&departmentCount)
 	if err != nil {
-		fmt.Println("Error reading department count:", err)
-
+		fmt.Printf("Error reading department count: %v\n", err)
 		return
 	}
 
@@ -63,11 +60,35 @@ func main() {
 
 		_, err := fmt.Scanln(&peopleCount)
 		if err != nil {
-			fmt.Println("Error reading people count:", err)
-
+			fmt.Printf("Error reading people count: %v\n", err)
 			return
 		}
 
-		findTemperature(peopleCount)
+		tc := NewTemperatureController()
+
+		for range peopleCount {
+			var operation string
+			var personTemp int
+
+			_, err := fmt.Scan(&operation, &personTemp)
+			if err != nil {
+				fmt.Printf("Error reading operation or temperature: %v\n", err)
+				return
+			}
+
+			err = tc.UpdateTemperature(operation, personTemp)
+			if err != nil {
+				fmt.Printf("Error processing department: %v\n", err)
+				return
+			}
+
+			currentTemp, err := tc.GetCurrentTemperature()
+			if err != nil {
+				fmt.Println("-1")
+			} else {
+				fmt.Println(currentTemp)
+			}
+		}
+
 	}
 }
