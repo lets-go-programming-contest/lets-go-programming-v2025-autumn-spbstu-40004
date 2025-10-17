@@ -24,7 +24,6 @@ func (dishHeap *IntHeap) Pop() interface{} {
 	n := len(old)
 	x := old[n-1]
 	*dishHeap = old[0 : n-1]
-
 	return x
 }
 
@@ -32,10 +31,8 @@ func main() {
 	var NumOfDishes, Priority int
 
 	_, err := fmt.Scan(&NumOfDishes)
-
 	if err != nil {
 		fmt.Println("Invalid number of dishes")
-
 		return
 	}
 
@@ -44,15 +41,19 @@ func main() {
 		_, err := fmt.Scan(&arr[i])
 		if err != nil {
 			fmt.Println("Invalid priority of dishes")
-
 			return
 		}
 	}
 
 	_, err = fmt.Scan(&Priority)
-
 	if err != nil {
 		fmt.Println("Invalid priority dish")
+		return
+	}
+
+	if Priority > len(arr) {
+		fmt.Println("Priority exceeds number of dishes")
+		return
 	}
 
 	DishHeap := &IntHeap{}
