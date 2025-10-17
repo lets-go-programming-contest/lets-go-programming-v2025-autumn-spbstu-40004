@@ -13,6 +13,10 @@ func (h *MaxHeap) Less(i, j int) bool {
 }
 
 func (h *MaxHeap) Swap(i, j int) {
+	if i >= len(*h) || j >= len(*h) {
+		return
+	}
+
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
