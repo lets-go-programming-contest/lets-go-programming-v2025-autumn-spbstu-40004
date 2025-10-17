@@ -61,7 +61,7 @@ func main() {
 			case ">=":
 				lowerBound = Ternary(lowerBound > desireableTemp, lowerBound, desireableTemp)
 			default:
-				fmt.Println(Invalid operator)
+				fmt.Println("Invalid operator")
 			}
 
 			if (lowerBound <= upperBound) {
