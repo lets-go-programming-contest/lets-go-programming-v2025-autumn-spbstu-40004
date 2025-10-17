@@ -49,15 +49,16 @@ func main() {
 				continue
 			}
 
-			if sign == greaterEqualSign {
+			switch sign {
+			case greaterEqualSign:
 				if temperature > start {
 					start = temperature
 				}
-			} else if sign == lessEqualSign {
+			case lessEqualSign:
 				if temperature < end {
 					end = temperature
 				}
-			} else {
+			default:
 				fmt.Println(-1)
 
 				continue
