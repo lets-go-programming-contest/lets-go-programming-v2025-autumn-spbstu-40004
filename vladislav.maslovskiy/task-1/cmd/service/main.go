@@ -7,6 +7,7 @@ func main() {
 		firstNumber, secondNumber, res int
 		operand                        string
 	)
+
 	_, err := fmt.Scanln(&firstNumber)
 	if err != nil {
 		fmt.Println("Invalid first operand")
