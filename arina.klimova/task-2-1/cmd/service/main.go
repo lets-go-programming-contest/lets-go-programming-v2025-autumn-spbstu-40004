@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -10,12 +11,12 @@ const (
 )
 
 var (
-	ErrReadingDepartment = fmt.Errorf("error reading department count")
-	ErrReadingPeople     = fmt.Errorf("error reading people count")
-	ErrReadingTemp       = fmt.Errorf("error reading operation or temperature")
-	ErrProcessingDept    = fmt.Errorf("error processing department")
-	ErrInvalidOperation  = fmt.Errorf("invalid operation")
-	ErrInvalidTempRange  = fmt.Errorf("temperature range is invalid")
+	ErrReadingDepartment = errors.New("error reading department count")
+	ErrReadingPeople     = errors.New("error reading people count")
+	ErrReadingTemp       = errors.New("error reading operation or temperature")
+	ErrProcessingDept    = errors.New("error processing department")
+	ErrInvalidOperation  = errors.New("invalid operation")
+	ErrInvalidTempRange  = errors.New("temperature range is invalid")
 )
 
 type TemperatureController struct {
@@ -61,6 +62,7 @@ func main() {
 	_, err := fmt.Scanln(&departmentCount)
 	if err != nil {
 		fmt.Printf("%v: %v\n", ErrReadingDepartment, err)
+
 		return
 	}
 
