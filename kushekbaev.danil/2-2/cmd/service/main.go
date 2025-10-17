@@ -4,7 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 
-	"github.com/Z-1337/kushekbaev.danil/2-2/internal/maxheap"
+	"github.com/Z-1337/task-2-2/internal/maxheap"
 )
 
 func main() {
