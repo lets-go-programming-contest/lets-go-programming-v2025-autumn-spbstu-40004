@@ -28,14 +28,13 @@ func (tc *TemperatureController) changeMaxBound(currentTemp int) {
 		return
 	}
 
-	if currentTemp < tc.minT {
-		tc.minT = -1
-
-		return
+	if currentTemp < tc.maxT {
+		tc.maxT = currentTemp
 	}
 
-	if currentTemp <= tc.maxT {
-		tc.maxT = currentTemp
+	if tc.minT > tc.maxT {
+		tc.minT = -1
+		tc.maxT = -1
 	}
 }
 
@@ -44,14 +43,13 @@ func (tc *TemperatureController) changeMinBound(currentTemp int) {
 		return
 	}
 
-	if currentTemp > tc.maxT {
-		tc.minT = -1
-
-		return
+	if currentTemp > tc.minT {
+		tc.minT = currentTemp
 	}
 
-	if currentTemp >= tc.minT {
-		tc.minT = currentTemp
+	if tc.minT > tc.maxT {
+		tc.minT = -1
+		tc.maxT = -1
 	}
 }
 
@@ -61,18 +59,13 @@ func (tc *TemperatureController) findOptimalTemp(currentTemp int, str string) {
 		tc.changeMinBound(currentTemp)
 	case "<=":
 		tc.changeMaxBound(currentTemp)
-	default:
-		fmt.Println("Wrong input")
-
-		return
 	}
 }
 
 func (tc *TemperatureController) getTemperature() string {
-	if tc.minT == -1 || tc.minT > tc.maxT {
+	if tc.minT == -1 {
 		return "-1"
 	}
-
 	return strconv.Itoa(tc.minT)
 }
 
@@ -80,19 +73,23 @@ func processDepartment(numWork int) []string {
 	controller := newTemperatureController()
 	departmentResults := make([]string, 0, numWork)
 
-	for range numWork {
+	for i := 0; i < numWork; i++ {
 		var str string
-
 		var currentTemp int
 
 		_, err := fmt.Scan(&str, &currentTemp)
-		if err != nil || currentTemp > maxAllowedTemp || currentTemp < minAllowedTemp {
-			fmt.Println("Invalid temperature")
-
-			return nil
+		if err != nil {
+			controller = newTemperatureController()
 		}
 
-		controller.findOptimalTemp(currentTemp, str)
+		// Validate temperature range
+		if currentTemp < minAllowedTemp || currentTemp > maxAllowedTemp {
+			controller.minT = -1
+			controller.maxT = -1
+		} else {
+			controller.findOptimalTemp(currentTemp, str)
+		}
+
 		optimalTemp := controller.getTemperature()
 		departmentResults = append(departmentResults, optimalTemp)
 	}
@@ -106,27 +103,21 @@ func main() {
 	_, err := fmt.Scan(&numDepartments)
 	if err != nil {
 		fmt.Println("Invalid number of departments")
-
 		return
 	}
 
 	results := make([]string, 0)
 
-	for range numDepartments {
+	for i := 0; i < numDepartments; i++ {
 		var numWork int
 
 		_, err := fmt.Scan(&numWork)
 		if err != nil {
-			fmt.Println("invalid number of workers")
-
+			fmt.Println("Invalid number of workers")
 			return
 		}
 
 		departmentResults := processDepartment(numWork)
-		if departmentResults == nil {
-			return
-		}
-
 		results = append(results, departmentResults...)
 	}
 
