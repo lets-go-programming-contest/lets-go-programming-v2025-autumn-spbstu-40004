@@ -41,6 +41,7 @@ func main() {
 			}
 
 			sign := parts[0]
+
 			temperature, err := strconv.Atoi(parts[1])
 			if err != nil {
 				fmt.Println(-1)
