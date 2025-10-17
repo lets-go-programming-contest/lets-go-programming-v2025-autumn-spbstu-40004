@@ -1,16 +1,7 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-)
-
-var (
-	ErrInvalidOperation = errors.New("invalid operation")
-	ErrWrongDepartment  = errors.New("wrong department amount")
-	ErrWrongEmployee    = errors.New("wrong employee amount")
-	ErrWrongInput       = errors.New("wrong employee input")
-	ErrInvalidTemp      = errors.New("invalid temperature")
 )
 
 const (
@@ -23,64 +14,64 @@ type TemperatureController struct {
 	maxBound int
 }
 
-func newTemperatureController() *TemperatureController {
+func createTempController() *TemperatureController {
 	return &TemperatureController{
 		minBound: minTemp,
 		maxBound: maxTemp,
 	}
 }
 
-func (tempContr *TemperatureController) changeMaxBound(currTemp int) {
-	if tempContr.minBound == -1 {
+func (tempcontr *TemperatureController) updateUpperLimit(requestedTemp int) {
+	if tempcontr.minBound == -1 {
 		return
 	}
 
-	if currTemp < tempContr.minBound {
-		tempContr.minBound = -1
+	if requestedTemp < tempcontr.minBound {
+		tempcontr.minBound = -1
 
 		return
 	}
 
-	if currTemp <= tempContr.maxBound {
-		tempContr.maxBound = currTemp
+	if requestedTemp <= tempcontr.maxBound {
+		tempcontr.maxBound = requestedTemp
 	}
 }
 
-func (tempContr *TemperatureController) changeMinBound(currTemp int) {
-	if tempContr.minBound == -1 {
+func (tempcontr *TemperatureController) updateLowerLimit(requestedTemp int) {
+	if tempcontr.minBound == -1 {
 		return
 	}
 
-	if currTemp > tempContr.maxBound {
-		tempContr.minBound = -1
+	if requestedTemp > tempcontr.maxBound {
+		tempcontr.minBound = -1
 
 		return
 	}
 
-	if currTemp >= tempContr.minBound {
-		tempContr.minBound = currTemp
+	if requestedTemp >= tempcontr.minBound {
+		tempcontr.minBound = requestedTemp
 	}
 }
 
-func (tempContr *TemperatureController) findOptimalTemp(currTemp int, sign string) error {
-	switch sign {
+func (tempcontr *TemperatureController) adjustTemperatureRange(requestedTemp int, operation string) {
+	switch operation {
 	case ">=":
-		tempContr.changeMinBound(currTemp)
+		tempcontr.updateLowerLimit(requestedTemp)
 	case "<=":
-		tempContr.changeMaxBound(currTemp)
+		tempcontr.updateUpperLimit(requestedTemp)
 	default:
-		return ErrInvalidOperation
-	}
+		fmt.Println("Wrong input")
 
-	return nil
+		return
+	}
 }
 
-func (tempContr *TemperatureController) getTemperature() int {
-	if tempContr.minBound == -1 || tempContr.minBound > tempContr.maxBound {
+func (tempcontr *TemperatureController) determineComfortTemp() int {
+	if tempcontr.minBound == -1 || tempcontr.minBound > tempcontr.maxBound {
 		return -1
 	}
 
-	return tempContr.minBound
+	return tempcontr.minBound
 }
 
 func main() {
@@ -90,39 +81,34 @@ func main() {
 	)
 
 	_, err := fmt.Scanln(&numOfDeparts)
-	if err != nil || numOfDeparts < 1 || numOfDeparts > 1000 {
-		fmt.Println(ErrWrongDepartment)
+	if err != nil {
+		fmt.Println("Wrong input")
 
 		return
 	}
 
-	for range numOfDeparts {
+	for i := 1; i <= numOfDeparts; i++ {
 		_, err = fmt.Scanln(&numOfWorkers)
-		if err != nil || numOfWorkers < 1 || numOfWorkers > 1000 {
-			fmt.Println(ErrWrongEmployee)
+		if err != nil {
+			fmt.Println("Wrong input")
 
 			return
 		}
 
-		controller := newTemperatureController()
+		controller := createTempController()
 
-		for range numOfWorkers {
+		for j := 1; j <= numOfWorkers; j++ {
 			_, err = fmt.Scanln(&sign, &currTemp)
-			if err != nil || currTemp < minTemp || currTemp > maxTemp {
-				fmt.Println(ErrWrongInput)
-
-				return
-			}
-
-			err = controller.findOptimalTemp(currTemp, sign)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println("Wrong input")
 
 				return
 			}
 
-			optimalTemp := controller.getTemperature()
+			controller.adjustTemperatureRange(currTemp, sign)
+			optimalTemp := controller.determineComfortTemp()
 			fmt.Println(optimalTemp)
 		}
 	}
 }
+
