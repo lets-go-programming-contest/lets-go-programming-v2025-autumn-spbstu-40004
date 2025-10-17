@@ -34,25 +34,25 @@ func NewTemperatureRange() *TemperatureRange {
 	}
 }
 
-func (tr *TemperatureRange) Adjust(askingTemp int, operation string) error {
-	if tr.lowest == -1 && tr.highest == -1 {
+func (tempRange *TemperatureRange) Adjust(askingTemp int, operation string) error {
+	if tempRange.lowest == -1 && tempRange.highest == -1 {
 		return nil
 	}
 
 	switch operation {
 	case ">=":
-		if askingTemp > tr.highest {
-			tr.lowest = -1
-			tr.highest = -1
-		} else if tr.lowest <= askingTemp && askingTemp <= tr.highest {
-			tr.lowest = askingTemp
+		if askingTemp > tempRange.highest {
+			tempRange.lowest = -1
+			tempRange.highest = -1
+		} else if tempRange.lowest <= askingTemp && askingTemp <= tempRange.highest {
+			tempRange.lowest = askingTemp
 		}
 	case "<=":
-		if askingTemp < tr.lowest {
-			tr.lowest = -1
-			tr.highest = -1
-		} else if tr.lowest <= askingTemp && askingTemp <= tr.highest {
-			tr.highest = askingTemp
+		if askingTemp < tempRange.lowest {
+			tempRange.lowest = -1
+			tempRange.highest = -1
+		} else if tempRange.lowest <= askingTemp && askingTemp <= tempRange.highest {
+			tempRange.highest = askingTemp
 		}
 	default:
 		return ErrInvalidOperation
@@ -61,33 +61,34 @@ func (tr *TemperatureRange) Adjust(askingTemp int, operation string) error {
 	return nil
 }
 
-func (tr *TemperatureRange) GetCurrent() int {
-	if tr.lowest == -1 && tr.highest == -1 {
+func (tempRange *TemperatureRange) GetCurrent() int {
+	if tempRange.lowest == -1 && tempRange.highest == -1 {
 		return -1
 	}
-	return tr.lowest
+
+	return tempRange.lowest
 }
 
 func ProcessDepartment(employeeAmount int, requests []struct {
 	operation  string
 	askingTemp int
 }) ([]int, error) {
-	tr := NewTemperatureRange()
+	temperatureRange := NewTemperatureRange()
 	results := make([]int, 0, employeeAmount)
 
-	for i := 0; i < employeeAmount; i++ {
+	for i := range employeeAmount {
 		req := requests[i]
 
 		if req.askingTemp < MinTemperature || req.askingTemp > MaxTemperature {
 			return nil, ErrInvalidTemp
 		}
 
-		err := tr.Adjust(req.askingTemp, req.operation)
+		err := temperatureRange.Adjust(req.askingTemp, req.operation)
 		if err != nil {
 			return nil, err
 		}
 
-		results = append(results, tr.GetCurrent())
+		results = append(results, temperatureRange.GetCurrent())
 	}
 
 	return results, nil
@@ -99,15 +100,17 @@ func main() {
 	_, err := fmt.Scanln(&departmentAmount)
 	if err != nil || departmentAmount < MinDepartments || departmentAmount > MaxDepartments {
 		fmt.Println(ErrWrongDepartment)
+
 		return
 	}
 
-	for i := 0; i < departmentAmount; i++ {
+	for range departmentAmount {
 		var employeeAmount int
 
 		_, err := fmt.Scanln(&employeeAmount)
 		if err != nil || employeeAmount < MinEmployees || employeeAmount > MaxEmployees {
 			fmt.Println(ErrWrongEmployee)
+
 			return
 		}
 
@@ -116,10 +119,11 @@ func main() {
 			askingTemp int
 		}, employeeAmount)
 
-		for j := 0; j < employeeAmount; j++ {
+		for j := range employeeAmount {
 			_, err := fmt.Scanln(&requests[j].operation, &requests[j].askingTemp)
 			if err != nil {
 				fmt.Println(ErrWrongInput)
+
 				return
 			}
 		}
@@ -127,6 +131,7 @@ func main() {
 		results, err := ProcessDepartment(employeeAmount, requests)
 		if err != nil {
 			fmt.Println(err)
+
 			return
 		}
 
@@ -135,3 +140,4 @@ func main() {
 		}
 	}
 }
+
