@@ -43,16 +43,18 @@ func handleDepartmentRequests(employeeCount int, lowTemp int, hightTemp int) {
 	minTemp := lowTemp
 	maxTemp := hightTemp
 
-	for i := 0; i < employeeCount; i++ {
+	for range employeeCount {
 		_, err := fmt.Scanln(&condition, &targetTemp)
 		if err != nil || targetTemp < 15 || targetTemp > 30 {
 			fmt.Println("Invalid employee input")
+
 			return
 		}
 
 		minTemp, maxTemp, err = updateTemperatureRange(minTemp, maxTemp, targetTemp, condition)
 		if err != nil {
 			fmt.Println(err)
+
 			return
 		}
 
@@ -71,13 +73,15 @@ func main() {
 	_, err := fmt.Scanln(&departmentCount)
 	if err != nil || departmentCount < 1 || departmentCount > 1000 {
 		fmt.Println("Invalid department count")
+
 		return
 	}
 
-	for i := 0; i < departmentCount; i++ {
+	for range departmentCount {
 		_, err = fmt.Scanln(&employeeCount)
 		if err != nil || employeeCount < 1 || employeeCount > 1000 {
 			fmt.Println("Invalid employee count")
+
 			return
 		}
 
