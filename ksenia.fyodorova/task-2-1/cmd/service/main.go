@@ -36,13 +36,16 @@ func main() {
 			parts := strings.Fields(preference)
 			if len(parts) < minPartsLength {
 				fmt.Println(-1)
+
 				continue
 			}
 
 			sign := parts[0]
 			temperature, err := strconv.Atoi(parts[1])
+
 			if err != nil {
 				fmt.Println(-1)
+
 				continue
 			}
 
@@ -57,6 +60,7 @@ func main() {
 				}
 			default:
 				fmt.Println(-1)
+
 				continue
 			}
 
