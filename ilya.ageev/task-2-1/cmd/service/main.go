@@ -23,6 +23,7 @@ func processDepartment(numOfWork int) []string {
 		_, err := fmt.Scan(&str, &Temp)
 		if err != nil || Temp > maxAllowedTemp || Temp < minAllowedTemp {
 			fmt.Println("Invalid temperature")
+
 			return nil
 		}
 
@@ -52,6 +53,7 @@ func main() {
 	_, err := fmt.Scan(&numOfDepart)
 	if err != nil {
 		fmt.Println("Invalid number of departments")
+
 		return
 	}
 
@@ -63,11 +65,13 @@ func main() {
 		_, err := fmt.Scan(&numOfWork)
 		if err != nil {
 			fmt.Println("invalid number of workers")
+
 			return
 		}
 
 		departmentResults := processDepartment(numOfWork)
 		if departmentResults == nil {
+
 			return
 		}
 
