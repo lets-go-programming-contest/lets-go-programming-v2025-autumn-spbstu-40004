@@ -33,7 +33,6 @@ func (maxHeap *MaxHeap) Pop() any {
 	if oldLen == 0 {
 		return nil
 	}
-
 	oldHeap := *maxHeap
 	poppedValue := oldHeap[oldLen - 1]
 	*maxHeap = oldHeap[0 : oldLen - 1]
