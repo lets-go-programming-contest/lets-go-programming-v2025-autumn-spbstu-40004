@@ -57,9 +57,9 @@ func main() {
 
 			switch operator {
 			case "<=":
-				upperBound = Ternary(upperBound < desireableTemp, upperBound, desireableTemp)
+				upperBound = ternaryInt(upperBound < desireableTemp, upperBound, desireableTemp)
 			case ">=":
-				lowerBound = Ternary(lowerBound > desireableTemp, lowerBound, desireableTemp)
+				lowerBound = ternaryInt(lowerBound > desireableTemp, lowerBound, desireableTemp)
 			default:
 				fmt.Println("Invalid operator")
 			}
@@ -71,5 +71,11 @@ func main() {
 			}
 		}
 	}
+}
 
+func ternaryInt(condition bool, trueValue int, falseValue int) int {
+	if condition {
+		return trueValue
+	}
+	return falseValue
 }
