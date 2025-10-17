@@ -1,82 +1,82 @@
 package main
 
 import (
-  "fmt"
-  "strconv"
-  "strings"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 func processDepartment(numOfWork int) []string {
-  const (
-    minAllowedTemp = 15
-    maxAllowedTemp = 30
-  )
+	const (
+		minAllowedTemp = 15
+		maxAllowedTemp = 30
+	)
 
-  minT := 15
-  maxT := 30
-  departmentResults := make([]string, 0, numOfWork)
+	minT := 15
+	maxT := 30
+	departmentResults := make([]string, 0, numOfWork)
 
-  for range numOfWork {
-    var str string
+	for range numOfWork {
+		var str string
 
-    var Temp int
+		var Temp int
 
-    _, err := fmt.Scan(&str, &Temp)
-    if err != nil  Temp > maxAllowedTemp  Temp < minAllowedTemp {
-      fmt.Println("Invalid temperature")
+		_, err := fmt.Scan(&str, &Temp)
+		if err != nil || Temp > maxAllowedTemp || Temp < minAllowedTemp {
+			fmt.Println("Invalid temperature")
 
-      return nil
-    }
+			return nil
+		}
 
-    if str == ">=" {
-      if Temp > minT {
-        minT = Temp
-      }
-    } else if str == "<=" {
-      if Temp < maxT {
-        maxT = Temp
-      }
-    }
+		if str == ">=" {
+			if Temp > minT {
+				minT = Temp
+			}
+		} else if str == "<=" {
+			if Temp < maxT {
+				maxT = Temp
+			}
+		}
 
-    if minT <= maxT {
-      departmentResults = append(departmentResults, strconv.Itoa(minT))
-    } else {
-      departmentResults = append(departmentResults, "-1")
-    }
-  }
+		if minT <= maxT {
+			departmentResults = append(departmentResults, strconv.Itoa(minT))
+		} else {
+			departmentResults = append(departmentResults, "-1")
+		}
+	}
 
-  return departmentResults
+	return departmentResults
 }
 
 func main() {
-  var numOfDepart int
+	var numOfDepart int
 
-  _, err := fmt.Scan(&numOfDepart)
-  if err != nil {
-    fmt.Println("Invalid number of departments")
+	_, err := fmt.Scan(&numOfDepart)
+	if err != nil {
+		fmt.Println("Invalid number of departments")
 
-    return
-  }
+		return
+	}
 
-  results := make([]string, 0)
+	results := make([]string, 0)
 
-  for range numOfDepart {
-    var numOfWork int
+	for range numOfDepart {
+		var numOfWork int
 
-    _, err := fmt.Scan(&numOfWork)
-    if err != nil {
-      fmt.Println("invalid number of workers")
+		_, err := fmt.Scan(&numOfWork)
+		if err != nil {
+			fmt.Println("invalid number of workers")
 
-      return
-    }
+			return
+		}
 
-    departmentResults := processDepartment(numOfWork)
-    if departmentResults == nil {
-      return
-    }
+		departmentResults := processDepartment(numOfWork)
+		if departmentResults == nil {
+			return
+		}
 
-    results = append(results, departmentResults...)
-  }
+		results = append(results, departmentResults...)
+	}
 
-  fmt.Println(strings.Join(results, "\n"))
+	fmt.Println(strings.Join(results, "\n"))
 }
