@@ -10,7 +10,7 @@ const (
 	invalidValue = -1
 )
 
-func main{
+func main() {
 	var (
 		departmentNumber int
 		employeeNumber   int
