@@ -1,9 +1,5 @@
 package intheap
 
-import (
-	"fmt"
-)
-
 type IntHeap []int
 
 func (intHeap *IntHeap) Len() int {
@@ -23,9 +19,7 @@ func (intHeap *IntHeap) Push(value any) {
 	if ok {
 		*intHeap = append(*intHeap, intValue)
 	} else {
-		fmt.Println("Wrong input")
-
-		return
+		panic("Wrong input")
 	}
 }
 
