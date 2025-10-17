@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	minTemp = 15
-	maxTemp = 30
+	minTemp      = 15
+	maxTemp      = 30
 	invalidValue = -1
 )
 
@@ -14,7 +14,7 @@ func main() {
 	var (
 		departmentNumber int
 		employeeNumber   int
-		desireableTemp   int
+		desirableTemp    int
 		operator         string
 	)
 
@@ -37,29 +37,22 @@ func main() {
 		upperBound := maxTemp
 
 		for range employeeNumber {
-			_, err = fmt.Scan(&operator)
+			_, err = fmt.Scan(&operator, &desirableTemp)
 			if err != nil {
-				fmt.Println("Error while reading operator")
+				fmt.Println("Error while reading desirable temperature")
 
 				return
 			}
 
-			_, err = fmt.Scan(&desireableTemp)
-			if err != nil {
-				fmt.Println("Error while reading desireable temperature")
-
-				return
-			}
-
-			if desireableTemp < minTemp || desireableTemp > maxTemp {
+			if desirableTemp < minTemp || desirableTemp > maxTemp {
 				fmt.Println(invalidValue)
 			}
 
 			switch operator {
 			case "<=":
-				upperBound = ternaryInt(upperBound < desireableTemp, upperBound, desireableTemp)
+				upperBound = ternaryInt(upperBound < desirableTemp, upperBound, desirableTemp)
 			case ">=":
-				lowerBound = ternaryInt(lowerBound > desireableTemp, lowerBound, desireableTemp)
+				lowerBound = ternaryInt(lowerBound > desirableTemp, lowerBound, desirableTemp)
 			default:
 				fmt.Println("Invalid operator")
 			}
@@ -77,5 +70,6 @@ func ternaryInt(condition bool, trueValue int, falseValue int) int {
 	if condition {
 		return trueValue
 	}
+
 	return falseValue
 }
