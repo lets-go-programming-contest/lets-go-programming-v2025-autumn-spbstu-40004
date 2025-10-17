@@ -57,7 +57,7 @@ func main() {
 				fmt.Println("Invalid operator")
 			}
 
-			if (lowerBound <= upperBound) {
+			if lowerBound <= upperBound {
 				fmt.Println(lowerBound)
 			} else {
 				fmt.Println(invalidValue)
