@@ -1,3 +1,3 @@
-module github.com/Ksenia-rgb/task-2-1
+module github.com/qyantor/task-2-1
 
 go 1.22.7
