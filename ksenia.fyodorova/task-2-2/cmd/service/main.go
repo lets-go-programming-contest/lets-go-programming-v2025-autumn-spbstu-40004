@@ -64,6 +64,7 @@ func main() {
 	}
 
 	result := heap.Pop(dishHeap)
+
 	kthPreference, ok := result.(int)
 
 	if !ok {
