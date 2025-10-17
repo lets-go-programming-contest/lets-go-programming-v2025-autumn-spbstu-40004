@@ -17,6 +17,7 @@ func (heap *DishHeap) Push(dish interface{}) {
 	if !ok {
 		log.Fatal("invalid type in Push")
 	}
+
 	*heap = append(*heap, dishValue)
 }
 
@@ -31,12 +32,14 @@ func (heap *DishHeap) Pop() interface{} {
 
 func main() {
 	var totalDishes, preferenceRank int
+
 	_, err := fmt.Scan(&totalDishes)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	dishRatings := make([]int, totalDishes)
+
 	for i := range totalDishes {
 		_, err := fmt.Scan(&dishRatings[i])
 		if err != nil {
@@ -62,6 +65,7 @@ func main() {
 
 	result := heap.Pop(dishHeap)
 	kthPreference, ok := result.(int)
+
 	if !ok {
 		log.Fatal("invalid type from heap")
 	}
