@@ -1,20 +1,23 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"slices"
 
-	"github.com/jambii1/task-3/internal/configparser"
+	"github.com/jambii1/task-3/internal/config"
 	"github.com/jambii1/task-3/internal/currency"
 )
 
+var errInvalidCommandParameters = errors.New("invalid command parameters")
+
 func main() {
-	if len(os.Args) != 3 || os.Args[1] != "-config" {
-		fmt.Println("invalid command parameters")
+	if len(os.Args) != 2 || os.Args[0] != "-config" {
+		fmt.Println(errInvalidCommandParameters)
 	}
 
-	config, err := configparser.Parse(os.Args[2])
+	config, err := config.Parse(os.Args[1])
 	if err != nil {
 		panic(err)
 	}
