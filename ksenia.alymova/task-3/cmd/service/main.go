@@ -14,12 +14,12 @@ type configFile struct {
 	Output string `yaml:"output-file"`
 }
 type valute struct {
-	NumCode   string
-	CharCOde  string
-	Nominal   int
-	Name      string
-	Value     string
-	VunitRate string
+	NumCode   string `xml:"NumCode"`
+	CharCOde  string `xml:"CharCode"`
+	Nominal   int    `xml:"Nominal"`
+	Name      string `xml:"Name"`
+	Value     string `xml:"Value"`
+	VunitRate string `xml:"VunitRate"`
 }
 type inputFile struct {
 	ValCurs []valute `yaml:"Valute"`
@@ -34,7 +34,8 @@ func main() {
 		panic("Incorrect config file")
 	}
 
-	config := configFile{}
+	var config configFile
+
 	err = yaml.Unmarshal(configFileByte, &config)
 	if err != nil || config.Input == "" || config.Output == "" {
 		panic("Incorrect format in config file")
@@ -48,10 +49,10 @@ func main() {
 	decoder := xml.NewDecoder(inputReader)
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	input := inputFile{}
+	var input inputFile
+
 	err = decoder.Decode(&input)
 	if err != nil {
 		panic("Incorrect formal in input file")
 	}
-
 }
