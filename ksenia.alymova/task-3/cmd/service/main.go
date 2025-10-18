@@ -3,7 +3,10 @@ package main
 import (
 	"encoding/xml"
 	"flag"
+	"fmt"
 	"os"
+	"sort"
+	"strings"
 
 	"golang.org/x/net/html/charset"
 	"gopkg.in/yaml.v2"
@@ -14,15 +17,29 @@ type configFile struct {
 	Output string `yaml:"output-file"`
 }
 type valute struct {
-	NumCode   string `xml:"NumCode"`
-	CharCOde  string `xml:"CharCode"`
-	Nominal   int    `xml:"Nominal"`
-	Name      string `xml:"Name"`
-	Value     string `xml:"Value"`
-	VunitRate string `xml:"VunitRate"`
+	NumCode  string `xml:"NumCode"`
+	CharCode string `xml:"CharCode"`
+	Value    string `xml:"Value"`
 }
+
+func (val *valute) convertFloatValue() {
+	(*val).Value = strings.ReplaceAll(val.Value, ",", ".")
+}
+
 type inputFile struct {
-	ValCurs []valute `yaml:"Valute"`
+	ValCurs []valute `xml:"Valute"`
+}
+
+func (input inputFile) Len() int {
+	return len(input.ValCurs)
+}
+
+func (input inputFile) Swap(index1, index2 int) {
+	input.ValCurs[index1], input.ValCurs[index2] = input.ValCurs[index2], input.ValCurs[index1]
+}
+
+func (input inputFile) Less(index1, index2 int) bool {
+	return input.ValCurs[index1].Value < input.ValCurs[index2].Value
 }
 
 func main() {
@@ -55,4 +72,11 @@ func main() {
 	if err != nil {
 		panic("Incorrect formal in input file")
 	}
+
+	for index := 0; index < len(input.ValCurs); index++ {
+		input.ValCurs[index].convertFloatValue()
+	}
+
+	sort.Sort(input)
+	fmt.Println(input)
 }
