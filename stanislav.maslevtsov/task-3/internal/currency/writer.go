@@ -39,7 +39,7 @@ func Write(path string, currencies *Currencies) error {
 
 	err = encoder.Encode(currencies.Data)
 	if err != nil {
-		return fmt.Errorf("failed to encode to file: %w", err)
+		return fmt.Errorf("failed to encode to json file: %w", err)
 	}
 
 	return nil

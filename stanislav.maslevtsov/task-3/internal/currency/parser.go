@@ -24,7 +24,7 @@ type xmlCurrencies struct {
 func Parse(path string) (*Currencies, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file: %w", err)
+		return nil, fmt.Errorf("failed to open xml currencies file: %w", err)
 	}
 
 	defer func() {
@@ -43,12 +43,13 @@ func Parse(path string) (*Currencies, error) {
 		if charset == "windows-1251" {
 			return charmap.Windows1251.NewDecoder().Reader(input), nil
 		}
+
 		return input, nil
 	}
 
 	err = decoder.Decode(&xmlCurs)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode xml file: %w", err)
+		return nil, fmt.Errorf("failed to decode xml currencies file: %w", err)
 	}
 
 	curs, err := convertXMLToCurrency(&xmlCurs)
