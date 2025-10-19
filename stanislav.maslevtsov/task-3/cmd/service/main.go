@@ -13,18 +13,17 @@ import (
 var errInvalidCommandParameters = errors.New("invalid command parameters")
 
 func main() {
-	var configPath string
+	var configPath = flag.String("config", "", "config path")
 
-	flag.StringVar(&configPath, "config", "", "config path")
 	flag.Parse()
 
-	if configPath == "" {
+	if *configPath == "" {
 		fmt.Println(errInvalidCommandParameters)
 
 		return
 	}
 
-	config, err := config.Parse(configPath)
+	config, err := config.Parse(*configPath)
 	if err != nil {
 		panic(err)
 	}
