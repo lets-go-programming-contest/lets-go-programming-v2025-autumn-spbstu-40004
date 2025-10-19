@@ -9,6 +9,8 @@ import (
 )
 
 func Write(path string, currencies *Currencies) error {
+	const allReadWriteMode = os.FileMode(0o666)
+
 	var file *os.File
 
 	_, err := os.Stat(path)
@@ -20,7 +22,7 @@ func Write(path string, currencies *Currencies) error {
 			return fmt.Errorf("failed to open file: %w", err)
 		}
 	case errors.Is(err, os.ErrNotExist):
-		err := os.MkdirAll(filepath.Dir(path), 0o666)
+		err := os.MkdirAll(filepath.Dir(path), allReadWriteMode)
 		if err != nil {
 			return fmt.Errorf("failed to make directory: %w", err)
 		}
