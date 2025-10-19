@@ -13,7 +13,7 @@ import (
 var errInvalidCommandParameters = errors.New("invalid command parameters")
 
 func main() {
-	var configPath = flag.String("config", "nil", "config path")
+	var configPath *string = flag.String("config", "", "config path")
 
 	flag.Parse()
 
