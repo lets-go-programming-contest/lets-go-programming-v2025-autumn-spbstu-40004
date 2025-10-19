@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
+	"path/filepath"
 )
 
 func Write(path string, currencies *Currencies) error {
@@ -20,12 +20,9 @@ func Write(path string, currencies *Currencies) error {
 			return fmt.Errorf("failed to open file: %w", err)
 		}
 	case errors.Is(err, os.ErrNotExist):
-		lastSlashIndex := strings.LastIndex(path, "/")
-		if lastSlashIndex != -1 {
-			err := os.MkdirAll(path[:lastSlashIndex], os.ModePerm)
-			if err != nil {
-				return fmt.Errorf("failed to create directory: %w", err)
-			}
+		err := os.MkdirAll(filepath.Dir(path), 0o666)
+		if err != nil {
+			return fmt.Errorf("failed to make directory: %w", err)
 		}
 
 		file, err = os.Create(path)
