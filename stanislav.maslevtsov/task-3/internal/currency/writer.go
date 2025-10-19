@@ -22,7 +22,7 @@ func Write(path string, currencies *Currencies) error {
 	case errors.Is(err, os.ErrNotExist):
 		lastSlashIndex := strings.LastIndex(path, "/")
 		if lastSlashIndex != -1 {
-			err := os.MkdirAll(path[:lastSlashIndex], 0644)
+			err := os.MkdirAll(path[:lastSlashIndex], os.ModePerm)
 			if err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
