@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func Write(path string, currencies *Currencies) error {
@@ -19,6 +20,11 @@ func Write(path string, currencies *Currencies) error {
 			return fmt.Errorf("failed to open file: %w", err)
 		}
 	case errors.Is(err, os.ErrNotExist):
+		err = os.MkdirAll(path[:strings.LastIndex(path, "/")], 0644)
+		if err != nil {
+			return fmt.Errorf("failed to create directory: %w", err)
+		}
+
 		file, err = os.Create(path)
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
