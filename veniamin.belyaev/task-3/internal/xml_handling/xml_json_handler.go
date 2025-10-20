@@ -27,7 +27,7 @@ type CurrenciesXML struct {
 	Currencies []CurrencyXMLTemp `xml:"Valute"`
 }
 
-func ParseXMLToCurrencyArray(filePath string) ([]Currency, error) {
+func ParseXML(filePath string) ([]Currency, error) {
 	var currencies CurrenciesXML
 
 	file, err := os.Open(filePath)
