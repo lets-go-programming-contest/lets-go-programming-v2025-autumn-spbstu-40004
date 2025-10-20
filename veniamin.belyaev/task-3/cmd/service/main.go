@@ -25,17 +25,12 @@ func main() {
 		panic(err.Error())
 	}
 
-	currenciesXML, err := xmlHandler.ParseXML(config.InputFile)
+	currencies, err := xmlHandler.ParseXMLToCurrencyArray(config.InputFile)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	currenciesJSON, err := xmlHandler.ConvertXMLStructsToJSONFormat(*currenciesXML)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	jsonMarshalled, err := json.MarshalIndent(currenciesJSON, "", "\t")
+	jsonMarshalled, err := json.MarshalIndent(currencies, "", "\t")
 	if err != nil {
 		panic(err.Error())
 	}
