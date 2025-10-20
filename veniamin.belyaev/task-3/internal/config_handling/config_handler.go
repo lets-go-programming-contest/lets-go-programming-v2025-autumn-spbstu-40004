@@ -18,7 +18,7 @@ type configurationFile struct {
 func LoadConfig(configFilePath string) (*configurationFile, error) {
 	file, err := os.ReadFile(configFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("i/o: %w", err)
+		return nil, fmt.Errorf("config handler i/o: %w", err)
 	}
 
 	var configFile configurationFile
