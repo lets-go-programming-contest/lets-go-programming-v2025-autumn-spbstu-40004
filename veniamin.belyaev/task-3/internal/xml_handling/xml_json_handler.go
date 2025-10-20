@@ -12,16 +12,22 @@ import (
 )
 
 type Currency struct {
-	NumericalCode int    `xml:"NumCode" json:"num_code"`
-	CharacterCode string `xml:"CharCode" json:"char_code"`
-	Value         string `xml:"Value" json:"value"`
+	NumericalCode int     `json:"num_code" xml:"NumCode"`
+	CharacterCode string  `json:"char_code" xml:"CharCode"`
+	Value         float64 `json:"value" xml:"Value"`
+}
+
+type CurrencyXMLTemp struct {
+	NumericalCode int    `xml:"NumCode"`
+	CharacterCode string `xml:"CharCode"`
+	Value         string `xml:"Value"`
 }
 
 type CurrenciesXML struct {
-	Currencies []Currency `xml:"Valute"`
+	Currencies []CurrencyXMLTemp `xml:"Valute"`
 }
 
-func ParseXML(filePath string) (*CurrenciesXML, error) {
+func ParseXMLToCurrencyArray(filePath string) ([]Currency, error) {
 	var currencies CurrenciesXML
 
 	file, err := os.Open(filePath)
@@ -42,39 +48,29 @@ func ParseXML(filePath string) (*CurrenciesXML, error) {
 		return nil, fmt.Errorf("decoder: %w", err)
 	}
 
-	return &currencies, nil
-}
-
-func ConvertXMLStructsToJSONFormat(currenciesXML CurrenciesXML) ([]Currency, error) {
-	arrayLength := len(currenciesXML.Currencies)
-
-	currenciesJSON := make([]Currency, arrayLength)
+	arrayLength := len(currencies.Currencies)
+	currenciesFormatted := make([]Currency, arrayLength)
 
 	for index := range arrayLength {
-		valueString := currenciesXML.Currencies[index].Value
+		valueString := currencies.Currencies[index].Value
 
 		valueString = strings.Replace(valueString, ",", ".", 1)
 
-		currenciesJSON[index] = Currency{
-			NumericalCode: currenciesXML.Currencies[index].NumericalCode,
-			CharacterCode: currenciesXML.Currencies[index].CharacterCode,
-			Value:         valueString,
+		valueFloat, err := strconv.ParseFloat(valueString, 64)
+		if err != nil {
+			return nil, fmt.Errorf("strconv: %w", err)
+		}
+
+		currenciesFormatted[index] = Currency{
+			NumericalCode: currencies.Currencies[index].NumericalCode,
+			CharacterCode: currencies.Currencies[index].CharacterCode,
+			Value:         valueFloat,
 		}
 	}
 
-	sort.Slice(currenciesJSON, func(i, j int) bool {
-		iFloat, err := strconv.ParseFloat(currenciesJSON[i].Value, 64)
-		if err != nil {
-			panic(err.Error())
-		}
-
-		jFloat, err := strconv.ParseFloat(currenciesJSON[j].Value, 64)
-		if err != nil {
-			panic(err.Error())
-		}
-
-		return iFloat > jFloat
+	sort.Slice(currenciesFormatted, func(i, j int) bool {
+		return currenciesFormatted[i].Value > currenciesFormatted[j].Value
 	})
 
-	return currenciesJSON, nil
+	return currenciesFormatted, nil
 }
