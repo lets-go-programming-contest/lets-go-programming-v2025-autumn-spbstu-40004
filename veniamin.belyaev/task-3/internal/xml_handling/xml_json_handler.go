@@ -3,9 +3,9 @@ package xmlhandling
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 
 	"golang.org/x/net/html/charset"
@@ -17,14 +17,19 @@ type Currency struct {
 	Value         float64 `json:"value"     xml:"Value"`
 }
 
-type CurrencyXMLTemp struct {
-	NumericalCode int    `xml:"NumCode"`
-	CharacterCode string `xml:"CharCode"`
-	Value         string `xml:"Value"`
+type CurrenciesXML struct {
+	Currencies []Currency `xml:"Valute"`
 }
 
-type CurrenciesXML struct {
-	Currencies []CurrencyXMLTemp `xml:"Valute"`
+func replaceCharInFileReader(file *os.File, oldChar, newChar string) (io.Reader, error) {
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("transforming file reader: %w", err)
+	}
+
+	transformed := strings.ReplaceAll(string(content), oldChar, newChar)
+
+	return strings.NewReader(transformed), nil
 }
 
 func ParseXML(filePath string) ([]Currency, error) {
@@ -41,7 +46,12 @@ func ParseXML(filePath string) ([]Currency, error) {
 		}
 	}()
 
-	decoder := xml.NewDecoder(file)
+	transformedReader, err := replaceCharInFileReader(file, ",", ".")
+	if err != nil {
+		return nil, err
+	}
+
+	decoder := xml.NewDecoder(transformedReader)
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	if err := decoder.Decode(&currencies); err != nil {
@@ -49,28 +59,15 @@ func ParseXML(filePath string) ([]Currency, error) {
 	}
 
 	arrayLength := len(currencies.Currencies)
-	currenciesFormatted := make([]Currency, arrayLength)
+	currenciesArray := make([]Currency, arrayLength)
 
 	for index := range arrayLength {
-		valueString := currencies.Currencies[index].Value
-
-		valueString = strings.Replace(valueString, ",", ".", 1)
-
-		valueFloat, err := strconv.ParseFloat(valueString, 64)
-		if err != nil {
-			return nil, fmt.Errorf("strconv: %w", err)
-		}
-
-		currenciesFormatted[index] = Currency{
-			NumericalCode: currencies.Currencies[index].NumericalCode,
-			CharacterCode: currencies.Currencies[index].CharacterCode,
-			Value:         valueFloat,
-		}
+		currenciesArray[index] = Currency(currencies.Currencies[index])
 	}
 
-	sort.Slice(currenciesFormatted, func(i, j int) bool {
-		return currenciesFormatted[i].Value > currenciesFormatted[j].Value
+	sort.Slice(currenciesArray, func(i, j int) bool {
+		return currenciesArray[i].Value > currenciesArray[j].Value
 	})
 
-	return currenciesFormatted, nil
+	return currenciesArray, nil
 }
