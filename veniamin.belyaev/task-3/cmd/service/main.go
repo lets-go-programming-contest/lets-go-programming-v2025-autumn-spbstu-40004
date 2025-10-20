@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"sort"
 	"strings"
 
 	configHandler "github.com/belyaevEDU/task-3/internal/config_handling"
@@ -29,6 +30,10 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+
+	sort.Slice(currencies, func(i, j int) bool {
+		return currencies[i].Value > currencies[j].Value
+	})
 
 	jsonMarshalled, err := json.MarshalIndent(currencies, "", "\t")
 	if err != nil {
