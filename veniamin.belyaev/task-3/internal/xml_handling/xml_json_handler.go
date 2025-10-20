@@ -12,9 +12,9 @@ import (
 )
 
 type Currency struct {
-	NumericalCode int     `json:"num_code" xml:"NumCode"`
+	NumericalCode int     `json:"num_code"  xml:"NumCode"`
 	CharacterCode string  `json:"char_code" xml:"CharCode"`
-	Value         float64 `json:"value" xml:"Value"`
+	Value         float64 `json:"value"     xml:"Value"`
 }
 
 type CurrencyXMLTemp struct {
