@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sort"
 	"strings"
 
 	"golang.org/x/net/html/charset"
@@ -64,10 +63,6 @@ func ParseXML(filePath string) ([]Currency, error) {
 	for index := range arrayLength {
 		currenciesArray[index] = currencies.Currencies[index]
 	}
-
-	sort.Slice(currenciesArray, func(i, j int) bool {
-		return currenciesArray[i].Value > currenciesArray[j].Value
-	})
 
 	return currenciesArray, nil
 }
