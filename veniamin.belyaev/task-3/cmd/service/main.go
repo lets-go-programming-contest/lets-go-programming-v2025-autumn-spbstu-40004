@@ -30,7 +30,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	currenciesJSON, err := xmlHandler.ConvertXMLStructsToJSON(*currenciesXML)
+	currenciesJSON, err := xmlHandler.ConvertXMLStructsToJSONFormat(*currenciesXML)
 	if err != nil {
 		panic(err.Error())
 	}
