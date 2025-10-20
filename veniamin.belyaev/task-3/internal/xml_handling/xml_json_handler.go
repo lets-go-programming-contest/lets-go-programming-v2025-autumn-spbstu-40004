@@ -62,7 +62,7 @@ func ParseXML(filePath string) ([]Currency, error) {
 	currenciesArray := make([]Currency, arrayLength)
 
 	for index := range arrayLength {
-		currenciesArray[index] = Currency(currencies.Currencies[index])
+		currenciesArray[index] = currencies.Currencies[index]
 	}
 
 	sort.Slice(currenciesArray, func(i, j int) bool {
