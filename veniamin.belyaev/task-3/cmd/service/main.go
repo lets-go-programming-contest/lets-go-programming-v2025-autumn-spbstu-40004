@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"sort"
-	"strings"
 
 	configHandler "github.com/belyaevEDU/task-3/internal/config_handling"
 	ioHandler "github.com/belyaevEDU/task-3/internal/io_handling"
@@ -17,7 +16,14 @@ func main() {
 	flag.StringVar(&configFilePath, "config", "none", "Configuration file path")
 	flag.Parse()
 
-	if strings.Compare(configFilePath, "") == 0 {
+	flagExists := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "config" {
+			flagExists = true
+		}
+	})
+
+	if !flagExists {
 		panic("config file path via flag not specified")
 	}
 
