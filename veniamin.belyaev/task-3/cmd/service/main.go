@@ -17,6 +17,7 @@ func main() {
 	flag.Parse()
 
 	flagExists := false
+
 	flag.Visit(func(f *flag.Flag) {
 		if f.Name == "config" {
 			flagExists = true

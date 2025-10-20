@@ -36,7 +36,7 @@ func ParseXML(filePath string) ([]Currency, error) {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("i/o: %w", err)
+		return nil, fmt.Errorf("i/o xml: %w", err)
 	}
 
 	defer func() {
