@@ -25,7 +25,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	currencies, err := xmlHandler.ParseXMLToCurrencyArray(config.InputFile)
+	currencies, err := xmlHandler.ParseXML(config.InputFile)
 	if err != nil {
 		panic(err.Error())
 	}
