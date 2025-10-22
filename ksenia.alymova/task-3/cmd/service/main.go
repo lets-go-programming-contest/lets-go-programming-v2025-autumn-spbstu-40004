@@ -1,11 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"flag"
-	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/html/charset"
@@ -17,17 +18,25 @@ type configFile struct {
 	Output string `yaml:"output-file"`
 }
 type valute struct {
-	NumCode  string `xml:"NumCode"`
-	CharCode string `xml:"CharCode"`
-	Value    string `xml:"Value"`
+	NumCode  int    `xml:"NumCode" json:"num_code"`
+	CharCode string `xml:"CharCode" json:"char_code"`
+	Value    string `xml:"Value" json:"-"`
+
+	FloatValue float64 `xml:"-" json:"value"`
 }
 
-func (val *valute) convertFloatValue() {
-	(*val).Value = strings.ReplaceAll(val.Value, ",", ".")
+func (val *valute) convertFloatValue() error {
+	val.Value = strings.ReplaceAll(val.Value, ",", ".")
+
+	floatValue, err := strconv.ParseFloat(val.Value, 64)
+	if err == nil {
+		val.FloatValue = floatValue
+	}
+	return err
 }
 
 type inputFile struct {
-	ValCurs []valute `xml:"Valute"`
+	ValCurs []valute `xml:"Valute" json:"valute"`
 }
 
 func (input inputFile) Len() int {
@@ -73,10 +82,33 @@ func main() {
 		panic("Incorrect formal in input file")
 	}
 
-	for index := 0; index < len(input.ValCurs); index++ {
-		input.ValCurs[index].convertFloatValue()
+	for index := range input.ValCurs {
+		err := input.ValCurs[index].convertFloatValue()
+		if err != nil {
+			panic("Incorrect value format in input file")
+		}
 	}
 
 	sort.Sort(input)
-	fmt.Println(input)
+
+	splitPathOutput := strings.Split(config.Output, "/")
+	if len(splitPathOutput) > 1 {
+		dirName, _ := strings.CutSuffix(config.Output, splitPathOutput[len(splitPathOutput)-1])
+
+		err := os.Mkdir(dirName, 0666)
+		if err != nil && !os.IsExist(err) {
+			panic("Incorrect permittion for output file")
+		}
+	}
+
+	outputFileByte, err := json.MarshalIndent(input.ValCurs, "", "  ")
+	if err != nil {
+		panic("Error in output coding")
+	}
+
+	err = os.WriteFile(config.Output, outputFileByte, 0666)
+	if err != nil {
+		panic("Incorrect coding")
+	}
+
 }
