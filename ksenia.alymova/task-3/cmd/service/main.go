@@ -64,12 +64,12 @@ func main() {
 
 	err = yaml.Unmarshal(configFileByte, &config)
 	if err != nil || config.Input == "" || config.Output == "" {
-		panic("Incorrect format in config file")
+		panic(err)
 	}
 
 	inputReader, err := os.Open(config.Input)
 	if err != nil {
-		panic("Incorrect input file")
+		panic(err)
 	}
 
 	decoder := xml.NewDecoder(inputReader)
