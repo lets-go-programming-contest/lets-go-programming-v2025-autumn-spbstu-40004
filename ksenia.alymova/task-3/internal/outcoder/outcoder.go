@@ -9,9 +9,7 @@ import (
 	"github.com/Ksenia-rgb/task-3/internal/indecoder"
 )
 
-const filePerm = 0666
-
-var ()
+const filePerm = 0o666
 
 func prepOutputPath(outputFile string) error {
 	splitPath := strings.Split(outputFile, "/")

@@ -1,6 +1,7 @@
 package indecoder
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -16,9 +17,11 @@ func (val *bankValute) convertFloatValue() error {
 	val.Value = strings.ReplaceAll(val.Value, ",", ".")
 
 	floatValue, err := strconv.ParseFloat(val.Value, 64)
-	if err == nil {
-		val.FloatValue = floatValue
+	if err != nil {
+		return fmt.Errorf("failed to convert float value: %w", err)
 	}
 
-	return err
+	val.FloatValue = floatValue
+
+	return nil
 }
