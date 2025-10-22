@@ -48,7 +48,7 @@ func (input inputFile) Swap(index1, index2 int) {
 }
 
 func (input inputFile) Less(index1, index2 int) bool {
-	return input.ValCurs[index1].Value < input.ValCurs[index2].Value
+	return input.ValCurs[index1].Value > input.ValCurs[index2].Value
 }
 
 func main() {
