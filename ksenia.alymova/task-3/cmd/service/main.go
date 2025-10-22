@@ -48,7 +48,7 @@ func (input inputFile) Swap(index1, index2 int) {
 }
 
 func (input inputFile) Less(index1, index2 int) bool {
-	return input.ValCurs[index1].Value > input.ValCurs[index2].Value
+	return input.ValCurs[index1].FloatValue > input.ValCurs[index2].FloatValue
 }
 
 func main() {
@@ -93,11 +93,11 @@ func main() {
 
 	splitPathOutput := strings.Split(config.Output, "/")
 	if len(splitPathOutput) > 1 {
-		dirName, _ := strings.CutSuffix(config.Output, splitPathOutput[len(splitPathOutput)-1])
+		os.Mkdir(splitPathOutput[0], 0666)
 
-		err := os.Mkdir(dirName, 0666)
-		if err != nil && !os.IsExist(err) {
-			panic("Incorrect permittion for output file")
+		for i := 1; i < len(splitPathOutput)-1; i++ {
+			splitPathOutput[i] = splitPathOutput[i-1] + "/" + splitPathOutput[i]
+			os.Mkdir(splitPathOutput[i], 0666)
 		}
 	}
 
