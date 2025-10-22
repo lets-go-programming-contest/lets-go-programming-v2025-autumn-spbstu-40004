@@ -2,6 +2,7 @@ package indecoder
 
 import (
 	"encoding/xml"
+	"fmt"
 	"os"
 	"sort"
 
@@ -13,7 +14,7 @@ func InputProcess(inputFile string) (BankData, error) {
 
 	inputReader, err := os.Open(inputFile)
 	if err != nil {
-		return inputData, err
+		return inputData, fmt.Errorf("failed to open input file: %v", err)
 	}
 
 	decoder := xml.NewDecoder(inputReader)
@@ -21,17 +22,17 @@ func InputProcess(inputFile string) (BankData, error) {
 
 	err = decoder.Decode(&inputData)
 	if err != nil {
-		return inputData, err
+		return inputData, fmt.Errorf("failed to decode input file: %v", err)
 	}
 
 	for index := range inputData.ValCurs {
 		err := inputData.ValCurs[index].convertFloatValue()
 		if err != nil {
-			return inputData, err
+			return inputData, fmt.Errorf("failed to convert value from input file: %v", err)
 		}
 	}
 
 	sort.Sort(inputData)
 
-	return inputData, err
+	return inputData, nil
 }

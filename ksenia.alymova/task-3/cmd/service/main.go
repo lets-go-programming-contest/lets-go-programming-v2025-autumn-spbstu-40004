@@ -20,16 +20,16 @@ func main() {
 
 	config, err := confdecoder.ConfigProcess(flagConfig)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
 	inputData, err := indecoder.InputProcess(config.InputFile)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
 	err = outcoder.OutputProcess(config.OutputFile, inputData)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 }

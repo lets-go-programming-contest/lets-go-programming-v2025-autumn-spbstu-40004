@@ -2,6 +2,7 @@ package outcoder
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 
@@ -17,7 +18,7 @@ func prepOutputPath(outputFile string) error {
 	if pathLen > 1 {
 		err := os.Mkdir(splitPath[0], os.FileMode(filePerm))
 		if err != nil && !os.IsExist(err) {
-			return err
+			return fmt.Errorf("failed to create directory for output: %v", err)
 		}
 
 		for i := 1; i < pathLen-1; i++ {
@@ -25,7 +26,7 @@ func prepOutputPath(outputFile string) error {
 
 			err := os.Mkdir(splitPath[i], os.FileMode(filePerm))
 			if err != nil && !os.IsExist(err) {
-				return err
+				return fmt.Errorf("failed to create directory for output: %v", err)
 			}
 		}
 	}
@@ -36,13 +37,18 @@ func prepOutputPath(outputFile string) error {
 func OutputProcess(outputFile string, inputData indecoder.BankData) error {
 	err := prepOutputPath(outputFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to prepare path for output file: %v", err)
 	}
 
 	outputByte, err := json.MarshalIndent(inputData.ValCurs, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to code output file: %v", err)
 	}
 
-	return os.WriteFile(outputFile, outputByte, os.FileMode(filePerm))
+	err = os.WriteFile(outputFile, outputByte, os.FileMode(filePerm))
+	if err != nil {
+		return fmt.Errorf("failed to wrile data in output file: %v", err)
+	}
+
+	return nil
 }

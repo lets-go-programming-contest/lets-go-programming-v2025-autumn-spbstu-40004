@@ -2,6 +2,7 @@ package confdecoder
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -19,14 +20,17 @@ func ConfigProcess(flagConfig *string) (configFile, error) {
 
 	configByte, err := os.ReadFile(*flagConfig)
 	if err != nil {
-		return config, err
+		return config, fmt.Errorf("failed to read config file: %v", err)
 	}
 
 	err = yaml.Unmarshal(configByte, &config)
+	if err != nil {
+		return config, fmt.Errorf("failed to decode config file: %v", err)
+	}
 
 	if config.InputFile == "" || config.OutputFile == "" {
 		return config, errConfig
 	}
 
-	return config, err
+	return config, nil
 }
