@@ -19,5 +19,6 @@ func (val *bankValute) convertFloatValue() error {
 	if err == nil {
 		val.FloatValue = floatValue
 	}
+
 	return err
 }

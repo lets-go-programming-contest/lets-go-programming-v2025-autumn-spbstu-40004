@@ -20,12 +20,12 @@ func ConfigProcess(flagConfig *string) (configFile, error) {
 
 	configByte, err := os.ReadFile(*flagConfig)
 	if err != nil {
-		return config, fmt.Errorf("failed to read config file: %v", err)
+		return config, fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	err = yaml.Unmarshal(configByte, &config)
 	if err != nil {
-		return config, fmt.Errorf("failed to decode config file: %v", err)
+		return config, fmt.Errorf("failed to decode config file: %w", err)
 	}
 
 	if config.InputFile == "" || config.OutputFile == "" {

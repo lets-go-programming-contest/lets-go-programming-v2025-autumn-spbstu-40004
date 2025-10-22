@@ -14,7 +14,7 @@ func InputProcess(inputFile string) (BankData, error) {
 
 	inputReader, err := os.Open(inputFile)
 	if err != nil {
-		return inputData, fmt.Errorf("failed to open input file: %v", err)
+		return inputData, fmt.Errorf("failed to open input file: %w", err)
 	}
 
 	decoder := xml.NewDecoder(inputReader)
@@ -22,13 +22,13 @@ func InputProcess(inputFile string) (BankData, error) {
 
 	err = decoder.Decode(&inputData)
 	if err != nil {
-		return inputData, fmt.Errorf("failed to decode input file: %v", err)
+		return inputData, fmt.Errorf("failed to decode input file: %w", err)
 	}
 
 	for index := range inputData.ValCurs {
 		err := inputData.ValCurs[index].convertFloatValue()
 		if err != nil {
-			return inputData, fmt.Errorf("failed to convert value from input file: %v", err)
+			return inputData, fmt.Errorf("failed to convert value from input file: %w", err)
 		}
 	}
 
