@@ -101,5 +101,9 @@ func main() {
 		return
 	}
 
-	fmt.Println(string(jsonData))
+	err = os.WriteFile(y.OutputFile, jsonData, 0644)
+	if err != nil {
+		fmt.Println("write file error")
+		return
+	}
 }
