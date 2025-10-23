@@ -150,6 +150,7 @@ func main() {
 	}
 
 	dir := filepath.Dir(config.OutputFile)
+
 	err = os.WriteFile(dir, jsonData, ownerReadWrite)
 	if err != nil {
 		fmt.Println("write file error")
