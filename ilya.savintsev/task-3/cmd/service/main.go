@@ -21,7 +21,10 @@ type ValCurs struct {
 	Valutes []Valute
 }
 
-const ValuteName = "Valute"
+const (
+	ownerReadWrite = 0o600
+	ValuteName     = "Valute"
+)
 
 var errOpening = errors.New("opening xml file error")
 
@@ -125,7 +128,7 @@ func main() {
 		return
 	}
 
-	err = os.WriteFile(config.OutputFile, jsonData, os.ModePerm)
+	err = os.WriteFile(config.OutputFile, jsonData, ownerReadWrite)
 	if err != nil {
 		fmt.Println("write file error")
 
