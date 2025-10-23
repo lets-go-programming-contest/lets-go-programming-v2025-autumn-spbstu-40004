@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
 
 	"gopkg.in/yaml.v2"
 )
