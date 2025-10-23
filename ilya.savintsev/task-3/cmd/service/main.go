@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -22,6 +23,8 @@ type ValCurs struct {
 
 const ValuteName = "Valute"
 
+var errOpening = errors.New("opening xml file error")
+
 type Valute struct {
 	XMLName   xml.Name `xml:"Valute"`
 	ID        string   `xml:"ID,attr"`
@@ -37,6 +40,36 @@ type ValuteShort struct {
 	NumCode  int    `json:"num_code"`
 	CharCode string `json:"char_code"`
 	Value    string `json:"value"`
+}
+
+func parseXML(filepath string) (*ValCurs, error) {
+	valuteCurs, err := os.Open(filepath)
+	if err != nil {
+		return nil, errOpening
+	}
+
+	defer valuteCurs.Close()
+
+	parser := xml.NewDecoder(valuteCurs)
+
+	curs := new(ValCurs)
+
+	for t, _ := parser.Token(); t != nil; t, _ = parser.Token() {
+		if se, ok := t.(xml.StartElement); ok {
+			if se.Name.Local == ValuteName {
+				var item Valute
+
+				if err = parser.DecodeElement(&item, &se); err != nil {
+					fmt.Println("decode element error")
+
+					return nil, errOpening
+				}
+
+				curs.Valutes = append(curs.Valutes, item)
+			}
+		}
+	}
+	return curs, nil
 }
 
 func main() {
@@ -61,30 +94,11 @@ func main() {
 		return
 	}
 
-	valuteCurs, err := os.Open(config.InputFile)
+	curs, err := parseXML(config.InputFile)
 	if err != nil {
-		fmt.Println("opening xml error")
-	}
+		fmt.Println(err)
 
-	defer valuteCurs.Close()
-
-	parser := xml.NewDecoder(valuteCurs)
-
-	curs := new(ValCurs)
-
-	for t, _ := parser.Token(); t != nil; t, _ = parser.Token() {
-		if se, ok := t.(xml.StartElement); ok {
-			if se.Name.Local == ValuteName {
-				var item Valute
-				parser.DecodeElement(&item, &se)
-				if err = parser.DecodeElement(&item, &se); err != nil {
-					fmt.Println("decode element error")
-
-					return
-				}
-				curs.Valutes = append(curs.Valutes, item)
-			}
-		}
+		return
 	}
 
 	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
@@ -105,7 +119,6 @@ func main() {
 
 		return
 	}
-
 	err = os.WriteFile(config.OutputFile, jsonData, 0600)
 	if err != nil {
 		fmt.Println("write file error")
