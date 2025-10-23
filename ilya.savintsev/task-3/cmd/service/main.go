@@ -11,8 +11,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/yaml.v2"
 	"golang.org/x/net/html/charset"
+	"gopkg.in/yaml.v2"
+)
+
+const (
+	ownerReadWrite = 0o600
+	allReadWrite   = 0o755
+	ValuteName     = "Valute"
 )
 
 type DirHandle struct {
@@ -22,14 +28,8 @@ type DirHandle struct {
 
 type ValCurs struct {
 	XMLName xml.Name `xml:"ValCurs"`
-	Valutes []Valute
+	Valutes []Valute `xml:"Valute"`
 }
-
-const (
-	ownerReadWrite = 0o600
-	allReadWrite   = 0o755
-	ValuteName     = "Valute"
-)
 
 type Valute struct {
 	XMLName   xml.Name `xml:"Valute"`
@@ -48,10 +48,17 @@ type ValuteShort struct {
 	Value    string `json:"value"`
 }
 
+var (
+	errOpenXML  = errors.New("open xml error")
+	errReadXML  = errors.New("read xml error")
+	errDecdXML  = errors.New("decode xml error")
+	errMarhJSON = errors.New("marshal json error")
+)
+
 func parseXML(filepath string) (*ValCurs, error) {
 	valuteCurs, err := os.Open(filepath)
 	if err != nil {
-		return nil, errors.New("open xml error")
+		return nil, errOpenXML
 	}
 
 	defer func() {
@@ -62,7 +69,7 @@ func parseXML(filepath string) (*ValCurs, error) {
 
 	content, err := io.ReadAll(valuteCurs)
 	if err != nil {
-		return nil, errors.New("read xml error")
+		return nil, errReadXML
 	}
 
 	transformed := strings.ReplaceAll(string(content), ",", ".")
@@ -73,11 +80,11 @@ func parseXML(filepath string) (*ValCurs, error) {
 
 	var curs ValCurs
 	if err := decoder.Decode(&curs); err != nil {
-			return nil, errors.New("decode xml error")
+		return nil, errDecdXML
 	}
 
-		return &curs, nil
-	}
+	return &curs, nil
+}
 
 func createJSON(curs *ValCurs) ([]byte, error) {
 	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
@@ -94,7 +101,7 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 
 	jsonData, err := json.MarshalIndent(cursTemp, "", "  ")
 	if err != nil {
-		return nil, errors.New("marshal json error")
+		return nil, errMarhJSON
 	}
 
 	return jsonData, nil
