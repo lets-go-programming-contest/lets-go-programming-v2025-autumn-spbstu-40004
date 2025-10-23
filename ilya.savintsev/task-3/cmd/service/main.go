@@ -28,7 +28,10 @@ const (
 	ValuteName     = "Valute"
 )
 
-var errOpening = errors.New("opening xml file error")
+var (
+	errXML  = errors.New("opening xml file error")
+	errJSON = errors.New("opening xml file error")
+)
 
 type Valute struct {
 	XMLName   xml.Name `xml:"Valute"`
@@ -50,7 +53,7 @@ type ValuteShort struct {
 func parseXML(filepath string) (*ValCurs, error) {
 	valuteCurs, err := os.Open(filepath)
 	if err != nil {
-		return nil, errOpening
+		return nil, errXML
 	}
 
 	defer func() {
@@ -71,7 +74,7 @@ func parseXML(filepath string) (*ValCurs, error) {
 				if err = parser.DecodeElement(&item, &se); err != nil {
 					fmt.Println("decode element error")
 
-					return nil, errOpening
+					return nil, errXML
 				}
 
 				curs.Valutes = append(curs.Valutes, item)
@@ -80,6 +83,27 @@ func parseXML(filepath string) (*ValCurs, error) {
 	}
 
 	return curs, nil
+}
+
+func createJSON(curs *ValCurs) ([]byte, error) {
+	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
+
+	for _, value := range curs.Valutes {
+		valTemp := ValuteShort{
+			NumCode:  value.NumCode,
+			CharCode: value.CharCode,
+			Value:    value.Value,
+		}
+
+		cursTemp = append(cursTemp, valTemp)
+	}
+
+	jsonData, err := json.MarshalIndent(cursTemp, "", "  ")
+	if err != nil {
+		return nil, errJSON
+	}
+
+	return jsonData, nil
 }
 
 func main() {
@@ -111,21 +135,9 @@ func main() {
 		return
 	}
 
-	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
-
-	for _, value := range curs.Valutes {
-		valTemp := ValuteShort{
-			NumCode:  value.NumCode,
-			CharCode: value.CharCode,
-			Value:    value.Value,
-		}
-
-		cursTemp = append(cursTemp, valTemp)
-	}
-
-	jsonData, err := json.MarshalIndent(cursTemp, "", "  ")
+	jsonData, err := createJSON(curs)
 	if err != nil {
-		fmt.Println("marshal json error")
+		fmt.Println(err)
 
 		return
 	}
@@ -139,7 +151,6 @@ func main() {
 
 	dir := filepath.Dir(config.OutputFile)
 	err = os.WriteFile(dir, jsonData, ownerReadWrite)
-
 	if err != nil {
 		fmt.Println("write file error")
 
