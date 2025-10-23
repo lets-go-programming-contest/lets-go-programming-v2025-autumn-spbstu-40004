@@ -4,7 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 
-	intheap "github.com/faxryzen/task-2-2/internal/intheap"
+	intheap "github.com/faxryzen/task-2-2/internal/int_heap"
 )
 
 const (
