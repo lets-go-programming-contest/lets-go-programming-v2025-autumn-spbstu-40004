@@ -6,10 +6,13 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v2"
+	"golang.org/x/net/html/charset"
 )
 
 type DirHandle struct {
@@ -26,11 +29,6 @@ const (
 	ownerReadWrite = 0o600
 	allReadWrite   = 0o755
 	ValuteName     = "Valute"
-)
-
-var (
-	errXML  = errors.New("opening xml file error")
-	errJSON = errors.New("opening xml file error")
 )
 
 type Valute struct {
@@ -53,37 +51,33 @@ type ValuteShort struct {
 func parseXML(filepath string) (*ValCurs, error) {
 	valuteCurs, err := os.Open(filepath)
 	if err != nil {
-		return nil, errXML
+		return nil, errors.New("open xml error")
 	}
 
 	defer func() {
 		if err = valuteCurs.Close(); err != nil {
-			return
+			panic(err)
 		}
 	}()
 
-	parser := xml.NewDecoder(valuteCurs)
-
-	curs := new(ValCurs)
-
-	for t, _ := parser.Token(); t != nil; t, _ = parser.Token() {
-		if se, ok := t.(xml.StartElement); ok {
-			if se.Name.Local == ValuteName {
-				var item Valute
-
-				if err = parser.DecodeElement(&item, &se); err != nil {
-					fmt.Println("decode element error")
-
-					return nil, errXML
-				}
-
-				curs.Valutes = append(curs.Valutes, item)
-			}
-		}
+	content, err := io.ReadAll(valuteCurs)
+	if err != nil {
+		return nil, errors.New("read xml error")
 	}
 
-	return curs, nil
-}
+	transformed := strings.ReplaceAll(string(content), ",", ".")
+	reader := strings.NewReader(transformed)
+
+	decoder := xml.NewDecoder(reader)
+	decoder.CharsetReader = charset.NewReaderLabel
+
+	var curs ValCurs
+	if err := decoder.Decode(&curs); err != nil {
+			return nil, errors.New("decode xml error")
+	}
+
+		return &curs, nil
+	}
 
 func createJSON(curs *ValCurs) ([]byte, error) {
 	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
@@ -100,7 +94,7 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 
 	jsonData, err := json.MarshalIndent(cursTemp, "", "  ")
 	if err != nil {
-		return nil, errJSON
+		return nil, errors.New("marshal json error")
 	}
 
 	return jsonData, nil
