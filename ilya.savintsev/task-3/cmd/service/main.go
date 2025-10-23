@@ -48,7 +48,11 @@ func parseXML(filepath string) (*ValCurs, error) {
 		return nil, errOpening
 	}
 
-	defer valuteCurs.Close()
+	defer func() {
+		if err = valuteCurs.Close(); err != nil {
+			return
+		}
+	}()
 
 	parser := xml.NewDecoder(valuteCurs)
 
@@ -69,6 +73,7 @@ func parseXML(filepath string) (*ValCurs, error) {
 			}
 		}
 	}
+
 	return curs, nil
 }
 
@@ -120,6 +125,7 @@ func main() {
 		return
 	}
 	err = os.WriteFile(config.OutputFile, jsonData, 0600)
+
 	if err != nil {
 		fmt.Println("write file error")
 
