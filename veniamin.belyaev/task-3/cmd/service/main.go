@@ -10,22 +10,29 @@ import (
 	xmlHandler "github.com/belyaevEDU/task-3/internal/xml_handling"
 )
 
+const (
+	configFlagName         = "config"
+	configFlagDesc         = "Configuration file path"
+	configFlagDefaultValue = ""
+	configFlagPanicMessage = "config file path via flag not specified"
+)
+
 func main() {
 	var configFilePath string
 
-	flag.StringVar(&configFilePath, "config", "none", "Configuration file path")
+	flag.StringVar(&configFilePath, configFlagName, configFlagDefaultValue, configFlagDesc)
 	flag.Parse()
 
 	flagExists := false
 
 	flag.Visit(func(f *flag.Flag) {
-		if f.Name == "config" {
+		if f.Name == configFlagName {
 			flagExists = true
 		}
 	})
 
 	if !flagExists {
-		panic("config file path via flag not specified")
+		panic(configFlagPanicMessage)
 	}
 
 	config, err := configHandler.LoadConfig(configFilePath)
