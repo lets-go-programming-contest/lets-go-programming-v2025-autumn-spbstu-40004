@@ -50,7 +50,6 @@ type ValuteShort struct {
 
 var (
 	errOpenXML  = errors.New("open xml error")
-	errReadXML  = errors.New("read xml error")
 	errDecdXML  = errors.New("decode xml error")
 	errMarhJSON = errors.New("marshal json error")
 )
@@ -87,7 +86,8 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 			return nil, fmt.Errorf("json int error: %w", err)
 		}
 
-		valueWithDot := strings.Replace(value.Value, ",", ".", -1)
+		valueWithDot := strings.ReplaceAll(value.Value, ",", ".")
+
 		floatValue, err := strconv.ParseFloat(valueWithDot, 64)
 		if err != nil {
 			return nil, fmt.Errorf("parse value error: %w", err)
