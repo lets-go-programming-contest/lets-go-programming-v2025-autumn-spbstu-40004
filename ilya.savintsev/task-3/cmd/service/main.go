@@ -124,6 +124,7 @@ func saveToFile(jsonData []byte, outputFile string) error {
 
 	err := os.WriteFile(outputFile, jsonData, ownerReadWrite)
 	if err != nil {
+
 		return fmt.Errorf("write file error: %w", err)
 	}
 
