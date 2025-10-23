@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -68,15 +67,7 @@ func parseXML(filepath string) (*ValCurs, error) {
 		}
 	}()
 
-	content, err := io.ReadAll(valuteCurs)
-	if err != nil {
-		return nil, errReadXML
-	}
-
-	transformed := strings.ReplaceAll(string(content), ",", ".")
-	reader := strings.NewReader(transformed)
-
-	decoder := xml.NewDecoder(reader)
+	decoder := xml.NewDecoder(valuteCurs)
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	var curs ValCurs
@@ -96,9 +87,10 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 			return nil, fmt.Errorf("json int error: %w", err)
 		}
 
-		floatValue, err := strconv.ParseFloat(value.Value, 64)
+		valueWithDot := strings.Replace(value.Value, ",", ".", -1)
+		floatValue, err := strconv.ParseFloat(valueWithDot, 64)
 		if err != nil {
-			return nil, fmt.Errorf("json float error: %w", err)
+			return nil, fmt.Errorf("parse value error: %w", err)
 		}
 
 		valTemp := ValuteShort{
