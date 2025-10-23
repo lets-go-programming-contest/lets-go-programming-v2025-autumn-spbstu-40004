@@ -125,7 +125,7 @@ func main() {
 		return
 	}
 
-	err = os.WriteFile(config.OutputFile, jsonData, 0o600)
+	err = os.WriteFile(config.OutputFile, jsonData, os.ModePerm)
 	if err != nil {
 		fmt.Println("write file error")
 
