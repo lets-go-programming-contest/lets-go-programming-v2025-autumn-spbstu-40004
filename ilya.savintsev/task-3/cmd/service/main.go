@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/xml"
 	"encoding/json"
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"os"
@@ -29,23 +29,20 @@ type Valute struct {
 	CharCode  string   `xml:"CharCode"`
 	Nominal   int      `xml:"Nominal"`
 	Name      string   `xml:"Name"`
-	Value     string  `xml:"Value"`
-	VunitRate string  `xml:"VunitRate"`
+	Value     string   `xml:"Value"`
+	VunitRate string   `xml:"VunitRate"`
 }
 
 type ValuteShort struct {
-	NumCode  int `json:"num_code"`
-	CharCode   string    `json:"char_code"`
-	Value string `json:"value"`
+	NumCode  int    `json:"num_code"`
+	CharCode string `json:"char_code"`
+	Value    string `json:"value"`
 }
-
 
 func main() {
 	var fileDir string
 	flag.StringVar(&fileDir, "config", "yaml", "Specifies the path to the config")
 	flag.Parse()
-
-	fmt.Println(fileDir)
 
 	content, err := os.ReadFile(fileDir)
 	if err != nil {
@@ -57,14 +54,14 @@ func main() {
 	var y DirHandle
 	err = yaml.Unmarshal(content, &y)
 	if err != nil {
-		fmt.Printf("error: %v", err)
+		fmt.Println("unmarshal yaml error")
 
 		return
 	}
 
 	valuteCurs, err := os.Open(y.InputFile)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("opening xml error")
 	}
 
 	defer valuteCurs.Close()
@@ -84,14 +81,14 @@ func main() {
 		}
 	}
 
-	var cursTemp[] ValuteShort
+	var cursTemp []ValuteShort
 
 	for _, value := range curs.Valutes {
 
-		valTemp := ValuteShort {
-			NumCode: value.NumCode,
+		valTemp := ValuteShort{
+			NumCode:  value.NumCode,
 			CharCode: value.CharCode,
-			Value: value.Value,
+			Value:    value.Value,
 		}
 
 		cursTemp = append(cursTemp, valTemp)
@@ -99,7 +96,7 @@ func main() {
 
 	jsonData, err := json.MarshalIndent(cursTemp, "", "  ")
 	if err != nil {
-		fmt.Println("bruh")
+		fmt.Println("marshal json error")
 
 		return
 	}
