@@ -115,6 +115,21 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	return jsonData, nil
 }
 
+func saveToFile(jsonData []byte, outputFile string) error {
+	dir := filepath.Dir(outputFile)
+
+	if err := os.MkdirAll(dir, allReadWrite); err != nil {
+		return fmt.Errorf("create directory error: %w", err)
+	}
+
+	err := os.WriteFile(outputFile, jsonData, ownerReadWrite)
+	if err != nil {
+		return fmt.Errorf("write file error: %w", err)
+	}
+
+	return nil
+}
+
 func main() {
 	var fileDir string
 
@@ -151,19 +166,9 @@ func main() {
 		return
 	}
 
-	dir := filepath.Dir(config.OutputFile)
-
-	err = os.MkdirAll(dir, allReadWrite)
+	err = saveToFile(jsonData, config.OutputFile)
 	if err != nil {
 		fmt.Println("write file error")
-
-		return
-	}
-
-	err = os.WriteFile(config.OutputFile, jsonData, ownerReadWrite)
-	if err != nil {
-		fmt.Println("write file error")
-
 		return
 	}
 }
