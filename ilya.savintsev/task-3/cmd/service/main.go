@@ -144,14 +144,14 @@ func main() {
 
 	dir := filepath.Dir(config.OutputFile)
 
-	err = os.MkdirAll(config.OutputFile, allReadWrite)
+	err = os.MkdirAll(dir, allReadWrite)
 	if err != nil {
 		fmt.Println("write file error")
 
 		return
 	}
 
-	err = os.WriteFile(dir, jsonData, ownerReadWrite)
+	err = os.WriteFile(config.OutputFile, jsonData, ownerReadWrite)
 	if err != nil {
 		fmt.Println("write file error")
 
