@@ -7,6 +7,11 @@ import (
 	intheap "github.com/faxryzen/task-2-2/internal/intheap"
 )
 
+const (
+	minRating = -10000
+	maxRating = 10000
+)
+
 func main() {
 	var amount, kPrefer uint16
 
@@ -21,7 +26,7 @@ func main() {
 
 	for i := range amount {
 		_, err = fmt.Scan(&foodRating[i])
-		if err != nil || foodRating[i] < -10000 || foodRating[i] > 10000 {
+		if err != nil || foodRating[i] < -minRating || foodRating[i] > maxRating {
 			fmt.Println("invalid food init")
 
 			return
