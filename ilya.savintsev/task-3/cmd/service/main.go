@@ -35,7 +35,7 @@ type ValCurs struct {
 type Valute struct {
 	XMLName   xml.Name `xml:"Valute"`
 	ID        string   `xml:"ID,attr"`
-	NumCode   int      `xml:"NumCode"`
+	NumCode   string   `xml:"NumCode"`
 	CharCode  string   `xml:"CharCode"`
 	Nominal   int      `xml:"Nominal"`
 	Name      string   `xml:"Name"`
@@ -44,7 +44,7 @@ type Valute struct {
 }
 
 type ValuteShort struct {
-	NumCode  int     `json:"num_code"`
+	NumCode  string  `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
 }
@@ -54,7 +54,6 @@ var (
 	errReadXML  = errors.New("read xml error")
 	errDecdXML  = errors.New("decode xml error")
 	errMarhJSON = errors.New("marshal json error")
-	errStrToFlt = errors.New("marshal json error")
 )
 
 func parseXML(filepath string) (*ValCurs, error) {
@@ -94,7 +93,7 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	for _, value := range curs.Valutes {
 		floatValue, err := strconv.ParseFloat(value.Value, 64)
 		if err != nil {
-			return nil, errStrToFlt
+			return nil, err
 		}
 
 		valTemp := ValuteShort{
