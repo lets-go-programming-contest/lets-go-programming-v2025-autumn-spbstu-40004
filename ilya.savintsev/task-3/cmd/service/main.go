@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -136,7 +137,8 @@ func main() {
 		return
 	}
 
-	err = os.WriteFile(config.OutputFile, jsonData, ownerReadWrite)
+	dir := filepath.Dir(config.OutputFile)
+	err = os.WriteFile(dir, jsonData, ownerReadWrite)
 	if err != nil {
 		fmt.Println("write file error")
 
