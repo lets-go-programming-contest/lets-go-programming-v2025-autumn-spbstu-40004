@@ -18,9 +18,10 @@ func (h *IntHeap) Swap(i, j int) {
 
 func (h *IntHeap) Push(x any) {
 	n, isGood := x.(int)
-	if isGood {
-		*h = append(*h, n)
+	if !isGood {
+		return
 	}
+	*h = append(*h, n)
 }
 
 func (h *IntHeap) Pop() any {
