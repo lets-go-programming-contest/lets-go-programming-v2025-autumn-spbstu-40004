@@ -44,7 +44,7 @@ type Valute struct {
 }
 
 type ValuteShort struct {
-	NumCode  string  `json:"num_code"`
+	NumCode  int     `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
 }
@@ -91,13 +91,18 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
 
 	for _, value := range curs.Valutes {
+		numCode, err := strconv.Atoi(value.NumCode)
+		if err != nil {
+			return nil, fmt.Errorf("json int error: %w", err)
+		}
+
 		floatValue, err := strconv.ParseFloat(value.Value, 64)
 		if err != nil {
-			return nil, fmt.Errorf("json conv error: %w", err)
+			return nil, fmt.Errorf("json float error: %w", err)
 		}
 
 		valTemp := ValuteShort{
-			NumCode:  value.NumCode,
+			NumCode:  numCode,
 			CharCode: value.CharCode,
 			Value:    floatValue,
 		}
