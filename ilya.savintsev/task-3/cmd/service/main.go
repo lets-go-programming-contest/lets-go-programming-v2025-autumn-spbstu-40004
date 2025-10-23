@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -23,6 +24,7 @@ type ValCurs struct {
 
 const (
 	ownerReadWrite = 0o600
+	allReadWrite   = 0o755
 	ValuteName     = "Valute"
 )
 
@@ -128,6 +130,8 @@ func main() {
 		return
 	}
 
+	dir := filepath.Dir(config.OutputFile)
+	os.MkdirAll(dir, allReadWrite)
 	err = os.WriteFile(config.OutputFile, jsonData, ownerReadWrite)
 	if err != nil {
 		fmt.Println("write file error")
