@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/html/charset"
@@ -43,9 +44,9 @@ type Valute struct {
 }
 
 type ValuteShort struct {
-	NumCode  int    `json:"num_code"`
-	CharCode string `json:"char_code"`
-	Value    string `json:"value"`
+	NumCode  int     `json:"num_code"`
+	CharCode string  `json:"char_code"`
+	Value    float64 `json:"value"`
 }
 
 var (
@@ -53,6 +54,7 @@ var (
 	errReadXML  = errors.New("read xml error")
 	errDecdXML  = errors.New("decode xml error")
 	errMarhJSON = errors.New("marshal json error")
+	errStrToFlt = errors.New("marshal json error")
 )
 
 func parseXML(filepath string) (*ValCurs, error) {
@@ -90,10 +92,15 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
 
 	for _, value := range curs.Valutes {
+		floatValue, err := strconv.ParseFloat(value.Value, 64)
+		if err != nil {
+			return nil, errStrToFlt
+		}
+
 		valTemp := ValuteShort{
 			NumCode:  value.NumCode,
 			CharCode: value.CharCode,
-			Value:    value.Value,
+			Value:    floatValue,
 		}
 
 		cursTemp = append(cursTemp, valTemp)
