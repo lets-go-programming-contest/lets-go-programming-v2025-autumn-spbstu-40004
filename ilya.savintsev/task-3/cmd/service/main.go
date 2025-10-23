@@ -93,7 +93,7 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	for _, value := range curs.Valutes {
 		floatValue, err := strconv.ParseFloat(value.Value, 64)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("json conv error: %w", err)
 		}
 
 		valTemp := ValuteShort{
