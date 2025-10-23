@@ -26,7 +26,7 @@ func main() {
 
 	for i := range amount {
 		_, err = fmt.Scan(&foodRating[i])
-		if err != nil || foodRating[i] < -minRating || foodRating[i] > maxRating {
+		if err != nil || foodRating[i] < minRating || foodRating[i] > maxRating {
 			fmt.Println("invalid food init")
 
 			return
