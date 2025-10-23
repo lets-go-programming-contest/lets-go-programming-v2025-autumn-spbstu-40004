@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -101,6 +102,10 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 
 		cursTemp = append(cursTemp, valTemp)
 	}
+
+	sort.Slice(cursTemp, func(i, j int) bool {
+		return cursTemp[i].Value > cursTemp[j].Value
+	})
 
 	jsonData, err := json.MarshalIndent(cursTemp, "", "  ")
 	if err != nil {
