@@ -126,7 +126,6 @@ func main() {
 	}
 
 	err = os.WriteFile(config.OutputFile, jsonData, 0600)
-
 	if err != nil {
 		fmt.Println("write file error")
 
