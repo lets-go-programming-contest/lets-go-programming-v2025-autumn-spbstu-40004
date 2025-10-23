@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 
 	"gopkg.in/yaml.v2"
 )
@@ -24,7 +25,7 @@ const ValuteName = "Valute"
 
 type Valute struct {
 	XMLName   xml.Name `xml:"Valute"`
-	Id        string   `xml:"ID,attr"`
+	ID        string   `xml:"ID,attr"`
 	NumCode   int      `xml:"NumCode"`
 	CharCode  string   `xml:"CharCode"`
 	Nominal   int      `xml:"Nominal"`
@@ -41,6 +42,7 @@ type ValuteShort struct {
 
 func main() {
 	var fileDir string
+
 	flag.StringVar(&fileDir, "config", "yaml", "Specifies the path to the config")
 	flag.Parse()
 
@@ -51,15 +53,16 @@ func main() {
 		return
 	}
 
-	var y DirHandle
-	err = yaml.Unmarshal(content, &y)
+	var config DirHandle
+
+	err = yaml.Unmarshal(content, &config)
 	if err != nil {
 		fmt.Println("unmarshal yaml error")
 
 		return
 	}
 
-	valuteCurs, err := os.Open(y.InputFile)
+	valuteCurs, err := os.Open(config.InputFile)
 	if err != nil {
 		fmt.Println("opening xml error")
 	}
@@ -71,20 +74,23 @@ func main() {
 	curs := new(ValCurs)
 
 	for t, _ := parser.Token(); t != nil; t, _ = parser.Token() {
-		switch se := t.(type) {
-		case xml.StartElement:
+		if se, ok := t.(xml.StartElement); ok {
 			if se.Name.Local == ValuteName {
 				var item Valute
 				parser.DecodeElement(&item, &se)
+				if err = parser.DecodeElement(&item, &se); err != nil {
+					fmt.Println("decode element error")
+
+					return
+				}
 				curs.Valutes = append(curs.Valutes, item)
 			}
 		}
 	}
 
-	var cursTemp []ValuteShort
+	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
 
 	for _, value := range curs.Valutes {
-
 		valTemp := ValuteShort{
 			NumCode:  value.NumCode,
 			CharCode: value.CharCode,
@@ -101,9 +107,10 @@ func main() {
 		return
 	}
 
-	err = os.WriteFile(y.OutputFile, jsonData, 0644)
+	err = os.WriteFile(config.OutputFile, jsonData, 0600)
 	if err != nil {
 		fmt.Println("write file error")
+
 		return
 	}
 }
