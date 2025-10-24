@@ -49,10 +49,15 @@ type ValuteShort struct {
 	Value    float64 `json:"value"`
 }
 
+func panicIfErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 var (
-	errOpenXML  = errors.New("open xml error")
-	errDecdXML  = errors.New("decode xml error")
-	errMarhJSON = errors.New("marshal json error")
+	errOpenXML = errors.New("no such file or directory")
+	errDecdXML = errors.New("invalid encoding")
 )
 
 func parseXML(filepath string) (*ValCurs, error) {
@@ -62,9 +67,7 @@ func parseXML(filepath string) (*ValCurs, error) {
 	}
 
 	defer func() {
-		if err = valuteCurs.Close(); err != nil {
-			panic(err)
-		}
+		panicIfErr(valuteCurs.Close())
 	}()
 
 	decoder := xml.NewDecoder(valuteCurs)
@@ -78,20 +81,26 @@ func parseXML(filepath string) (*ValCurs, error) {
 	return &curs, nil
 }
 
+var (
+	errAtoiJSON = errors.New("string to int invalid conv")
+	errFlotJSON = errors.New("string to float64 invalid conv")
+	errMarsJSON = errors.New("cant marshall json")
+)
+
 func createJSON(curs *ValCurs) ([]byte, error) {
 	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
 
 	for _, value := range curs.Valutes {
 		numCode, err := strconv.Atoi(value.NumCode)
 		if err != nil {
-			return nil, fmt.Errorf("json int error: %w", err)
+			return nil, errAtoiJSON
 		}
 
 		valueWithDot := strings.ReplaceAll(value.Value, ",", ".")
 
 		floatValue, err := strconv.ParseFloat(valueWithDot, 64)
 		if err != nil {
-			return nil, fmt.Errorf("parse value error: %w", err)
+			return nil, errFlotJSON
 		}
 
 		valTemp := ValuteShort{
@@ -109,22 +118,27 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 
 	jsonData, err := json.MarshalIndent(cursTemp, "", "  ")
 	if err != nil {
-		return nil, errMarhJSON
+		return nil, errMarsJSON
 	}
 
 	return jsonData, nil
 }
 
+var (
+	errDirSave = errors.New("unable create directory")
+	errWrtSave = errors.New("unable save file")
+)
+
 func saveToFile(jsonData []byte, outputFile string) error {
 	dir := filepath.Dir(outputFile)
 
 	if err := os.MkdirAll(dir, allReadWrite); err != nil {
-		return fmt.Errorf("create directory error: %w", err)
+		return errDirSave
 	}
 
 	err := os.WriteFile(outputFile, jsonData, ownerReadWrite)
 	if err != nil {
-		return fmt.Errorf("write file error: %w", err)
+		return errWrtSave
 	}
 
 	return nil
@@ -138,7 +152,7 @@ func main() {
 
 	content, err := os.ReadFile(fileDir)
 	if err != nil {
-		fmt.Println("config does not exist")
+		fmt.Println("no such file or directory")
 
 		return
 	}
