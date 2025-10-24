@@ -150,9 +150,7 @@ func main() {
 
 	content, err := os.ReadFile(fileDir)
 	if err != nil {
-		fmt.Println("no such file or directory")
-
-		return
+		panic("no such file or directory")
 	}
 
 	var config DirHandle
