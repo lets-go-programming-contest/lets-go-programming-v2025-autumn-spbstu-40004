@@ -161,9 +161,7 @@ func main() {
 
 	err = yaml.Unmarshal(content, &config)
 	if err != nil {
-		fmt.Println("unmarshal yaml error")
-
-		return
+		panic("did not find expected key")
 	}
 
 	curs, err := parseXML(config.InputFile)
