@@ -17,7 +17,7 @@ func (h *MaxHeap) Push(x interface{}) {
 
 func (h *MaxHeap) Pop() interface{} {
 	if len(*h) == 0 {
-		panic("Pop from empty heap")
+		return nil
 	}
 
 	old := *h
