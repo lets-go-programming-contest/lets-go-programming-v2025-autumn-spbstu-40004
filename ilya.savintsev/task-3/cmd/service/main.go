@@ -91,7 +91,7 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	for _, value := range curs.Valutes {
 		numCode, err := strconv.Atoi(value.NumCode)
 		if err != nil {
-			return nil, errConvJSON
+			continue
 		}
 
 		valueWithDot := strings.ReplaceAll(value.Value, ",", ".")
