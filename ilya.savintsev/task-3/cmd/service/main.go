@@ -182,7 +182,7 @@ func main() {
 
 	err = saveToFile(jsonData, config.OutputFile)
 	if err != nil {
-		fmt.Println("write file error")
+		fmt.Println(err)
 
 		return
 	}
