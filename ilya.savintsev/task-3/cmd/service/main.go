@@ -166,22 +166,16 @@ func main() {
 
 	curs, err := parseXML(config.InputFile)
 	if err != nil {
-		fmt.Println(err)
-
-		return
+		panic(err)
 	}
 
 	jsonData, err := createJSON(curs)
 	if err != nil {
-		fmt.Println(err)
-
-		return
+		panic(err)
 	}
 
 	err = saveToFile(jsonData, config.OutputFile)
 	if err != nil {
-		fmt.Println(err)
-
-		return
+		panic(err)
 	}
 }
