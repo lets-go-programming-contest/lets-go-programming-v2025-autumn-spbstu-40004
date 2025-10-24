@@ -80,9 +80,7 @@ func parseXML(filepath string) (*ValCurs, error) {
 	return &curs, nil
 }
 
-var (
-	errMarsJSON = errors.New("cant marshall json")
-)
+var errMarsJSON = errors.New("cant marshall json")
 
 func createJSON(curs *ValCurs) ([]byte, error) {
 	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
