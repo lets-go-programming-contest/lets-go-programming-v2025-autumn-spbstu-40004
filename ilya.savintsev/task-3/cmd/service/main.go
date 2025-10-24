@@ -80,7 +80,10 @@ func parseXML(filepath string) (*ValCurs, error) {
 	return &curs, nil
 }
 
-var errMarsJSON = errors.New("cant marshall json")
+var (
+	errMarsJSON = errors.New("cant marshall json")
+	errConvJSON = errors.New("cant convert numbers")
+)
 
 func createJSON(curs *ValCurs) ([]byte, error) {
 	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
@@ -88,14 +91,14 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	for _, value := range curs.Valutes {
 		numCode, err := strconv.Atoi(value.NumCode)
 		if err != nil {
-			continue
+			return nil, errConvJSON
 		}
 
 		valueWithDot := strings.ReplaceAll(value.Value, ",", ".")
 
 		floatValue, err := strconv.ParseFloat(valueWithDot, 64)
 		if err != nil {
-			continue
+			return nil, errConvJSON
 		}
 
 		valTemp := ValuteShort{
