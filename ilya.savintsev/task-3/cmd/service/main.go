@@ -171,7 +171,9 @@ func main() {
 
 	jsonData, err := createJSON(curs)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+
+		return
 	}
 
 	err = saveToFile(jsonData, config.OutputFile)
