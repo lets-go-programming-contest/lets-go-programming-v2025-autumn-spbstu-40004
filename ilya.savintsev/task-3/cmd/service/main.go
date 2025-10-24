@@ -82,8 +82,6 @@ func parseXML(filepath string) (*ValCurs, error) {
 }
 
 var (
-	errAtoiJSON = errors.New("string to int invalid conv")
-	errFlotJSON = errors.New("string to float64 invalid conv")
 	errMarsJSON = errors.New("cant marshall json")
 )
 
@@ -93,14 +91,14 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	for _, value := range curs.Valutes {
 		numCode, err := strconv.Atoi(value.NumCode)
 		if err != nil {
-			return nil, errAtoiJSON
+			continue
 		}
 
 		valueWithDot := strings.ReplaceAll(value.Value, ",", ".")
 
 		floatValue, err := strconv.ParseFloat(valueWithDot, 64)
 		if err != nil {
-			return nil, errFlotJSON
+			continue
 		}
 
 		valTemp := ValuteShort{
@@ -171,9 +169,7 @@ func main() {
 
 	jsonData, err := createJSON(curs)
 	if err != nil {
-		fmt.Println(err)
-
-		return
+		panic(err)
 	}
 
 	err = saveToFile(jsonData, config.OutputFile)
