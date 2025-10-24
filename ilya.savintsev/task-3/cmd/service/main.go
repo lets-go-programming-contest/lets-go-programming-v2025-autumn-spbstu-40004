@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
