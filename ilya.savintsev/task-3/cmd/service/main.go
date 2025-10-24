@@ -32,13 +32,13 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	XMLName   xml.Name `xml:"Valute" json:"-"`
-	ID        string   `xml:"ID,attr" json:"-"`
-	NumCode   int      `xml:"NumCode" json:"num_code"`
+	XMLName   xml.Name `xml:"Valute"   json:"-"`
+	ID        string   `xml:"ID,attr"  json:"-"`
+	NumCode   int      `xml:"NumCode"  json:"num_code"`
 	CharCode  string   `xml:"CharCode" json:"char_code"`
-	Nominal   int      `xml:"Nominal" json:"-"`
-	Name      string   `xml:"Name" json:"-"`
-	Value     float64  `xml:"Value" json:"value"`
+	Nominal   int      `xml:"Nominal"  json:"-"`
+	Name      string   `xml:"Name"     json:"-"`
+	Value     float64  `xml:"Value"    json:"value"`
 	VunitRate string   `xml:"VunitRate" json:"-"`
 }
 
@@ -88,11 +88,16 @@ func createJSON(curs *ValCurs) ([]byte, error) {
 	cursTemp := make([]Valute, 0, len(curs.Valutes))
 
 	for _, value := range curs.Valutes {
-		valTemp := Valute{
-			NumCode:  value.NumCode,
-			CharCode: value.CharCode,
-			Value:    value.Value,
-		}
+	valTemp := Valute {
+		XMLName:   xml.Name{Local: "Valute"},
+		ID:        value.ID,
+		NumCode:   value.NumCode,
+		CharCode:  value.CharCode,
+		Nominal:   value.Nominal,
+		Name:      value.Name,
+		Value:     value.Value,
+		VunitRate: value.VunitRate,
+	}
 
 		cursTemp = append(cursTemp, valTemp)
 	}
