@@ -1,15 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"flag"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
-	"strings"
 
 	"golang.org/x/net/html/charset"
 	"gopkg.in/yaml.v2"
@@ -32,20 +32,14 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	XMLName   xml.Name `xml:"Valute"`
-	ID        string   `xml:"ID,attr"`
-	NumCode   string   `xml:"NumCode"`
-	CharCode  string   `xml:"CharCode"`
-	Nominal   int      `xml:"Nominal"`
-	Name      string   `xml:"Name"`
-	Value     string   `xml:"Value"`
-	VunitRate string   `xml:"VunitRate"`
-}
-
-type ValuteShort struct {
-	NumCode  int     `json:"num_code"`
-	CharCode string  `json:"char_code"`
-	Value    float64 `json:"value"`
+	XMLName   xml.Name `xml:"Valute" json:"-"`
+	ID        string   `xml:"ID,attr" json:"-"`
+	NumCode   int      `xml:"NumCode" json:"num_code"`
+	CharCode  string   `xml:"CharCode" json:"char_code"`
+	Nominal   int      `xml:"Nominal" json:"-"`
+	Name      string   `xml:"Name" json:"-"`
+	Value     float64  `xml:"Value" json:"value"`
+	VunitRate string   `xml:"VunitRate" json:"-"`
 }
 
 func panicIfErr(err error) {
@@ -56,6 +50,7 @@ func panicIfErr(err error) {
 
 var (
 	errOpenXML = errors.New("no such file or directory")
+	errReadXML = errors.New("invalid file")
 	errDecdXML = errors.New("invalid encoding")
 )
 
@@ -69,7 +64,14 @@ func parseXML(filepath string) (*ValCurs, error) {
 		panicIfErr(valuteCurs.Close())
 	}()
 
-	decoder := xml.NewDecoder(valuteCurs)
+	content, err := io.ReadAll(valuteCurs)
+	if err != nil {
+		return nil, errReadXML
+	}
+
+	contentWithDots := bytes.ReplaceAll(content, []byte(","), []byte("."))
+
+	decoder := xml.NewDecoder(bytes.NewReader(contentWithDots))
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	var curs ValCurs
@@ -80,31 +82,16 @@ func parseXML(filepath string) (*ValCurs, error) {
 	return &curs, nil
 }
 
-var (
-	errMarsJSON = errors.New("cant marshall json")
-	errConvJSON = errors.New("cant convert numbers")
-)
+var errMarsJSON = errors.New("cant marshall json")
 
 func createJSON(curs *ValCurs) ([]byte, error) {
-	cursTemp := make([]ValuteShort, 0, len(curs.Valutes))
+	cursTemp := make([]Valute, 0, len(curs.Valutes))
 
 	for _, value := range curs.Valutes {
-		numCode, err := strconv.Atoi(value.NumCode)
-		if err != nil {
-			continue
-		}
-
-		valueWithDot := strings.ReplaceAll(value.Value, ",", ".")
-
-		floatValue, err := strconv.ParseFloat(valueWithDot, 64)
-		if err != nil {
-			return nil, errConvJSON
-		}
-
-		valTemp := ValuteShort{
-			NumCode:  numCode,
+		valTemp := Valute{
+			NumCode:  value.NumCode,
 			CharCode: value.CharCode,
-			Value:    floatValue,
+			Value:    value.Value,
 		}
 
 		cursTemp = append(cursTemp, valTemp)
