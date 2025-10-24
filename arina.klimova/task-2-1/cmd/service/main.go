@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	TempControl "github.com/arinaklimova/task-2-1/temperature"
+	TempControl "github.com/arinaklimova/task-2-1/internal/temperature"
 )
 
 var (
@@ -34,7 +34,7 @@ func main() {
 			return
 		}
 
-		tempControl := &TempControl.NewTemperatureController()
+		tempControl := TempControl.NewTemperatureController()
 
 		for range peopleCount {
 			var (
