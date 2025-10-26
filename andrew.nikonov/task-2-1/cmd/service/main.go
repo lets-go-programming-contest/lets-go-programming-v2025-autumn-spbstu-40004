@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+
+	TempManager "github.com/ysffmn/task-2-1/internal/TemperatureManager"
 )
 
 const (
@@ -10,43 +12,14 @@ const (
 	maxAllowedTemp = 30
 )
 
-type Temperature struct {
-	minTemp int
-	maxTemp int
-}
-
-func (t *Temperature) adjustTemperature(operator string, val int) error {
-	switch operator {
-	case "<=":
-		t.maxTemp = min(t.maxTemp, val)
-
-		return nil
-	case ">=":
-		t.minTemp = max(t.minTemp, val)
-
-		return nil
-	default:
-		return errOperator
-	}
-}
-
-func (t *Temperature) getOptimalTemperature() int {
-	if t.minTemp > t.maxTemp {
-		return -1
-	} else {
-		return t.minTemp
-	}
-}
-
 var (
 	errDataFormat = errors.New("invalid temperature data")
-	errOperator   = errors.New("invalid operator")
 	errDepNumber  = errors.New("invalid departments number")
 	errEmplNumber = errors.New("invalid employee number")
 )
 
 func processDep(emplQuantity int) {
-	depTemperature := Temperature{minTemp: minAllowedTemp, maxTemp: maxAllowedTemp}
+	depTemperature := TempManager.NewTemperatureManager(minAllowedTemp, maxAllowedTemp)
 
 	for range emplQuantity {
 		var (
@@ -61,14 +34,14 @@ func processDep(emplQuantity int) {
 			return
 		}
 
-		err = depTemperature.adjustTemperature(operator, temp)
+		err = depTemperature.AdjustTemperature(operator, temp)
 		if err != nil {
 			fmt.Println(err)
 
 			return
 		}
 
-		fmt.Println(depTemperature.getOptimalTemperature())
+		fmt.Println(depTemperature.GetOptimalTemperature())
 	}
 }
 
