@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	TempManager "github.com/ysffmn/task-2-1/internal/TemperatureManager"
+	TempManager "github.com/ysffmn/task-2-1/internal/temperatureManager"
 )
 
 const (
@@ -19,7 +19,7 @@ var (
 )
 
 func processDep(emplQuantity int) {
-	depTemperature := TempManager.NewTemperatureManager(minAllowedTemp, maxAllowedTemp)
+	depTemperature := TempManager.New(minAllowedTemp, maxAllowedTemp)
 
 	for range emplQuantity {
 		var (
@@ -49,7 +49,7 @@ func main() {
 	var depQuantity, emplQuantity int
 
 	_, err := fmt.Scanln(&depQuantity)
-	if err != nil || depQuantity == 0 || depQuantity > 1000 {
+	if err != nil || depQuantity < 0 || depQuantity > 1000 {
 		fmt.Println(errDepNumber)
 
 		return

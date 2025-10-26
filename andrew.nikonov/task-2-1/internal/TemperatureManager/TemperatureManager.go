@@ -1,4 +1,4 @@
-package TemperatureManager
+package temperatureManager
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ type TemperatureManager struct {
 	maxTemp int
 }
 
-func NewTemperatureManager(minT int, maxT int) *TemperatureManager {
+func New(minT int, maxT int) *TemperatureManager {
 	return &TemperatureManager{minTemp: minT, maxTemp: maxT}
 }
 
