@@ -1,12 +1,10 @@
-package temperatureManager
+package temperature
 
 import (
 	"errors"
 )
 
-var (
-	ErrOperator = errors.New("invalid operator")
-)
+var ErrOperator = errors.New("invalid operator")
 
 type TemperatureManager struct {
 	minTemp int
