@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	TempManager "github.com/ysffmn/task-2-1/internal/temperatureManager"
+	TempManager "github.com/ysffmn/task-2-1/internal/temperature"
 )
 
 const (
