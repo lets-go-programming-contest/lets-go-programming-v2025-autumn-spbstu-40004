@@ -18,6 +18,8 @@ func (h *IntMaxHeap) Push(val any) {
 	intVal, isCorrect := val.(int)
 	if isCorrect {
 		*h = append(*h, intVal)
+	} else {
+		panic("Error: incorrect input")
 	}
 }
 
