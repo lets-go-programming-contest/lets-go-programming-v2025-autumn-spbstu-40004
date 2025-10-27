@@ -8,14 +8,14 @@ import (
 	maxheap "github.com/arinaklimova/task-2-2/internal/maxheap"
 )
 
-func main() {
-	var (
-		errScanDishes = errors.New("invalid numberOfDishes")
-		errScanDish   = errors.New("invalid dish")
-		errScanK      = errors.New("invalid k")
-		errTypeAssert = errors.New("type assertion failed")
-	)
+var (
+	errScanDishes = errors.New("invalid numberOfDishes")
+	errScanDish   = errors.New("invalid dish")
+	errScanK      = errors.New("invalid k")
+	errTypeAssert = errors.New("type assertion failed")
+)
 
+func main() {
 	var numberOfDishes int
 
 	_, err := fmt.Scanln(&numberOfDishes)
