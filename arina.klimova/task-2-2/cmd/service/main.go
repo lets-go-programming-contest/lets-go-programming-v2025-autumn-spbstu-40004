@@ -2,6 +2,7 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	maxheap "github.com/arinaklimova/task-2-2/internal/maxheap"
@@ -9,10 +10,10 @@ import (
 
 func main() {
 	var (
-		errScanDishes = fmt.Errorf("invalid numberOfDishes")
-		errScanDish   = fmt.Errorf("invalid dish")
-		errScanK      = fmt.Errorf("invalid k")
-		errTypeAssert = fmt.Errorf("type assertion failed")
+		errScanDishes = errors.New("invalid numberOfDishes")
+		errScanDish   = errors.New("invalid dish")
+		errScanK      = errors.New("invalid k")
+		errTypeAssert = errors.New("type assertion failed")
 	)
 
 	var numberOfDishes int
