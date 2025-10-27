@@ -19,7 +19,7 @@ func (h *IntHeap) Swap(i, j int) {
 func (h *IntHeap) Push(x any) {
 	n, isGood := x.(int)
 	if !isGood {
-		return
+		panic("expected int")
 	}
 
 	*h = append(*h, n)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	intheap "github.com/faxryzen/task-2-2/internal/int_heap"
@@ -10,14 +11,21 @@ import (
 const (
 	minRating = -10000
 	maxRating = 10000
+	maxAmount = 10000
+)
+
+var (
+	ErrInvalidFoodAmount = errors.New("invalid food amount")
+	ErrInvalidFoodInit   = errors.New("invalid food init")
+	ErrInvalidPreference = errors.New("invalid preference")
 )
 
 func main() {
 	var amount, kPrefer uint16
 
 	_, err := fmt.Scanln(&amount)
-	if err != nil || amount == 0 || amount > 10000 {
-		fmt.Println("invalid food amount")
+	if err != nil || amount == 0 || amount > maxAmount {
+		fmt.Println(ErrInvalidFoodAmount)
 
 		return
 	}
@@ -27,7 +35,7 @@ func main() {
 	for i := range amount {
 		_, err = fmt.Scan(&foodRating[i])
 		if err != nil || foodRating[i] < minRating || foodRating[i] > maxRating {
-			fmt.Println("invalid food init")
+			fmt.Println(ErrInvalidFoodInit)
 
 			return
 		}
@@ -35,7 +43,7 @@ func main() {
 
 	_, err = fmt.Scan(&kPrefer)
 	if err != nil || kPrefer == 0 || kPrefer > amount {
-		fmt.Println("invalid preference")
+		fmt.Println(ErrInvalidPreference)
 
 		return
 	}
