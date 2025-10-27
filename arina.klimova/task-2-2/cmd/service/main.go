@@ -8,11 +8,18 @@ import (
 )
 
 func main() {
+	var (
+		errScanDishes = fmt.Errorf("invalid numberOfDishes")
+		errScanDish   = fmt.Errorf("invalid dish")
+		errScanK      = fmt.Errorf("invalid k")
+		errTypeAssert = fmt.Errorf("type assertion failed")
+	)
+
 	var numberOfDishes int
 
 	_, err := fmt.Scanln(&numberOfDishes)
 	if err != nil {
-		fmt.Println("invalid numberOfDishes")
+		fmt.Println(errScanDishes)
 
 		return
 	}
@@ -25,7 +32,7 @@ func main() {
 
 		_, err := fmt.Scan(&dish)
 		if err != nil {
-			fmt.Println("invalid dish")
+			fmt.Println(errScanDish)
 		}
 
 		heap.Push(myHeap, dish)
@@ -35,7 +42,7 @@ func main() {
 
 	_, err1 := fmt.Scanln(&kthLargest)
 	if err1 != nil {
-		fmt.Println("invalid k")
+		fmt.Println(errScanK)
 
 		return
 	}
@@ -45,7 +52,7 @@ func main() {
 	for range kthLargest {
 		val, ok := heap.Pop(myHeap).(int)
 		if !ok {
-			fmt.Println("Type assertion failed")
+			fmt.Println(errTypeAssert)
 
 			return
 		}
