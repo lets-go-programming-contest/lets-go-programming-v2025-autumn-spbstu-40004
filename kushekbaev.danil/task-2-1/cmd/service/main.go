@@ -6,10 +6,10 @@ import (
 )
 
 var (
-	ErrReadingDeps = errors.New("Error while reading number of departments")
-	ErrReadingEmpl = errors.New("Error while reading number of employees")
-	ErrReadingTemp = errors.New("Error while reading desirable temperature")
-	ErrInvalidOp   = errors.New("Invalid operator")
+	ErrReadingDeps = errors.New("error while reading number of departments")
+	ErrReadingEmpl = errors.New("error while reading number of employees")
+	ErrReadingTemp = errors.New("error while reading desirable temperature")
+	ErrInvalidOp   = errors.New("invalid operator")
 )
 
 const (
