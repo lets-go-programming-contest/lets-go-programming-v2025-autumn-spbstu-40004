@@ -2,6 +2,14 @@ package main
 
 import (
 	"fmt"
+	"errors"
+)
+
+var (
+	ErrReadingDeps = errors.New("Error while reading number of departments")
+	ErrReadingEmpl = errors.New("Error while reading number of employees")
+	ErrReadingTemp = errors.New("Error while reading desirable temperature")
+	ErrInvalidOp   = errors.New("Invalid operator")
 )
 
 const (
@@ -20,7 +28,7 @@ func main() {
 
 	_, err := fmt.Scan(&departmentNumber)
 	if err != nil {
-		fmt.Println("Error while reading number of departments")
+		fmt.Println(ErrReadingDeps)
 
 		return
 	}
@@ -28,7 +36,7 @@ func main() {
 	for range departmentNumber {
 		_, err = fmt.Scan(&employeeNumber)
 		if err != nil {
-			fmt.Println("Error while reading number of employees")
+			fmt.Println(ErrReadingEmpl)
 
 			return
 		}
@@ -39,7 +47,7 @@ func main() {
 		for range employeeNumber {
 			_, err = fmt.Scan(&operator, &desirableTemp)
 			if err != nil {
-				fmt.Println("Error while reading desirable temperature")
+				fmt.Println(ErrReadingTemp)
 
 				return
 			}
@@ -54,7 +62,7 @@ func main() {
 			case ">=":
 				lowerBound = ternaryInt(lowerBound > desirableTemp, lowerBound, desirableTemp)
 			default:
-				fmt.Println("Invalid operator")
+				fmt.Println(ErrInvalidOp)
 			}
 
 			if lowerBound <= upperBound {
