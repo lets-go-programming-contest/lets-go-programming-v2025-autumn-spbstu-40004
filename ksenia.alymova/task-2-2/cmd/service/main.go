@@ -10,11 +10,18 @@ import (
 
 var errInput = errors.New("incorrect input")
 
+const (
+	minDish      = 1
+	maxDish      = 10000
+	minValueDish = -10000
+	maxValueDish = 10000
+)
+
 func main() {
 	var cntDish int
 
 	_, err := fmt.Scanln(&cntDish)
-	if err != nil || cntDish < 1 || cntDish > 10000 {
+	if err != nil || cntDish < minDish || cntDish > maxDish {
 		fmt.Println(errInput)
 
 		return
@@ -27,7 +34,7 @@ func main() {
 		var valueDish int
 
 		_, err = fmt.Scan(&valueDish)
-		if err != nil || valueDish < -10000 || valueDish > 10000 {
+		if err != nil || valueDish < minValueDish || valueDish > maxValueDish {
 			fmt.Println(errInput)
 
 			return

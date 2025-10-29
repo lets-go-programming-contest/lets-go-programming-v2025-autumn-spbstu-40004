@@ -16,9 +16,11 @@ func (maxHeap *MaxHeap) Swap(indexLhs, indexRhs int) {
 
 func (maxHeap *MaxHeap) Push(value any) {
 	intValue, ok := value.(int)
-	if ok {
-		*maxHeap = append(*maxHeap, intValue)
+	if !ok {
+		panic("Error converting")
 	}
+
+	*maxHeap = append(*maxHeap, intValue)
 }
 
 func (maxHeap *MaxHeap) Pop() any {
