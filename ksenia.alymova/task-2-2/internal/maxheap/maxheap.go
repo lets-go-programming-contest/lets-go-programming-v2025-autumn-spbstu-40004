@@ -1,5 +1,9 @@
 package maxheap
 
+import "errors"
+
+var errConvert = errors.New("converting error")
+
 type MaxHeap []int
 
 func (maxHeap *MaxHeap) Len() int {
@@ -17,7 +21,7 @@ func (maxHeap *MaxHeap) Swap(indexLhs, indexRhs int) {
 func (maxHeap *MaxHeap) Push(value any) {
 	intValue, ok := value.(int)
 	if !ok {
-		panic("Error converting")
+		panic(errConvert.Error())
 	}
 
 	*maxHeap = append(*maxHeap, intValue)
