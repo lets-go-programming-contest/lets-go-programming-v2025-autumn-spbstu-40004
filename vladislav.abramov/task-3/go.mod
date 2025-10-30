@@ -7,6 +7,5 @@ require (
 
 require golang.org/x/text v0.30.0 // indirect
 
-go 1.24.0
+go 1.22.7
 
-toolchain go1.24.9
