@@ -16,6 +16,7 @@ func ParseCurrencyData(filePath string) (*types.CurrencyData, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open file: %w", err)
 	}
+
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
 			_ = closeErr

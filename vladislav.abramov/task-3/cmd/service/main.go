@@ -27,9 +27,6 @@ func main() {
 	}
 
 	sortedCurrencies := processor.SortCurrenciesByValue(currencyData.Valutes)
-	if err != nil {
-		panic("failed to process currency data: " + err.Error())
-	}
 
 	err = ioutils.WriteJSONOutput(sortedCurrencies, cfg.OutputFile)
 	if err != nil {
