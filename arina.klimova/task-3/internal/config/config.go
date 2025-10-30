@@ -32,7 +32,18 @@ func LoadConfig() *Config {
 		panic("failed to parse config file: " + err.Error())
 	}
 
+	config.validate()
+
 	return &config
+}
+
+func (c *Config) validate() {
+	if c.InputFile == "" {
+		panic("input-file is required in config")
+	}
+	if c.OutputFile == "" {
+		panic("output-file is required in config")
+	}
 }
 
 func LoadConfigPath() string {

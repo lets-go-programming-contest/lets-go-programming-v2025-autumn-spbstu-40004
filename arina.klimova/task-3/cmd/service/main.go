@@ -1,22 +1,15 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+
+	"github.com/arinaklimova/task-3/internal/config"
 )
 
-type Config struct {
-	InputFile  string `yaml:"input-file"`
-	OutputFile string `yaml:"output-file"`
-}
-
 func main() {
-	configPath := flag.String("config", "", "Path to configuration file")
-	flag.Parse()
+	cfg := config.LoadConfig()
 
-	if *configPath == "" {
-		panic("Config file path is required")
-	}
-
-	fmt.Printf("Config path: %s\n", *configPath)
+	fmt.Printf("Configuration loaded successfully:")
+	fmt.Printf("Input file: %s\n", cfg.InputFile)
+	fmt.Printf("Output file: %s\n", cfg.OutputFile)
 }
