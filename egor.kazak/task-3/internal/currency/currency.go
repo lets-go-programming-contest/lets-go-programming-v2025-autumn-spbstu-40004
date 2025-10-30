@@ -28,10 +28,9 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 		return fmt.Errorf("failed to decode XML element: %w", err)
 	}
 
-	v := strings.ReplaceAll(aux.ValueStr, ",", ".")
-	value, err := strconv.ParseFloat(v, 64)
+	value, err := strconv.ParseFloat(strings.ReplaceAll(aux.ValueStr, ",", "."), 64)
 	if err != nil {
-		return fmt.Errorf("failed to parse float from %q: %w", v, err)
+		return fmt.Errorf("failed to parse float from %q: %w", aux.ValueStr, err)
 	}
 
 	*c = Currency{
