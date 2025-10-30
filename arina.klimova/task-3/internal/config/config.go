@@ -20,6 +20,7 @@ func LoadConfig() *Config {
 	if err != nil {
 		panic("failed to open config file: " + err.Error())
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			panic("failed to close config file: " + err.Error())
@@ -53,6 +54,7 @@ func (c *Config) validate() {
 
 func LoadConfigPath() string {
 	var configPath string
+
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.Parse()
 

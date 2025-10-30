@@ -21,6 +21,7 @@ func WriteJSON(currencies []models.Currency, outputPath string) error {
 	if err != nil {
 		return fmt.Errorf("create file: %w", err)
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			panic("failed to close JSON file: " + err.Error())
