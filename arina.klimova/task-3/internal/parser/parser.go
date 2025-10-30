@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/xml"
+	"fmt"
 	"os"
 
 	"golang.org/x/net/html/charset"
@@ -12,7 +13,7 @@ import (
 func ParseXML(filePath string) (*models.ValCurs, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("open XML file: %w", err)
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
@@ -27,7 +28,7 @@ func ParseXML(filePath string) (*models.ValCurs, error) {
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	if err := decoder.Decode(&valCurs); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decode XML: %w", err)
 	}
 
 	return &valCurs, nil
