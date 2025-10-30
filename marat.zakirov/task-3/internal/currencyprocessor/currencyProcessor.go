@@ -1,4 +1,4 @@
-package currencyProcessor
+package currencyprocessor
 
 import (
 	"encoding/xml"
@@ -29,6 +29,7 @@ func (val ValCurs) Swap(lhs, rhs int) {
 func (val ValCurs) Less(lhs, rhs int) bool {
 	numI, errI := strconv.ParseFloat(val.Valutes[lhs].Value, 64)
 	numJ, errJ := strconv.ParseFloat(val.Valutes[rhs].Value, 64)
+
 	if errI != nil || errJ != nil {
 		panic("Some errors in float parsing")
 	}

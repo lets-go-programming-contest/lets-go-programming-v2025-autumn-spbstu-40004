@@ -6,14 +6,14 @@ import (
 	"flag"
 	"os"
 
-	"github.com/ZakirovMS/task-3/internal/codingProcessor"
-	"github.com/ZakirovMS/task-3/internal/currencyProcessor"
+	"github.com/ZakirovMS/task-3/internal/codingprocessor"
+	"github.com/ZakirovMS/task-3/internal/currencyprocessor"
 	"gopkg.in/yaml.v3"
 )
 
 func main() {
-	const permisions = 0o666
 	var nFlag = flag.String("config", "", "Path to YAML config file")
+	const permission = 0o666
 
 	flag.Parse()
 	configFile, err := os.ReadFile(*nFlag)
@@ -21,7 +21,7 @@ func main() {
 		panic("Some errors in getting config file")
 	}
 
-	var ioPath codingProcessor.PathHolder
+	var ioPath codingprocessor.PathHolder
 	err = yaml.Unmarshal(configFile, &ioPath)
 	if err != nil || ioPath.InPath == "" {
 		panic("Some errors in decoding config file")
@@ -32,21 +32,21 @@ func main() {
 		panic("Some errors in reading YAML input file")
 	}
 
-	var inData currencyProcessor.ValCurs
+	var inData currencyprocessor.ValCurs
 	err = xml.Unmarshal(inFile, &inData)
 	if err != nil {
 		panic("Some errors in decoding input file")
 	}
 
-	currencyProcessor.SortValue(&inData)
-	jsonData := codingProcessor.ConvertXmlToJson(inData)
+	currencyprocessor.SortValue(&inData)
+	jsonData := codingprocessor.ConvertXMLToJSON(inData)
 
 	outData, err := json.Marshal(jsonData)
 	if err != nil {
 		panic("Some errors in json encoding")
 	}
 
-	err = os.WriteFile(ioPath.OutPath, outData, permisions)
+	err = os.WriteFile(ioPath.OutPath, outData, permission)
 	if err != nil {
 		panic("Some errors in file writing")
 	}

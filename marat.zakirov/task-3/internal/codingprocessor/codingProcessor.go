@@ -1,9 +1,9 @@
-package codingProcessor
+package codingprocessor
 
 import (
 	"strconv"
 
-	"github.com/ZakirovMS/task-3/internal/currencyProcessor"
+	"github.com/ZakirovMS/task-3/internal/currencyprocessor"
 )
 
 type PathHolder struct {
@@ -17,18 +17,20 @@ type jsonCurs struct {
 	Value    float64 `json:"value"`
 }
 
-func convertValute(valute currencyProcessor.Valute) jsonCurs {
+func convertValute(valute currencyprocessor.Valute) jsonCurs {
 	var result jsonCurs
+
 	var err error
 
 	result.NumCode, err = strconv.Atoi(valute.NumCode)
+
 	if err != nil {
 		panic("Some errors in NumCode conversion")
 	}
 
 	result.CharCode = valute.CharCode
-
 	result.Value, err = strconv.ParseFloat(valute.Value, 64)
+
 	if err != nil {
 		panic("Some errors in Value conversion")
 	}
@@ -36,7 +38,7 @@ func convertValute(valute currencyProcessor.Valute) jsonCurs {
 	return result
 }
 
-func ConvertXmlToJson(val currencyProcessor.ValCurs) []jsonCurs {
+func ConvertXMLToJSON(val currencyprocessor.ValCurs) []jsonCurs {
 	result := make([]jsonCurs, 0, len(val.Valutes))
 
 	for _, valute := range val.Valutes {
