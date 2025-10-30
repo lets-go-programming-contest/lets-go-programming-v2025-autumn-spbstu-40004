@@ -15,6 +15,7 @@ func ParseXML(filePath string) (*models.ValCurs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open XML file: %w", err)
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			panic("failed to close XML file: " + err.Error())
