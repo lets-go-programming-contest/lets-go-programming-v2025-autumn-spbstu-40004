@@ -3,11 +3,17 @@ package writer
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 
 	"github.com/arinaklimova/task-3/internal/models"
 )
 
 func WriteJSON(currencies []models.Currency, outputPath string) error {
+	dir := filepath.Dir(outputPath)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+
 	file, err := os.Create(outputPath)
 	if err != nil {
 		return err
