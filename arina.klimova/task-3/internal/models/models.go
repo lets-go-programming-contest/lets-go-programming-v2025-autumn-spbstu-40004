@@ -1,13 +1,26 @@
 package models
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"strconv"
+	"strings"
+)
 
 type Currency struct {
-	NumCode  string  `xml:"NumCode"`
+	NumCode  int     `xml:"NumCode"`
 	CharCode string  `xml:"CharCode"`
-	Nominal  int     `xml:"Nominal"`
-	Name     string  `xml:"Name"`
-	Value    float64 `xml:"Value"`
+	ValueStr string  `xml:"Value"`
+	Value    float64 `json:"value"`
+}
+
+func (c *Currency) ConvertFloatValue() error {
+	valueStr := strings.Replace(c.ValueStr, ",", ".", -1)
+	value, err := strconv.ParseFloat(valueStr, 64)
+	if err != nil {
+		return err
+	}
+	c.Value = value
+	return nil
 }
 
 type ValCurs struct {
@@ -16,7 +29,7 @@ type ValCurs struct {
 }
 
 type CurrencyOutput struct {
-	NumCode  string  `json:"num_code"`
+	NumCode  int     `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
 }
