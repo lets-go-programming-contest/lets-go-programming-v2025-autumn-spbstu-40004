@@ -29,7 +29,6 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 	}
 
 	v := strings.ReplaceAll(aux.ValueStr, ",", ".")
-	
 	value, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return fmt.Errorf("failed to parse float from %q: %w", v, err)
@@ -55,7 +54,7 @@ func ParseXML(data []byte) ([]Currency, error) {
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	var valCurs ValCurs
-	
+
 	err := decoder.Decode(&valCurs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode ValCurs: %w", err)
