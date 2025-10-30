@@ -14,9 +14,14 @@ func ParseXML(filePath string) (*models.ValCurs, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic("failed to close XML file: " + err.Error())
+		}
+	}()
 
 	var valCurs models.ValCurs
+
 	decoder := xml.NewDecoder(file)
 
 	decoder.CharsetReader = charset.NewReaderLabel

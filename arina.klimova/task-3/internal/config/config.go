@@ -20,7 +20,11 @@ func LoadConfig() *Config {
 	if err != nil {
 		panic("failed to open config file: " + err.Error())
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic("failed to close config file: " + err.Error())
+		}
+	}()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
@@ -41,6 +45,7 @@ func (c *Config) validate() {
 	if c.InputFile == "" {
 		panic("input-file is required in config")
 	}
+
 	if c.OutputFile == "" {
 		panic("output-file is required in config")
 	}

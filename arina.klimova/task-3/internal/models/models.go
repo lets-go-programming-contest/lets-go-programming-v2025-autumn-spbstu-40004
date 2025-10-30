@@ -24,11 +24,13 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 	if err := decoder.DecodeElement(&temp, &start); err != nil {
 		return fmt.Errorf("decode XML element: %w", err)
 	}
+
 	if temp.NumCode != "" {
 		numCode, err := strconv.Atoi(temp.NumCode)
 		if err != nil {
 			return fmt.Errorf("convert num code: %w", err)
 		}
+
 		c.NumCode = numCode
 	} else {
 		c.NumCode = 0
@@ -41,10 +43,12 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 	}
 
 	valueStr := strings.ReplaceAll(temp.ValueStr, ",", ".")
+
 	value, err := strconv.ParseFloat(valueStr, 64)
 	if err != nil {
 		return fmt.Errorf("parse value: %w", err)
 	}
+
 	c.Value = value
 
 	return nil
