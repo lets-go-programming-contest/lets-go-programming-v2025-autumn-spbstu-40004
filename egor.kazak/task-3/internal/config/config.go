@@ -14,6 +14,7 @@ type Config struct {
 
 func LoadConfig() (*Config, error) {
 	var configPath string
+
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.Parse()
 
