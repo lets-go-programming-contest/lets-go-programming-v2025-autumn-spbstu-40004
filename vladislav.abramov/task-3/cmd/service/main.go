@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 
-	"currency-processor/internal/parser"
-	"currency-processor/internal/processor"
-	"currency-processor/internal/ioutils"
+	"github.com/15446-rus75/task-3/internal/parser"
+	"github.com/15446-rus75/task-3/internal/processor"
+	"github.com/15446-rus75/task-3/internal/ioutils"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 		panic("configuration file path must be provided using --config flag")
 	}
 
-	cfg, err := config.LoadConfiguration(*configPath)
+	cfg, err := ioutils.LoadConfiguration(*configPath)
 	if err != nil {
 		panic("failed to load configuration: " + err.Error())
 	}
@@ -31,7 +31,7 @@ func main() {
 		panic("failed to process currency data: " + err.Error())
 	}
 
-	err = writer.WriteJSONOutput(sortedCurrencies, cfg.OutputFile)
+	err = ioutils.WriteJSONOutput(sortedCurrencies, cfg.OutputFile)
 	if err != nil {
 		panic("failed to write output file: " + err.Error())
 	}

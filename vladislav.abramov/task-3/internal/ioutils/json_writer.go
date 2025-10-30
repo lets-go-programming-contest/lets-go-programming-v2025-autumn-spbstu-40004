@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/15446-rus75/task3/internal/types"
+	"github.com/15446-rus75/task-3/internal/types"
 )
 
 func WriteJSONOutput(currencies []types.CurrencyOutput, outputPath string) error {
