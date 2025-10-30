@@ -15,7 +15,7 @@ type Valute struct {
 	CharCode string   `xml:"CharCode" json:"char_code"`
 	Nominal  int      `xml:"Nominal" json:"-"`
 	Name     string   `xml:"Name" json:"-"`
-	Value    string   `xml:"Value" json:"-"`
+	Value    float64  `xml:"Value" json:"value"`
 }
 
 type CurrencyOutput struct {
