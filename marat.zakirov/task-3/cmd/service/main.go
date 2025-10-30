@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	const permisions = 0o666
 	var nFlag = flag.String("config", "", "Path to YAML config file")
 
 	flag.Parse()
@@ -42,11 +43,11 @@ func main() {
 
 	outData, err := json.Marshal(jsonData)
 	if err != nil {
-		panic(err)
+		panic("Some errors in json encoding")
 	}
 
-	err = os.WriteFile(ioPath.OutPath, outData, 0o666)
+	err = os.WriteFile(ioPath.OutPath, outData, permisions)
 	if err != nil {
-		panic(err)
+		panic("Some errors in file writing")
 	}
 }
