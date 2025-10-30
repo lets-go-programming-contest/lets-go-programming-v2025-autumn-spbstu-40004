@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 
+	"github.com/15446-rus75/task-3/internal/ioutils"
 	"github.com/15446-rus75/task-3/internal/parser"
 	"github.com/15446-rus75/task-3/internal/processor"
-	"github.com/15446-rus75/task-3/internal/ioutils"
 )
 
 func main() {
