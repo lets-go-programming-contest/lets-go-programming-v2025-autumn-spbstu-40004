@@ -1,18 +1,28 @@
 package storage
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
 
 func ReadFile(path string) ([]byte, error) {
-	return os.ReadFile(path)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %q: %w", path, err)
+	}
+
+	return data, nil
 }
 
 func WriteJSON(path string, data []byte) error {
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+		return fmt.Errorf("failed to create directory %q: %w", dir, err)
 	}
-	return os.WriteFile(path, data, 0644)
+	if err := os.WriteFile(path, data, 0600); err != nil {
+		return fmt.Errorf("failed to write file %q: %w", path, err)
+	}
+	
+	return nil
 }
