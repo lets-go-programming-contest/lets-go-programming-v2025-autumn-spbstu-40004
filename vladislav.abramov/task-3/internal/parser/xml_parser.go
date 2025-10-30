@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"internal/types"
+	"github.com/15446-rus75/task-3/internal/types"
 	"golang.org/x/net/html/charset"
 )
 
