@@ -9,6 +9,7 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
+
 	valCurs, err := parser.ParseXML(cfg.InputFile)
 	if err != nil {
 		panic("failed to parse XML file: " + err.Error())
