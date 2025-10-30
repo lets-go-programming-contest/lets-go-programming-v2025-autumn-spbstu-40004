@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -21,12 +22,12 @@ type Currency struct {
 func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
 	var temp currencyXML
 	if err := decoder.DecodeElement(&temp, &start); err != nil {
-		return err
+		return fmt.Errorf("decode XML element: %w", err)
 	}
 	if temp.NumCode != "" {
 		numCode, err := strconv.Atoi(temp.NumCode)
 		if err != nil {
-			return err
+			return fmt.Errorf("convert num code: %w", err)
 		}
 		c.NumCode = numCode
 	} else {
@@ -39,10 +40,10 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 		c.CharCode = ""
 	}
 
-	valueStr := strings.Replace(temp.ValueStr, ",", ".", -1)
+	valueStr := strings.ReplaceAll(temp.ValueStr, ",", ".")
 	value, err := strconv.ParseFloat(valueStr, 64)
 	if err != nil {
-		return err
+		return fmt.Errorf("parse value: %w", err)
 	}
 	c.Value = value
 
