@@ -22,15 +22,17 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 		CharCode string `xml:"CharCode"`
 		ValueStr string `xml:"Value"`
 	}
+
 	if err := decoder.DecodeElement(&aux, &start); err != nil {
 		return fmt.Errorf("failed to decode XML element: %w", err)
 	}
-	v := strings.ReplaceAll(aux.ValueStr, ",", ".")
 
+	v := strings.ReplaceAll(aux.ValueStr, ",", ".")
 	value, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return fmt.Errorf("failed to parse float from %q: %w", v, err)
 	}
+
 	*c = Currency{
 		NumCode:  aux.NumCode,
 		CharCode: aux.CharCode,
