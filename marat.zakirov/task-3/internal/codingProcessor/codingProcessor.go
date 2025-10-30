@@ -1,8 +1,9 @@
 package codingProcessor
 
 import (
-	"encoding/xml"
 	"strconv"
+
+	"github.com/ZakirovMS/task-3/internal/currencyProcessor"
 )
 
 type PathHolder struct {
@@ -16,31 +17,32 @@ type jsonCurs struct {
 	Value    float64 `json:"value"`
 }
 
-type ValCurs struct {
-	XMLName xml.Name `xml:"ValCurs"`
-	Valutes []Valute `xml:"Valute"`
-}
+func convertValute(valute currencyProcessor.Valute) jsonCurs {
+	var result jsonCurs
+	var err error
 
-type Valute struct {
-	NumCode  string `xml:"NumCode"`
-	CharCode string `xml:"CharCode"`
-	Value    string `xml:"Value"`
-}
-
-func (val ValCurs) Len() int {
-	return len(val.Valutes)
-}
-
-func (val ValCurs) Swap(lhs, rhs int) {
-	val.Valutes[lhs], val.Valutes[rhs] = val.Valutes[rhs], val.Valutes[lhs]
-}
-
-func (val ValCurs) Less(lhs, rhs int) bool {
-	numI, errI := strconv.ParseFloat(val.Valutes[lhs].Value, 64)
-	numJ, errJ := strconv.ParseFloat(val.Valutes[rhs].Value, 64)
-	if errI != nil || errJ != nil {
-		panic("Some errors in float parsing")
+	result.NumCode, err = strconv.Atoi(valute.NumCode)
+	if err != nil {
+		panic("Some errors in NumCode conversion")
 	}
 
-	return numI > numJ
+	result.CharCode = valute.CharCode
+
+	result.Value, err = strconv.ParseFloat(valute.Value, 64)
+	if err != nil {
+		panic("Some errors in Value conversion")
+	}
+
+	return result
+}
+
+func ConvertXmlToJson(val currencyProcessor.ValCurs) []jsonCurs {
+	result := make([]jsonCurs, 0, len(val.Valutes))
+
+	for _, valute := range val.Valutes {
+		converted := convertValute(valute)
+		result = append(result, converted)
+	}
+
+	return result
 }

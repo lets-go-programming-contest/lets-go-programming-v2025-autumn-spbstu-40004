@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"os"
 
 	"github.com/ZakirovMS/task-3/internal/codingProcessor"
+	"github.com/ZakirovMS/task-3/internal/currencyProcessor"
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,10 +31,22 @@ func main() {
 		panic("Some errors in reading YAML input file")
 	}
 
-	var inData codingProcessor.ValCurs
+	var inData currencyProcessor.ValCurs
 	err = xml.Unmarshal(inFile, &inData)
 	if err != nil {
 		panic("Some errors in decoding input file")
 	}
 
+	currencyProcessor.SortValue(&inData)
+	jsonData := codingProcessor.ConvertXmlToJson(inData)
+
+	outData, err := json.Marshal(jsonData)
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile(ioPath.OutPath, outData, 0o666)
+	if err != nil {
+		panic(err)
+	}
 }
