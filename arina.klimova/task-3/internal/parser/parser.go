@@ -25,12 +25,5 @@ func ParseXML(filePath string) (*models.ValCurs, error) {
 		return nil, err
 	}
 
-	for i := range valCurs.Currencies {
-		err := valCurs.Currencies[i].ConvertFloatValue()
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	return &valCurs, nil
 }
