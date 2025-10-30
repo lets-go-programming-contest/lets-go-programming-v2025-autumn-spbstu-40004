@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/CuatHimBong/task-3/internal/config"
 	"github.com/CuatHimBong/task-3/internal/currency"
@@ -33,6 +32,4 @@ func main() {
 	if err := storage.WriteJSON(cfg.OutputFile, jsonData); err != nil {
 		panic(err)
 	}
-
-	log.Println("Success: data written to", cfg.OutputFile)
 }
