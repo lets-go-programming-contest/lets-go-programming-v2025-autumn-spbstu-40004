@@ -2,10 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 
-	"github.com/ZakirovMS/task-3/internal/pathHolder"
+	"github.com/ZakirovMS/task-3/internal/codingProcessor"
 	"gopkg.in/yaml.v3"
 )
 
@@ -15,14 +14,24 @@ func main() {
 	flag.Parse()
 	configFile, err := os.ReadFile(*nFlag)
 	if err != nil {
-		panic("Some error in getting config file")
+		panic("Some errors in getting config file")
 	}
 
-	var ioPath pathHolder.PathHolder
+	var ioPath codingProcessor.PathHolder
 	err = yaml.Unmarshal(configFile, &ioPath)
-	if err != nil {
-		panic("Some error in reading config file")
+	if err != nil || ioPath.InPath == "" {
+		panic("Some errors in decoding config file")
 	}
 
-	fmt.Println(ioPath)
+	inFile, err := os.ReadFile(ioPath.InPath)
+	if err != nil {
+		panic("Some errors in reading YAML input file")
+	}
+
+	var inData codingProcessor.Currency
+	err = yaml.Unmarshal(inFile, &inData)
+	if err != nil {
+		panic("Some errors in decoding input file")
+	}
+
 }
