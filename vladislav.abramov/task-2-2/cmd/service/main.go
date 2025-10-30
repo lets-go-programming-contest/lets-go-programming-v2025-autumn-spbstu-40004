@@ -7,6 +7,11 @@ import (
 	intheap "github.com/15446-rus75/task-2-2/internal/heap"
 )
 
+const (
+	minElem = -10000
+	maxElem = 10000
+)
+
 func main() {
 	var nCount, kCount int
 
@@ -25,7 +30,7 @@ func main() {
 			fmt.Print("Failed to read data\n")
 		}
 
-		if arr[count] < -10000 || arr[count] > 10000 {
+		if arr[count] < minElem || arr[count] > maxElem {
 			fmt.Print("Invalid arr[i]\n")
 
 			return

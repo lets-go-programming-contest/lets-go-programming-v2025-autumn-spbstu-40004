@@ -19,12 +19,17 @@ func (h *IntHeap) Swap(i, j int) {
 func (h *IntHeap) Push(x interface{}) {
 	if num, good := x.(int); good {
 		*h = append(*h, num)
+	} else {
+		panic("Expected int")
 	}
 }
 
 func (h *IntHeap) Pop() interface{} {
 	old := *h
 	n := len(old)
+	if n == 0 {
+		panic("Heap is empty")
+	}
 	x := old[n-1]
 	*h = old[0 : n-1]
 
