@@ -26,14 +26,14 @@ func (h *IntHeap) Push(x interface{}) {
 
 func (h *IntHeap) Pop() interface{} {
 	old := *h
-	n := len(old)
+	length := len(old)
 
-	if n == 0 {
+	if length == 0 {
 		panic("Heap is empty")
 	}
 
-	x := old[n-1]
-	*h = old[0 : n-1]
+	x := old[length-1]
+	*h = old[0 : length-1]
 
 	return x
 }
