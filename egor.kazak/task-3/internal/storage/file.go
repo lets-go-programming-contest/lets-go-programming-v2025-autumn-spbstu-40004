@@ -6,6 +6,11 @@ import (
 	"path/filepath"
 )
 
+const (
+	dirPerm  = 0o755
+	filePerm = 0o600
+)
+
 func ReadFile(path string) ([]byte, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -17,11 +22,11 @@ func ReadFile(path string) ([]byte, error) {
 
 func WriteJSON(path string, data []byte) error {
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, dirPerm); err != nil {
 		return fmt.Errorf("failed to create directory %q: %w", dir, err)
 	}
 
-	if err := os.WriteFile(path, data, 0o600); err != nil {
+	if err := os.WriteFile(path, data, filePerm); err != nil {
 		return fmt.Errorf("failed to write file %q: %w", path, err)
 	}
 

@@ -23,7 +23,8 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 		ValueStr string `xml:"Value"`
 	}
 
-	if err := decoder.DecodeElement(&aux, &start); err != nil {
+	err := decoder.DecodeElement(&aux, &start)
+	if err != nil {
 		return fmt.Errorf("failed to decode XML element: %w", err)
 	}
 
@@ -53,7 +54,8 @@ func ParseXML(data []byte) ([]Currency, error) {
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	var valCurs ValCurs
-	if err := decoder.Decode(&valCurs); err != nil {
+	err := decoder.Decode(&valCurs)
+	if err != nil {
 		return nil, fmt.Errorf("failed to decode ValCurs: %w", err)
 	}
 
