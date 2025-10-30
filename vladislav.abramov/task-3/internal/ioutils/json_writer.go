@@ -9,9 +9,13 @@ import (
 	"github.com/15446-rus75/task-3/internal/types"
 )
 
+const (
+  aRW = 0o755
+)
+
 func WriteJSONOutput(currencies []types.CurrencyOutput, outputPath string) error {
 	outputDir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+	if err := os.MkdirAll(outputDir, aRW); err != nil {
 		return fmt.Errorf("create directory: %w", err)
 	}
 
