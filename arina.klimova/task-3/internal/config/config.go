@@ -1,10 +1,38 @@
 package config
 
-import "flag"
+import (
+	"flag"
+	"io"
+	"os"
+
+	"gopkg.in/yaml.v3"
+)
 
 type Config struct {
 	InputFile  string `yaml:"input-file"`
 	OutputFile string `yaml:"output-file"`
+}
+
+func LoadConfig() *Config {
+	configPath := LoadConfigPath()
+
+	file, err := os.Open(configPath)
+	if err != nil {
+		panic("failed to open config file: " + err.Error())
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		panic("failed to read config file: " + err.Error())
+	}
+
+	var config Config
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		panic("failed to parse config file: " + err.Error())
+	}
+
+	return &config
 }
 
 func LoadConfigPath() string {
