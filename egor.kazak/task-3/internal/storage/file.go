@@ -23,6 +23,6 @@ func WriteJSON(path string, data []byte) error {
 	if err := os.WriteFile(path, data, 0600); err != nil {
 		return fmt.Errorf("failed to write file %q: %w", path, err)
 	}
-	
+
 	return nil
 }
