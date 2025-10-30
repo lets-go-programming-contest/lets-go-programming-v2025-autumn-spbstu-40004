@@ -2,7 +2,7 @@ package ioutils
 
 import (
 	"encoding/json"
-  "fmt"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -12,7 +12,7 @@ import (
 func WriteJSONOutput(currencies []types.CurrencyOutput, outputPath string) error {
 	outputDir := filepath.Dir(outputPath)
 
-  if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return fmt.Errorf("create directory: %w", err)
 	}
 
@@ -22,17 +22,17 @@ func WriteJSONOutput(currencies []types.CurrencyOutput, outputPath string) error
 	}
 
 	defer func() {
-    if closeErr := file.Close(); closeErr != nil {
-      _ = closeErr
-    }
-  }()
+		if closeErr := file.Close(); closeErr != nil {
+			_ = closeErr
+		}
+	}()
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 
-  if err := encoder.Encode(currencies); err != nil {
-    return fmt.Errorf("encode json: %w", err)
-  }
+	if err := encoder.Encode(currencies); err != nil {
+		return fmt.Errorf("encode json: %w", err)
+	}
 
 	return nil
 }

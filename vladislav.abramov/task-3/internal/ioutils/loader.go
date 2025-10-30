@@ -1,7 +1,7 @@
 package ioutils
 
 import (
-  "fmt"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v2"

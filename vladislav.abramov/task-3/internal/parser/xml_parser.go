@@ -3,7 +3,7 @@ package parser
 import (
 	"bytes"
 	"encoding/xml"
-  "fmt"
+	"fmt"
 	"io"
 	"os"
 
@@ -17,10 +17,10 @@ func ParseCurrencyData(filePath string) (*types.CurrencyData, error) {
 		return nil, fmt.Errorf("open file: %w", err)
 	}
 	defer func() {
-    if closeErr := file.Close(); closeErr != nil {
-      _ = closeErr
-    }
-  }()
+		if closeErr := file.Close(); closeErr != nil {
+			_ = closeErr
+		}
+	}()
 
 	content, err := io.ReadAll(file)
 	if err != nil {
