@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"os"
 
@@ -28,8 +29,8 @@ func main() {
 		panic("Some errors in reading YAML input file")
 	}
 
-	var inData codingProcessor.Currency
-	err = yaml.Unmarshal(inFile, &inData)
+	var inData codingProcessor.ValCurs
+	err = xml.Unmarshal(inFile, &inData)
 	if err != nil {
 		panic("Some errors in decoding input file")
 	}

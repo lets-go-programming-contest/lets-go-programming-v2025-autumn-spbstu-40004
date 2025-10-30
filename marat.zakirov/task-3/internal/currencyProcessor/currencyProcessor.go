@@ -1,16 +1,16 @@
 package currencyProcessor
 
 import (
-	"strconv"
+	"sort"
 	"strings"
+
+	"github.com/ZakirovMS/task-3/internal/codingProcessor"
 )
 
-func parseValue(valueStr string) float64 {
-	cleaned := strings.ReplaceAll(strings.TrimSpace(valueStr), ",", ".")
-	val, err := strconv.ParseFloat(cleaned, 64)
-	if err != nil {
-		return 0
+func sortValue(val *codingProcessor.ValCurs) {
+	for loc := range val.Valutes {
+		val.Valutes[loc].Value = strings.ReplaceAll(strings.TrimSpace(val.Valutes[loc].Value), ",", ".")
 	}
 
-	return val
+	sort.Sort(val)
 }
