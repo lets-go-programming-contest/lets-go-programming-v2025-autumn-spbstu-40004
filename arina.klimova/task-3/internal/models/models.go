@@ -23,14 +23,21 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 	if err := decoder.DecodeElement(&temp, &start); err != nil {
 		return err
 	}
-
-	numCode, err := strconv.Atoi(temp.NumCode)
-	if err != nil {
-		return err
+	if temp.NumCode != "" {
+		numCode, err := strconv.Atoi(temp.NumCode)
+		if err != nil {
+			return err
+		}
+		c.NumCode = numCode
+	} else {
+		c.NumCode = 0
 	}
 
-	c.NumCode = numCode
-	c.CharCode = temp.CharCode
+	if temp.CharCode != "" {
+		c.CharCode = temp.CharCode
+	} else {
+		c.CharCode = ""
+	}
 
 	valueStr := strings.Replace(temp.ValueStr, ",", ".", -1)
 	value, err := strconv.ParseFloat(valueStr, 64)
