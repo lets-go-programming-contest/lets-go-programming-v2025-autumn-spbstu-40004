@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"golang.org/x/net/html/charset"
 )
 
 type Currency struct {
@@ -41,8 +43,12 @@ type ValCurs struct {
 }
 
 func ParseXML(data []byte) ([]Currency, error) {
+	reader := strings.NewReader(string(data))
+	decoder := xml.NewDecoder(reader)
+	decoder.CharsetReader = charset.NewReaderLabel // ← ключевая строка
+
 	var valCurs ValCurs
-	if err := xml.Unmarshal(data, &valCurs); err != nil {
+	if err := decoder.Decode(&valCurs); err != nil {
 		return nil, err
 	}
 
