@@ -2,6 +2,7 @@ package writer
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -13,14 +14,18 @@ const dirPerm = 0o755
 func WriteJSON(currencies []models.Currency, outputPath string) error {
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, dirPerm); err != nil {
-		return err
+		return fmt.Errorf("create directory: %w", err)
 	}
 
 	file, err := os.Create(outputPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("create file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic("failed to close JSON file: " + err.Error())
+		}
+	}()
 
 	output := make([]models.CurrencyOutput, len(currencies))
 	for i, currency := range currencies {
@@ -31,7 +36,7 @@ func WriteJSON(currencies []models.Currency, outputPath string) error {
 	encoder.SetIndent("", "  ")
 
 	if err := encoder.Encode(output); err != nil {
-		return err
+		return fmt.Errorf("encode JSON: %w", err)
 	}
 
 	return nil
