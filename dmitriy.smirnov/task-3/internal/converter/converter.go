@@ -1,4 +1,4 @@
-package converter
+﻿package converter
 
 import (
 	"bytes"
@@ -11,13 +11,13 @@ import (
 	"sort"
 
 	"github.com/uchuaip/task-3/internal/config"
-	"github.com/uchuaip/task-3/internal/currency"
+	""
 	"golang.org/x/text/encoding/charmap"
 )
 
 const dirPerm = 0o755
 
-func decodeXML(data []byte) (*currency.ValCurs, error) {
+func decodeXML(data []byte) (*converter.ValCurs, error) {
 	decoder := xml.NewDecoder(bytes.NewReader(data))
 	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
 		switch charset {
@@ -28,7 +28,7 @@ func decodeXML(data []byte) (*currency.ValCurs, error) {
 		}
 	}
 
-	var valCurs currency.ValCurs
+	var valCurs converter.ValCurs
 	if err := decoder.Decode(&valCurs); err != nil {
 		return nil, fmt.Errorf("failed to decode XML: %w", err)
 	}
@@ -36,7 +36,7 @@ func decodeXML(data []byte) (*currency.ValCurs, error) {
 	return &valCurs, nil
 }
 
-func saveJSON(data []currency.JSONCurrency, path string) error {
+func saveJSON(data []converter.JSONCurrency, path string) error {
 	if err := os.MkdirAll(filepath.Dir(path), dirPerm); err != nil {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
@@ -73,7 +73,7 @@ func Process(cfg *config.Config) error {
 		return fmt.Errorf("failed to parse XML: %w", err)
 	}
 
-	jsonCurrencies := make([]currency.JSONCurrency, 0, len(valCurs.Currencies))
+	jsonCurrencies := make([]converter.JSONCurrency, 0, len(valCurs.Currencies))
 	for _, curr := range valCurs.Currencies {
 		jsonCurrencies = append(jsonCurrencies, curr.ToJSON())
 	}
@@ -88,3 +88,4 @@ func Process(cfg *config.Config) error {
 
 	return nil
 }
+

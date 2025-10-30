@@ -1,4 +1,4 @@
-package currency
+﻿package converter
 
 import (
 	"encoding/xml"

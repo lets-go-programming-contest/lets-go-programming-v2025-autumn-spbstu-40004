@@ -1,11 +1,11 @@
-package main
+﻿package main
 
 import (
 	"flag"
 	"log"
 
-	"github.com/uchuaip/task-3/internal/config"
-	"github.com/uchuaip/task-3/internal/converter"
+	"task-3/internal/config"
+	"task-3/internal/converter"
 )
 
 func main() {
@@ -25,3 +25,4 @@ func main() {
 		log.Panicf("processing failed: %v", err)
 	}
 }
+
