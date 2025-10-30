@@ -1,6 +1,7 @@
 package ioutils
 
 import (
+  "fmt"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -14,13 +15,13 @@ type Configuration struct {
 func LoadConfiguration(configPath string) (*Configuration, error) {
 	fileData, err := os.ReadFile(configPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("read config file: %w", err)
 	}
 
 	var config Configuration
 	err = yaml.Unmarshal(fileData, &config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unmarshal yaml: %w", err)
 	}
 
 	return &config, nil
