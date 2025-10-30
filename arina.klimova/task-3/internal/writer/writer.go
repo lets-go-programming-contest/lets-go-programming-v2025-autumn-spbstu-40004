@@ -8,9 +8,11 @@ import (
 	"github.com/arinaklimova/task-3/internal/models"
 )
 
+const dirPerm = 0o755
+
 func WriteJSON(currencies []models.Currency, outputPath string) error {
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, dirPerm); err != nil {
 		return err
 	}
 
@@ -22,11 +24,7 @@ func WriteJSON(currencies []models.Currency, outputPath string) error {
 
 	output := make([]models.CurrencyOutput, len(currencies))
 	for i, currency := range currencies {
-		output[i] = models.CurrencyOutput{
-			NumCode:  currency.NumCode,
-			CharCode: currency.CharCode,
-			Value:    currency.Value,
-		}
+		output[i] = models.CurrencyOutput(currency)
 	}
 
 	encoder := json.NewEncoder(file)
