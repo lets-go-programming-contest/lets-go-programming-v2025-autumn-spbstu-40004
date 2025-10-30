@@ -11,7 +11,7 @@ import (
 
 func WriteJSONOutput(currencies []types.CurrencyOutput, outputPath string) error {
 	outputDir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0o755); err != nil {
 		return fmt.Errorf("create directory: %w", err)
 	}
 
