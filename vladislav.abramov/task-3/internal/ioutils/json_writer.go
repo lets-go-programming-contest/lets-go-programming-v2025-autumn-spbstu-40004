@@ -10,7 +10,7 @@ import (
 )
 
 const (
-  aRW = 0o755
+	aRW = 0o755
 )
 
 func WriteJSONOutput(currencies []types.CurrencyOutput, outputPath string) error {
