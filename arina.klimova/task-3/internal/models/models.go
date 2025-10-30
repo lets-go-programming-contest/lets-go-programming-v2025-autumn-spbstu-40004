@@ -1,12 +1,17 @@
 package models
 
+import "encoding/xml"
+
 type Currency struct {
 	NumCode  string  `xml:"NumCode"`
 	CharCode string  `xml:"CharCode"`
+	Nominal  int     `xml:"Nominal"`
+	Name     string  `xml:"Name"`
 	Value    float64 `xml:"Value"`
 }
 
 type ValCurs struct {
+	XMLName    xml.Name   `xml:"ValCurs"`
 	Currencies []Currency `xml:"Valute"`
 }
 
