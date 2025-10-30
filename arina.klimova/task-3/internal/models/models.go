@@ -13,7 +13,7 @@ type currencyXML struct {
 }
 
 type Currency struct {
-	NumCode  string  `xml:"-"`
+	NumCode  int     `xml:"-"`
 	CharCode string  `xml:"-"`
 	Value    float64 `xml:"-"`
 }
@@ -24,7 +24,12 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 		return err
 	}
 
-	c.NumCode = temp.NumCode
+	numCode, err := strconv.Atoi(temp.NumCode)
+	if err != nil {
+		return err
+	}
+
+	c.NumCode = numCode
 	c.CharCode = temp.CharCode
 
 	valueStr := strings.Replace(temp.ValueStr, ",", ".", -1)
@@ -43,7 +48,7 @@ type ValCurs struct {
 }
 
 type CurrencyOutput struct {
-	NumCode  string  `json:"num_code"`
+	NumCode  int     `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
 }
