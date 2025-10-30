@@ -2,7 +2,6 @@ package parser
 
 import (
 	"encoding/xml"
-	"fmt"
 	"os"
 
 	"golang.org/x/net/html/charset"
@@ -29,12 +28,8 @@ func ParseXML(filePath string) (*models.ValCurs, error) {
 	for i := range valCurs.Currencies {
 		err := valCurs.Currencies[i].ConvertFloatValue()
 		if err != nil {
-			return nil, fmt.Errorf("failed to convert value from input file: %w", err)
+			return nil, err
 		}
-	}
-
-	if len(valCurs.Currencies) == 0 {
-		return nil, fmt.Errorf("XML file contains no currency data")
 	}
 
 	return &valCurs, nil

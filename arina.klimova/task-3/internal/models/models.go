@@ -9,6 +9,7 @@ import (
 type Currency struct {
 	NumCode  int     `xml:"NumCode"`
 	CharCode string  `xml:"CharCode"`
+	Nominal  int     `xml:"Nominal"`
 	ValueStr string  `xml:"Value"`
 	Value    float64 `json:"value"`
 }
@@ -19,6 +20,7 @@ func (c *Currency) ConvertFloatValue() error {
 	if err != nil {
 		return err
 	}
+
 	c.Value = value
 	return nil
 }
