@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Ksenia-rgb/task-3/internal/indecoder"
+	"github.com/lolnyok/task-3/internal/indecoder"
 )
 
 func SaveCurrencyData(outputPath string, data indecoder.CurrencyCollection) error {
