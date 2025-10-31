@@ -60,6 +60,7 @@ func ParseXML(filePath string) ([]Currency, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse num_code '%s' to int: %w", valute.NumCode, err)
 			}
+
 			numCode = convertedCode
 		}
 
