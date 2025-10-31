@@ -9,7 +9,7 @@ import (
 )
 
 func WriteJSON(currencies []models.Currency, filePath string) error {
-	err := os.MkdirAll(filepath.Dir(filePath), 0755)
+	err := os.MkdirAll(filepath.Dir(filePath), 0o755)
 	if err != nil {
 		panic("failed to create directory" + err.Error())
 	}
