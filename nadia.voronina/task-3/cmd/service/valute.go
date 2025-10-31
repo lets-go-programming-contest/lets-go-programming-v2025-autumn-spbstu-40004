@@ -66,19 +66,10 @@ func ConvertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 			return nil, err
 		}
 
-		nominal := 1.0
-		if v.Nominal != "" {
-			nom, err := strconv.ParseFloat(strings.Replace(v.Nominal, ",", ".", 1), 64)
-			if err != nil {
-				return nil, err
-			}
-			nominal = nom
-		}
-
 		fmt.Printf("Parsing %+v\n", v)
 		var numCode int64
 		if v.NumCode == "" {
-			return nil, fmt.Errorf("invalid NumCode for element: %+v", v)
+			numCode = 0
 		} else {
 			var err error
 			numCode, err = strconv.ParseInt(v.NumCode, 10, 64)
@@ -89,7 +80,7 @@ func ConvertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 		valutesJson = append(valutesJson, ValuteJson{
 			NumCode:  numCode,
 			CharCode: v.CharCode,
-			Value:    value / nominal,
+			Value:    value,
 		})
 	}
 	return valutesJson, nil
