@@ -31,7 +31,7 @@ type Valute struct {
 }
 
 type ValuteJson struct {
-	NumCode  int     `json:"num_code"`
+	NumCode  int64   `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
 }
@@ -58,7 +58,7 @@ func ParseValuteXML(path string) (ValCurs, error) {
 	return valCurs, nil
 }
 
-func convertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
+func ConvertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 	var valutesJson []ValuteJson
 	for _, v := range valutes {
 		value, err := parseValue(v.Value)
@@ -66,13 +66,22 @@ func convertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 			return nil, err
 		}
 
+		nominal := 1.0
+		if v.Nominal != "" {
+			nom, err := strconv.ParseFloat(strings.Replace(v.Nominal, ",", ".", 1), 64)
+			if err != nil {
+				return nil, err
+			}
+			nominal = nom
+		}
+
 		fmt.Printf("Parsing %+v\n", v)
-		var numCode int
+		var numCode int64
 		if v.NumCode == "" {
-			numCode = 0
+			return nil, fmt.Errorf("invalid NumCode for element: %+v", v)
 		} else {
 			var err error
-			numCode, err = strconv.Atoi(v.NumCode)
+			numCode, err = strconv.ParseInt(v.NumCode, 10, 64)
 			if err != nil {
 				return nil, fmt.Errorf("invalid NumCode '%s' for element: %+v", v.NumCode, v)
 			}
@@ -80,18 +89,13 @@ func convertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 		valutesJson = append(valutesJson, ValuteJson{
 			NumCode:  numCode,
 			CharCode: v.CharCode,
-			Value:    value,
+			Value:    value / nominal,
 		})
 	}
 	return valutesJson, nil
 }
 
-func SaveToJson(valutes []Valute, outputPath string) error {
-	valutesJson, err := convertValutesToJson(valutes)
-	if err != nil {
-		return err
-	}
-
+func SaveToJson(valutesJson []ValuteJson, outputPath string) error {
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 		return err
 	}

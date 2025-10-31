@@ -19,9 +19,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	SortDescendingByValue(&valCurs)
 
-	if err := SaveToJson(valCurs.Valutes, config.OutputFile); err != nil {
+	valJsons, err := ConvertValutesToJson(valCurs.Valutes)
+	if err != nil {
+		panic(err)
+	}
+	SortDescendingByValue(valJsons)
+
+	if err := SaveToJson(valJsons, config.OutputFile); err != nil {
 		panic(err)
 	}
 }
