@@ -56,8 +56,5 @@ func main() {
 		heap.Pop(&customHeap)
 	}
 
-	result, ok := heap.Pop(&customHeap).(int)
-	if ok {
-		fmt.Println(result)
-	}
+	fmt.Println(heap.Pop(&customHeap))
 }
