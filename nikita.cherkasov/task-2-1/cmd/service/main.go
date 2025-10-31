@@ -72,7 +72,7 @@ func run() error {
 		return fmt.Errorf("invalid department count: %w", err)
 	}
 
-	for i := 0; i < departmentCount; i++ {
+	for range departmentCount {
 		err := processDepartment()
 		if err != nil {
 			return err
