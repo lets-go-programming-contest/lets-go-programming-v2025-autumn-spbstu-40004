@@ -23,9 +23,8 @@ func convertValute(valute currencyprocessor.Valute) jsonCurs {
 	var err error
 
 	result.NumCode, err = strconv.Atoi(valute.NumCode)
-
 	if err != nil {
-		panic("Some errors in NumCode conversion")
+		panic(err)
 	}
 
 	result.CharCode = valute.CharCode
@@ -42,6 +41,10 @@ func ConvertXMLToJSON(val currencyprocessor.ValCurs) []jsonCurs {
 	result := make([]jsonCurs, 0, len(val.Valutes))
 
 	for _, valute := range val.Valutes {
+		if valute.NumCode == "" || valute.CharCode == "" || valute.Value == "" {
+			continue
+		}
+
 		converted := convertValute(valute)
 		result = append(result, converted)
 	}
