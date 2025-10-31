@@ -10,7 +10,7 @@ func main() {
 	cfg, err := cfgreader.Parse()
 	if err != nil {
 		panic("Config parsing error: " + err.Error())
-  }
+	}
 
 	currencies, err := currencymanager.Read(cfg.Input)
 	if err != nil {
