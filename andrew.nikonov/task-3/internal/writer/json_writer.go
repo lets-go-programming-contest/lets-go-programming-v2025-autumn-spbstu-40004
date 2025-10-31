@@ -2,36 +2,37 @@ package writer
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/ysffmn/task-3/internal/currency"
 )
 
-func WriteJSONToFile(currencies []currency.Currency, outputPath string) {
-	outputDir := filepath.Dir(outputPath)
-	err := os.MkdirAll(outputDir, 0755)
+const directoryPermission = 0o755
 
+func Write(path string, data any) error {
+	dir := filepath.Dir(path)
+
+	err := os.MkdirAll(dir, directoryPermission)
 	if err != nil {
-		panic("Failed to create output directory: " + err.Error())
+		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	outputFile, err := os.Create(outputPath)
+	file, err := os.Create(path)
 	if err != nil {
-		panic("Failed to create output file: " + err.Error())
+		return fmt.Errorf("failed to create file: %w", err)
 	}
 
 	defer func() {
-		if closeErr := outputFile.Close(); closeErr != nil {
-			panic("Failed to close output file: " + closeErr.Error())
-		}
+		_ = file.Close()
 	}()
 
-	encoder := json.NewEncoder(outputFile)
-	encoder.SetIndent("", "  ")
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "\t")
 
-	err = encoder.Encode(currencies)
+	err = encoder.Encode(data)
 	if err != nil {
-		panic("Failed to encode JSON: " + err.Error())
+		return fmt.Errorf("failed to encode JSON: %w", err)
 	}
+
+	return nil
 }
