@@ -33,6 +33,7 @@ func ProcessCurrencyFile(filePath string) (CurrencyCollection, error) {
 
 	var data CurrencyCollection
 	err = decoder.Decode(&data)
+
 	if err != nil {
 		return CurrencyCollection{}, fmt.Errorf("failed to decode XML: %w", err)
 	}
