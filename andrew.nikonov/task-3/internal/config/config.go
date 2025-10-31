@@ -13,6 +13,7 @@ type Config struct {
 }
 
 func Load(path string) Config {
+
 	file, err := os.Open(path)
 	if err != nil {
 		panic("Failed to open config: " + err.Error())
