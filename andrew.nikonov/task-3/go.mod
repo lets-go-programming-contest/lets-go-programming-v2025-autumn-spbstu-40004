@@ -1,6 +1,6 @@
 module github.com/ysffmn/task-3
 
-go 1.24.0
+go 1.22.7
 
 require (
   gopkg.in/yaml.v3 v3.0.1
