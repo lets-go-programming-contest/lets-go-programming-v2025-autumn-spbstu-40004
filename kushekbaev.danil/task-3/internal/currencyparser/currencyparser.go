@@ -3,6 +3,7 @@ package currencyparser
 import (
 	"encoding/xml"
 	"sort"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -32,14 +33,14 @@ func (dotFloat *DotFloat) UnmarshalXML(decoder *xml.Decoder, start xml.StartElem
 
 	err := decoder.DecodeElement(&str, &start)
 	if err != nil {
-		return err
+		return fmt.Errorf("decoding xml: %w", err)
 	}
 
 	str = strings.ReplaceAll(str, ",", ".")
 
 	num, err := strconv.ParseFloat(str, 64)
 	if err != nil {
-		return err
+		return fmt.Errorf("parsing float '%s: %w", str, err)
 	}
 
 	*dotFloat = DotFloat(num)
