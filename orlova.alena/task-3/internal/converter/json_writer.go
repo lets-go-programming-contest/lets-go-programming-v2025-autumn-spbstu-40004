@@ -2,6 +2,7 @@ package converter
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -15,12 +16,12 @@ const (
 func WriteJSON(currencies []models.Currency, filePath string) error {
 	err := os.MkdirAll(filepath.Dir(filePath), dir)
 	if err != nil {
-		panic("failed to create directory" + err.Error())
+		return fmt.Errorf("failed to create directory %w", err)
 	}
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		panic("failed to create file" + err.Error())
+		return fmt.Errorf("failed to create file %w", err)
 	}
 
 	defer func() {
@@ -35,7 +36,7 @@ func WriteJSON(currencies []models.Currency, filePath string) error {
 
 	err = encoder.Encode(currencies)
 	if err != nil {
-		panic("failed to encode json" + err.Error())
+		return fmt.Errorf("failed to encode json %w", err)
 	}
 
 	return nil

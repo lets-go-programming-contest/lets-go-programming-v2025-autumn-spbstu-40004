@@ -6,13 +6,19 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		panic(err)
+	}
 
-	valCurs := converter.ParseXML(cfg.InputFile)
+	valCurs, err := converter.ParseXML(cfg.InputFile)
+	if err != nil {
+		panic(err)
+	}
 
 	currencies := converter.ConvertToCurrencies(valCurs)
 
-	err := converter.WriteJSON(currencies, cfg.OutputFile)
+	err = converter.WriteJSON(currencies, cfg.OutputFile)
 	if err != nil {
 		panic(err)
 	}
