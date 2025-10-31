@@ -3,6 +3,7 @@ package cfgreader
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -27,12 +28,12 @@ func Parse() (Cfg, error) {
 
 	data, err := os.ReadFile(*cfgPath)
 	if err != nil {
-		return cfg, err
+		return cfg, fmt.Errorf("reading cfg file: %w", err)
 	}
 
 	err = yaml.Unmarshal(data, &cfg)
 	if err != nil {
-		return cfg, err
+		return cfg, fmt.Errorf("unmarshalling file: %w", err)
 	}
 
 	return cfg, nil

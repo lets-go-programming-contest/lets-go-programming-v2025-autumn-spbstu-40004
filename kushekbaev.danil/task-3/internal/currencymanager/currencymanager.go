@@ -3,6 +3,7 @@ package currencymanager
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -20,7 +21,7 @@ func Read(path string) (currencyparser.Currencies, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		return currenciesData, err
+		return currenciesData, fmt.Errorf("opening file: %w", err)
 	}
 
 	decoder := xml.NewDecoder(file)
@@ -28,12 +29,12 @@ func Read(path string) (currencyparser.Currencies, error) {
 
 	err = decoder.Decode(&currenciesData)
 	if err != nil {
-		return currenciesData, err
+		return currenciesData, fmt.Errorf("decoding xml: %w", err)
 	}
 
 	err = file.Close()
 	if err != nil {
-		return currenciesData, err
+		return currenciesData, fmt.Errorf("closing file: %w", err)
 	}
 
 	return currenciesData, nil
@@ -42,17 +43,17 @@ func Read(path string) (currencyparser.Currencies, error) {
 func Write(path string, currencies currencyparser.Currencies) error {
 	data, err := json.MarshalIndent(currencies.AllCurrencies, "", "\t")
 	if err != nil {
-		return err
+		return fmt.Errorf("marshalling json: %w", err)
 	}
 
 	directory := filepath.Dir(path)
 	if err := os.MkdirAll(directory, directoryPermission); err != nil {
-		return err
+		return fmt.Errorf("creating directory: %w", err)
 	}
 
 	err = os.WriteFile(path, data, filePermission)
 	if err != nil {
-		return err
+		return fmt.Errorf("writing file: %w", err)
 	}
 
 	return nil
