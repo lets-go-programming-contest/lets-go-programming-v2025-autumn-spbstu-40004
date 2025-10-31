@@ -127,7 +127,7 @@ func ParseValuteXML(path string) (ValCurs, error) {
 
 func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
 	valutesJSON := make([]ValuteJSON, 0, len(valutes))
-	
+
 	for _, valute := range valutes {
 		value, err := parseValue(valute.Value)
 		if err != nil {
@@ -178,7 +178,9 @@ func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 	}()
 
 	encoder := json.NewEncoder(jsonFile)
+
 	encoder.SetIndent("", "  ")
+
 	if err := encoder.Encode(valutesJSON); err != nil {
 		return FailedEncodeError{FilePath: outputPath}
 	}
@@ -189,5 +191,10 @@ func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 func parseValue(s string) (float64, error) {
 	s = strings.Replace(s, ",", ".", 1)
 
-	return strconv.ParseFloat(s, 64)
+	// InvalidNumCodeError
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, InvalidNumCodeError{NumCode: s, Valute: Valute{Value: s}}
+	}
+	return val, nil
 }

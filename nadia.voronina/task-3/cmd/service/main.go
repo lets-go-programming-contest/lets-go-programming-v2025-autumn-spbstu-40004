@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	SortDescendingByValue(valJsons)
 
 	if err := SaveToJSON(valJsons, config.OutputFile); err != nil {
