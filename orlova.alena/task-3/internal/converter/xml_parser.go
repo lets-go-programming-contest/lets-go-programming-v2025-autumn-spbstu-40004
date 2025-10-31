@@ -23,8 +23,8 @@ func ParseXML(filePath string) (*models.ValCurs, error) {
 	}
 
 	var valCurs models.ValCurs
-	decoder := xml.NewDecoder(reader)
 
+	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	err = decoder.Decode(&valCurs)
