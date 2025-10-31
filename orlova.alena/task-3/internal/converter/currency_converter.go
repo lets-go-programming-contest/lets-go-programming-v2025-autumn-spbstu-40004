@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"task-3/internal/models"
+	"github.com/widgeiw/task-3/internal/models"
 )
 
 func ConvertToCurrencies(valCurs *models.ValCurs) []models.Currency {

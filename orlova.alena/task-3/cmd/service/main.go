@@ -1,8 +1,8 @@
 package main
 
 import (
-	"task-3/internal/config"
-	"task-3/internal/converter"
+	"github.com/widgeiw/task-3/internal/config"
+	"github.com/widgeiw/task-3/internal/converter"
 )
 
 func main() {
