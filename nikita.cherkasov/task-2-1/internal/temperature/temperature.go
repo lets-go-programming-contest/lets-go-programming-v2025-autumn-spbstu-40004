@@ -24,25 +24,25 @@ func NewTemperatureRange(minTemp, maxTemp int) *TemperatureRange {
 	}
 }
 
-func (tr *TemperatureRange) Update(targetTemp int, operation string) error {
-	if tr.min == -1 && tr.max == -1 {
+func (temp *TemperatureRange) Update(targetTemp int, operation string) error {
+	if temp.min == -1 && temp.max == -1 {
 		return nil
 	}
 
 	switch operation {
 	case ">=":
-		if targetTemp > tr.max {
-			tr.min = -1
-			tr.max = -1
-		} else if tr.min <= targetTemp && targetTemp <= tr.max {
-			tr.min = targetTemp
+		if targetTemp > temp.max {
+			temp.min = -1
+			temp.max = -1
+		} else if temp.min <= targetTemp && targetTemp <= temp.max {
+			temp.min = targetTemp
 		}
 	case "<=":
-		if targetTemp < tr.min {
-			tr.min = -1
-			tr.max = -1
-		} else if tr.min <= targetTemp && targetTemp <= tr.max {
-			tr.max = targetTemp
+		if targetTemp < temp.min {
+			temp.min = -1
+			temp.max = -1
+		} else if temp.min <= targetTemp && targetTemp <= temp.max {
+			temp.max = targetTemp
 		}
 	default:
 		return ErrInvalidOperation
@@ -51,10 +51,10 @@ func (tr *TemperatureRange) Update(targetTemp int, operation string) error {
 	return nil
 }
 
-func (tr *TemperatureRange) GetMin() int {
-	return tr.min
+func (temp *TemperatureRange) GetMin() int {
+	return temp.min
 }
 
-func (tr *TemperatureRange) GetMax() int {
-	return tr.max
+func (temp *TemperatureRange) GetMax() int {
+	return temp.max
 }

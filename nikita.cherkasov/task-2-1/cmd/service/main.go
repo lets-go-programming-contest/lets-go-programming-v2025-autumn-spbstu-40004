@@ -14,15 +14,15 @@ const (
 )
 
 func handleDepartmentRequests(employeeCount int, conditions []string, targetTemps []int) error {
-	tr := temperature.NewTemperatureRange(temperature.MinTemperature, temperature.MaxTemperature)
+	temp := temperature.NewTemperatureRange(temperature.MinTemperature, temperature.MaxTemperature)
 
-	for i := 0; i < employeeCount; i++ {
-		err := tr.Update(targetTemps[i], conditions[i])
+	for i := range employeeCount {
+		err := temp.Update(targetTemps[i], conditions[i])
 		if err != nil {
 			return fmt.Errorf("update temperature: %w", err)
 		}
 
-		fmt.Println(tr.GetMin())
+		fmt.Println(temp.GetMin())
 	}
 
 	return nil
@@ -32,7 +32,7 @@ func readEmployeeInput(employeeCount int) ([]string, []int, error) {
 	conditions := make([]string, employeeCount)
 	targetTemps := make([]int, employeeCount)
 
-	for j := 0; j < employeeCount; j++ {
+	for j := range employeeCount {
 		_, err := fmt.Scanln(&conditions[j], &targetTemps[j])
 		if err != nil || targetTemps[j] < temperature.MinTemperature ||
 			targetTemps[j] > temperature.MaxTemperature {
@@ -43,7 +43,7 @@ func readEmployeeInput(employeeCount int) ([]string, []int, error) {
 	return conditions, targetTemps, nil
 }
 
-func processDepartment(i int) error {
+func processDepartment() error {
 	var employeeCount int
 
 	_, err := fmt.Scanln(&employeeCount)
@@ -73,7 +73,7 @@ func run() error {
 	}
 
 	for i := 0; i < departmentCount; i++ {
-		err := processDepartment(i)
+		err := processDepartment()
 		if err != nil {
 			return err
 		}
