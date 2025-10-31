@@ -16,7 +16,7 @@ func resolveFolders(filename string) error {
 
 	err := os.MkdirAll(folderPath, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("i/o folders: %w", err)
+		return fmt.Errorf("%w", err)
 	}
 
 	return nil
@@ -30,7 +30,7 @@ func WriteBytesToFile(filename string, data []byte) error {
 
 	err = os.WriteFile(filename, data, 0600)
 	if err != nil {
-		return fmt.Errorf("i/o: %w", err)
+		return fmt.Errorf("%w", err)
 	}
 
 	return nil
