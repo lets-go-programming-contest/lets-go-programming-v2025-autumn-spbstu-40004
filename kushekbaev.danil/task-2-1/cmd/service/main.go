@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/Z-1337/task-2-1/internal/temperature"
 )
