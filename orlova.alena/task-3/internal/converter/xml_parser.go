@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/widgeiw/task-3/internal/models"
-
 	"golang.org/x/net/html/charset"
+
+	"github.com/widgeiw/task-3/internal/models"
 )
 
 func ParseXML(filePath string) (*models.ValCurs, error) {
@@ -24,6 +24,7 @@ func ParseXML(filePath string) (*models.ValCurs, error) {
 
 	var valCurs models.ValCurs
 	decoder := xml.NewDecoder(reader)
+
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	err = decoder.Decode(&valCurs)
