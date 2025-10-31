@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"golang.org/x/net/html/charset"
-
 	"github.com/widgeiw/task-3/internal/models"
+	"golang.org/x/net/html/charset"
 )
 
 func ParseXML(filePath string) (*models.ValCurs, error) {
