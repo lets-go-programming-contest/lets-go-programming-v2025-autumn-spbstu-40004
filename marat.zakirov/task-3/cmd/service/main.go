@@ -8,6 +8,7 @@ import (
 
 	"github.com/ZakirovMS/task-3/internal/codingprocessor"
 	"github.com/ZakirovMS/task-3/internal/currencyprocessor"
+	"golang.org/x/net/html/charset"
 	"gopkg.in/yaml.v3"
 )
 
@@ -27,21 +28,24 @@ func main() {
 		panic("Some errors in decoding config file")
 	}
 
-	inFile, err := os.ReadFile(ioPath.InPath)
+	inFile, err := os.Open(ioPath.InPath)
 	if err != nil {
 		panic("Some errors in reading YAML input file")
 	}
 
+	decoder := xml.NewDecoder(inFile)
+	decoder.CharsetReader = charset.NewReaderLabel
+
 	var inData currencyprocessor.ValCurs
-	err = xml.Unmarshal(inFile, &inData)
+	err = decoder.Decode(&inData)
 	if err != nil {
-		panic("Some errors in decoding input file")
+		panic("Some errors in decoding YAML input file")
 	}
 
 	currencyprocessor.SortValue(&inData)
 	jsonData := codingprocessor.ConvertXMLToJSON(inData)
 
-	outData, err := json.Marshal(jsonData)
+	outData, err := json.MarshalIndent(jsonData, "", "  ")
 	if err != nil {
 		panic("Some errors in json encoding")
 	}
