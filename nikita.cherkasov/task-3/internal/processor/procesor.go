@@ -9,7 +9,7 @@ import (
 	"sort"
 
 	"github.com/cherkasoov/task-3/internal/config"
-	"github.com/cherkasoov/task-3/internal/models"
+	models "github.com/cherkasoov/task-3/internal/model"
 	"golang.org/x/net/html/charset"
 )
 
