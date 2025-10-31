@@ -2,25 +2,36 @@ package main
 
 import (
 	"flag"
+	"sort"
 
 	"github.com/ysffmn/task-3/internal/config"
+	"github.com/ysffmn/task-3/internal/currency"
 	"github.com/ysffmn/task-3/internal/parser"
-	"github.com/ysffmn/task-3/internal/processor"
 	"github.com/ysffmn/task-3/internal/writer"
 )
 
 func main() {
-	configPath := flag.String("config", "", "Path to config file")
+	configPath := flag.String("config", "config.yaml", "path to config file")
 	flag.Parse()
 
-	if *configPath == "" {
-		panic("Config flag is required")
+	cfg, err := config.Load(*configPath)
+	if err != nil {
+		panic(err)
 	}
 
-	cfg := config.Load(*configPath)
+	var valCurs currency.ValCurs
 
-	valCurs := parser.ParseXMLFile(cfg.InputFile)
-	currencies := parser.ConvertToCurrencies(valCurs)
-	sortedCurrencies := processor.SortCurrenciesDesc(currencies)
-	writer.WriteJSONToFile(sortedCurrencies, cfg.OutputFile)
+	err = parser.Parse(cfg.InputFile, &valCurs)
+	if err != nil {
+		panic(err)
+	}
+
+	sort.Slice(valCurs.Valutes, func(i, j int) bool {
+		return valCurs.Valutes[i].Value > valCurs.Valutes[j].Value
+	})
+
+	err = writer.Write(cfg.OutputFile, valCurs.Valutes)
+	if err != nil {
+		panic(err)
+	}
 }
