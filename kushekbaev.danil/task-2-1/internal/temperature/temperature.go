@@ -9,7 +9,7 @@ var (
 )
 
 const {
-	invalidValue int = -1
+	invalidValue = -1
 }
 
 type Temperature struct {
