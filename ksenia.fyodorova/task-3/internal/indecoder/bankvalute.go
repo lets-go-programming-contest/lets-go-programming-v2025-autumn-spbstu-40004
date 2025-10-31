@@ -15,8 +15,8 @@ type CurrencyItem struct {
 
 func (ci *CurrencyItem) TransformValue() error {
 	formattedValue := strings.Replace(ci.OriginalValue, ",", ".", 1)
-	parsedValue, err := strconv.ParseFloat(formattedValue, 64)
 
+	parsedValue, err := strconv.ParseFloat(formattedValue, 64)
 	if err != nil {
 		return fmt.Errorf("failed to parse currency value: %w", err)
 	}
