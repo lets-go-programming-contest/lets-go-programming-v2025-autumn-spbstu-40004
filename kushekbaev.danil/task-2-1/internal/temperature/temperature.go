@@ -1,12 +1,8 @@
 package temperature
 
-import (
-	"errors"
-)
+import "errors"
 
-var (
-	ErrInvalidOp = errors.New("invalid operator")
-)
+var ErrInvalidOp = errors.New("invalid operator")
 
 type Temperature struct {
 	UpperBound int
