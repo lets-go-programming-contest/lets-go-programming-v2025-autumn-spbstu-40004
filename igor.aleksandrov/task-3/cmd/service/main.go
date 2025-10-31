@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/MrMels625/task-3/internal/config-utils"
-	"github.com/MrMels625/task-3/internal/io-utils"
-	"github.com/MrMels625/task-3/internal/xml-utils"
+	configutils "github.com/MrMels625/task-3/internal/config-utils"
+	ioutils "github.com/MrMels625/task-3/internal/io-utils"
+	xmlutils "github.com/MrMels625/task-3/internal/xml-utils"
 )
 
 func main() {
