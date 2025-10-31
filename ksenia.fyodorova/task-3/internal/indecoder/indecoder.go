@@ -2,6 +2,7 @@ package indecoder
 
 import (
 	"encoding/xml"
+	"io"
 	"os"
 	"sort"
 
@@ -15,10 +16,16 @@ func ProcessCurrencyFile(filePath string) (CurrencyCollection, error) {
 	}
 	defer file.Close()
 
-	var data CurrencyCollection
+	// Правильное создание decoder с поддержкой кодировки
 	decoder := xml.NewDecoder(file)
-	decoder.CharsetReader = charmap.Windows1251.NewDecoder
+	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
+		if charset == "windows-1251" {
+			return charmap.Windows1251.NewDecoder().Reader(input), nil
+		}
+		return input, nil
+	}
 
+	var data CurrencyCollection
 	err = decoder.Decode(&data)
 	if err != nil {
 		return CurrencyCollection{}, err
@@ -31,6 +38,7 @@ func ProcessCurrencyFile(filePath string) (CurrencyCollection, error) {
 		}
 	}
 
-	sort.Sort(sort.Reverse(data))
+	// Сортировка по убыванию
+	sort.Sort(data)
 	return data, nil
 }
