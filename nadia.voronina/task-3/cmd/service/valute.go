@@ -73,7 +73,7 @@ func (e XMLDecodeError) Error() string {
 func ParseValuteXML(path string) (ValCurs, error) {
 	xmlFile, err := os.Open(path)
 	if err != nil {
-		return ValCurs{}, err
+		return ValCurs{}, FailedFileOpenError{FilePath: path}
 	}
 
 	defer func() {
@@ -129,7 +129,10 @@ func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
 }
 
 func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
-	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
+	var err error
+
+	err = os.MkdirAll(filepath.Dir(outputPath), 0755)
+	if err != nil {
 		return err
 	}
 
