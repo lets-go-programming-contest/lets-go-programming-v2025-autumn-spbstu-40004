@@ -12,5 +12,8 @@ func main() {
 
 	currencies := converter.ConvertToCurrencies(valCurs)
 
-	converter.WriteJSON(currencies, cfg.OutputFile)
+	err := converter.WriteJSON(currencies, cfg.OutputFile)
+	if err != nil {
+		panic(err)
+	}
 }
