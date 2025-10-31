@@ -11,7 +11,7 @@ type ValCurs struct {
 type Valute struct {
 	XMLName  xml.Name `json:"-"         xml:"Valute"`
 	ID       string   `json:"-"         xml:"ID,attr"`
-	NumCode  string   `json:"num_code"  xml:"NumCode"`
+	NumCode  int      `json:"num_code"  xml:"NumCode"`
 	CharCode string   `json:"char_code" xml:"CharCode"`
 	Nominal  int      `json:"-"         xml:"Nominal"`
 	Name     string   `json:"-"         xml:"Name"`
@@ -19,7 +19,7 @@ type Valute struct {
 }
 
 type Currency struct {
-	NumCode  string  `json:"num_code"`
+	NumCode  int     `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
 }
