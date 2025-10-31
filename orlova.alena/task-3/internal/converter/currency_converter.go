@@ -9,7 +9,7 @@ import (
 )
 
 func ConvertToCurrencies(valCurs *models.ValCurs) []models.Currency {
-	var currencies []models.Currency
+	currencies := make([]models.Currency, 0, len(valCurs.Valutes))
 
 	for _, valute := range valCurs.Valutes {
 		value, err := strconv.ParseFloat(strings.Replace(valute.Value, ",", ".", 1), 64)
