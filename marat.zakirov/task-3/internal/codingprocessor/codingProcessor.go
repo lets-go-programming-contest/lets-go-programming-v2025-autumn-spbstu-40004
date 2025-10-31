@@ -33,7 +33,6 @@ func convertValute(valute currencyprocessor.Valute) jsonCurs {
 
 	result.CharCode = valute.CharCode
 	result.Value, err = strconv.ParseFloat(valute.Value, 64)
-
 	if err != nil {
 		panic("Some errors in Value conversion")
 	}
