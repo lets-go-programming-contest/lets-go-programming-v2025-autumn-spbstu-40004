@@ -170,10 +170,9 @@ func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
 func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 	var err error
 
-	const dirPerm = 0755
+	const dirPerm = 0o755
 
 	err = os.MkdirAll(filepath.Dir(outputPath), dirPerm)
-
 	if err != nil {
 		return FailedCreateDirsError{DirPath: filepath.Dir(outputPath)}
 	}
