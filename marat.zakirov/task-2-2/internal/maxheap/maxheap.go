@@ -18,6 +18,8 @@ func (maxHeap *MaxHeap) Push(value any) {
 	assertedValue, ok := value.(int)
 	if ok {
 		*maxHeap = append(*maxHeap, assertedValue)
+	} else {
+		panic("Some errors in append")
 	}
 }
 
