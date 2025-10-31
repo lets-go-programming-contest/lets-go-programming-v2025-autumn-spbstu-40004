@@ -13,20 +13,20 @@ type Temperature struct {
 	LowerBound int
 }
 
-func (temp *Temperature) setTemperature(operator string, desirableTemp int) {
+func (temp *Temperature) setTemperature(operator string, desirableTemp int) (int, error) {
 	const invalidValue int = -1;
 
 	switch operator {
 	case "<=":
-		temp.UpperBound = ternaryInt(UpperBound < desirableTemp, UpperBound, desirableTemp)
+		temp.UpperBound = ternaryInt(temp.UpperBound < desirableTemp, temp.UpperBound, desirableTemp)
 	case ">=":
-		temp.LowerBound = ternaryInt(LowerBound > desirableTemp, LowerBound, desirableTemp)
+		temp.LowerBound = ternaryInt(temp.LowerBound > desirableTemp, temp.LowerBound, desirableTemp)
 	default:
 		return invalidValue, ErrInvalidOp
 	}
 
-	if lowerBound <= upperBound {
-		return cond.LowerBound, nil
+	if temp.LowerBound <= temp.UpperBound {
+		return temp.LowerBound, nil
 	} else {
 		return invalidValue, nil
 	}
