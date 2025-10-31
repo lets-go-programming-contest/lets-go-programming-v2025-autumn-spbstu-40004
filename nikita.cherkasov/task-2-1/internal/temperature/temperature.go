@@ -50,3 +50,11 @@ func (tr *TemperatureRange) Update(targetTemp int, operation string) error {
 
 	return nil
 }
+
+func (tr *TemperatureRange) GetMin() int {
+	return tr.min
+}
+
+func (tr *TemperatureRange) GetMax() int {
+	return tr.max
+}
