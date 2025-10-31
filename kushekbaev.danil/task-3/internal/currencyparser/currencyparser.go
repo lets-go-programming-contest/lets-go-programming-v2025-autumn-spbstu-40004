@@ -16,7 +16,7 @@ type Currency struct {
 }
 
 type Currencies struct {
-	AllCurrencies []Currency `xml:"Currency"`
+	AllCurrencies []Currency `xml:"Valute"`
 }
 
 func Sort(currencies []Currency) []Currency {
