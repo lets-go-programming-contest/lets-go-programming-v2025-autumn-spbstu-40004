@@ -14,14 +14,18 @@ func ProcessCurrencyFile(filePath string) (CurrencyCollection, error) {
 	if err != nil {
 		return CurrencyCollection{}, err
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			panic(closeErr.Error())
+		}
+	}()
 
-	// Правильное создание decoder с поддержкой кодировки
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
 		if charset == "windows-1251" {
 			return charmap.Windows1251.NewDecoder().Reader(input), nil
 		}
+
 		return input, nil
 	}
 
@@ -38,7 +42,7 @@ func ProcessCurrencyFile(filePath string) (CurrencyCollection, error) {
 		}
 	}
 
-	// Сортировка по убыванию
 	sort.Sort(data)
+
 	return data, nil
 }

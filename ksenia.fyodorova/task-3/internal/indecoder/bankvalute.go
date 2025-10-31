@@ -6,10 +6,10 @@ import (
 )
 
 type CurrencyItem struct {
-	NumericCode     int     `xml:"NumCode"`
-	SymbolCode      string  `xml:"CharCode"`
-	OriginalValue   string  `xml:"Value"`
-	ConvertedAmount float64 `xml:"-"`
+	NumericCode     int     `xml:"NumCode" json:"num_code"`
+	SymbolCode      string  `xml:"CharCode" json:"char_code"`
+	OriginalValue   string  `xml:"Value" json:"-"`
+	ConvertedAmount float64 `xml:"-" json:"value"`
 }
 
 func (ci *CurrencyItem) TransformValue() error {
@@ -20,5 +20,6 @@ func (ci *CurrencyItem) TransformValue() error {
 	}
 
 	ci.ConvertedAmount = parsedValue
+
 	return nil
 }
