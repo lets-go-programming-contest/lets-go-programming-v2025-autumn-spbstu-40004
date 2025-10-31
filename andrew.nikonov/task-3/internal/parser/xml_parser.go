@@ -2,12 +2,13 @@ package parser
 
 import (
 	"encoding/xml"
+	"io"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/ysffmn/task-3/internal/currency"
-	"golang.org/x/net/html/charset"
+	"golang.org/x/text/encoding/charmap"
 )
 
 func ParseXMLFile(filePath string) currency.ValCurs {
@@ -25,7 +26,12 @@ func ParseXMLFile(filePath string) currency.ValCurs {
 	var valCurs currency.ValCurs
 
 	decoder := xml.NewDecoder(file)
-	decoder.CharsetReader = charset.NewReaderLabel
+	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
+		if charset == "windows-1251" {
+			return charmap.Windows1251.NewDecoder().Reader(input), nil
+		}
+		return input, nil
+	}
 
 	if err := decoder.Decode(&valCurs); err != nil {
 		panic("Failed to decode XML: " + err.Error())
