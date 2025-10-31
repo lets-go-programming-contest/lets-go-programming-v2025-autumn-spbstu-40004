@@ -6,59 +6,85 @@ import (
 	"github.com/cherkasoov/lets-go-programming-v2025-autumn-spbstu-40004/task-2-1/internal/temperature"
 )
 
-func handleDepartmentRequests(employeeCount int, conditions []string, targetTemps []int) error {
-    tr := temperature.NewTemperatureRange(temperature.MinTemperature, temperature.MaxTemperature)
+const (
+	minDepartmentCount = 1
+	maxDepartmentCount = 1000
+	minEmployeeCount   = 1
+	maxEmployeeCount   = 1000
+)
 
-    for i := 0; i < employeeCount; i++ {
-        err := tr.Update(targetTemps[i], conditions[i])
-        if err != nil {
-            return err
-        }
-        fmt.Println(tr.GetMin())
-    }
-    return nil
+func handleDepartmentRequests(employeeCount int, conditions []string, targetTemps []int) error {
+	tr := temperature.NewTemperatureRange(temperature.MinTemperature, temperature.MaxTemperature)
+
+	for i := 0; i < employeeCount; i++ {
+		err := tr.Update(targetTemps[i], conditions[i])
+		if err != nil {
+			return fmt.Errorf("update temperature: %w", err)
+		}
+
+		fmt.Println(tr.GetMin())
+	}
+
+	return nil
+}
+
+func readEmployeeInput(employeeCount int) ([]string, []int, error) {
+	conditions := make([]string, employeeCount)
+	targetTemps := make([]int, employeeCount)
+
+	for j := 0; j < employeeCount; j++ {
+		_, err := fmt.Scanln(&conditions[j], &targetTemps[j])
+		if err != nil || targetTemps[j] < temperature.MinTemperature ||
+			targetTemps[j] > temperature.MaxTemperature {
+			return nil, nil, fmt.Errorf("invalid employee input: %w", err)
+		}
+	}
+
+	return conditions, targetTemps, nil
+}
+
+func processDepartment(i int) error {
+	var employeeCount int
+
+	_, err := fmt.Scanln(&employeeCount)
+	if err != nil || employeeCount < minEmployeeCount || employeeCount > maxEmployeeCount {
+		return fmt.Errorf("invalid employee count: %w", err)
+	}
+
+	conditions, targetTemps, err := readEmployeeInput(employeeCount)
+	if err != nil {
+		return fmt.Errorf("read employee input: %w", err)
+	}
+
+	err = handleDepartmentRequests(employeeCount, conditions, targetTemps)
+	if err != nil {
+		return fmt.Errorf("handle department requests: %w", err)
+	}
+
+	return nil
+}
+
+func run() error {
+	var departmentCount int
+
+	_, err := fmt.Scanln(&departmentCount)
+	if err != nil || departmentCount < minDepartmentCount || departmentCount > maxDepartmentCount {
+		return fmt.Errorf("invalid department count: %w", err)
+	}
+
+	for i := 0; i < departmentCount; i++ {
+		err := processDepartment(i)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func main() {
-    const (
-        minDepartmentCount = 1
-        maxDepartmentCount = 1000
-        minEmployeeCount   = 1
-        maxEmployeeCount   = 1000
-    )
-
-    var departmentCount int
-
-    _, err := fmt.Scanln(&departmentCount)
-    if err != nil || departmentCount < minDepartmentCount || departmentCount > maxDepartmentCount {
-        fmt.Println("Invalid department count")
-        return
-    }
-
-    for i := 0; i < departmentCount; i++ {
-        var employeeCount int
-
-        _, err = fmt.Scanln(&employeeCount)
-        if err != nil || employeeCount < minEmployeeCount || employeeCount > maxEmployeeCount {
-            fmt.Println("Invalid employee count")
-            return
-        }
-
-        conditions := make([]string, employeeCount)
-        targetTemps := make([]int, employeeCount)
-
-        for j := 0; j < employeeCount; j++ {
-            _, err := fmt.Scanln(&conditions[j], &targetTemps[j])
-            if err != nil || targetTemps[j] < temperature.MinTemperature || targetTemps[j] > temperature.MaxTemperature {
-                fmt.Println("Invalid employee input")
-                return
-            }
-        }
-
-        err := handleDepartmentRequests(employeeCount, conditions, targetTemps)
-        if err != nil {
-            fmt.Println(err)
-            return
-        }
-    }
+	err := run()
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 }
