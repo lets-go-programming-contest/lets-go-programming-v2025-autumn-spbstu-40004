@@ -94,6 +94,15 @@ func (e FailedEncodeError) Error() string {
 	return "failed to encode JSON file: " + e.FilePath
 }
 
+type ConversionError struct {
+	Value string
+	Err   error
+}
+
+func (e ConversionError) Error() string {
+	return "failed to convert valute '" + e.Value + "': " + e.Err.Error()
+}
+
 func ParseValuteXML(path string) (ValCurs, error) {
 	xmlFile, err := os.Open(path)
 	if err != nil {
@@ -162,6 +171,7 @@ func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 	var err error
 
 	err = os.MkdirAll(filepath.Dir(outputPath), 0755)
+
 	if err != nil {
 		return FailedCreateDirsError{DirPath: filepath.Dir(outputPath)}
 	}
@@ -188,13 +198,14 @@ func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 	return nil
 }
 
-func parseValue(s string) (float64, error) {
-	s = strings.Replace(s, ",", ".", 1)
+func parseValue(toConvert string) (float64, error) {
+	toConvert = strings.Replace(toConvert, ",", ".", 1)
 
 	// InvalidNumCodeError
-	val, err := strconv.ParseFloat(s, 64)
+	val, err := strconv.ParseFloat(toConvert, 64)
 	if err != nil {
-		return 0, InvalidNumCodeError{NumCode: s, Valute: Valute{Value: s}}
+		return 0, ConversionError{Value: toConvert, Err: err}
 	}
+
 	return val, nil
 }
