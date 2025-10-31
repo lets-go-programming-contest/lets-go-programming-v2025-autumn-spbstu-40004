@@ -13,7 +13,7 @@ type Temperature struct {
 	LowerBound int
 }
 
-func (temp *Temperature) setTemperature(operator string, desirableTemp int) (int, error) {
+func (temp *Temperature) SetTemperature(operator string, desirableTemp int) (int, error) {
 	const invalidValue int = -1;
 
 	switch operator {
