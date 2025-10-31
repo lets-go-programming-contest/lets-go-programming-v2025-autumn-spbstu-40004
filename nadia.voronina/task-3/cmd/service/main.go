@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	args := Args{}
+	args := Args{Config: ""}
 	if err := arg.Parse(&args); err != nil {
 		panic(err)
 	}
@@ -20,13 +20,13 @@ func main() {
 		panic(err)
 	}
 
-	valJsons, err := ConvertValutesToJson(valCurs.Valutes)
+	valJsons, err := ConvertValutesToJSON(valCurs.Valutes)
 	if err != nil {
 		panic(err)
 	}
 	SortDescendingByValue(valJsons)
 
-	if err := SaveToJson(valJsons, config.OutputFile); err != nil {
+	if err := SaveToJSON(valJsons, config.OutputFile); err != nil {
 		panic(err)
 	}
 }

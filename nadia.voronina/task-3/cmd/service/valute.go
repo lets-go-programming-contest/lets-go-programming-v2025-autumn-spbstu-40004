@@ -30,10 +30,19 @@ type Valute struct {
 	VunitRate string `xml:"VunitRate"`
 }
 
-type ValuteJson struct {
+type ValuteJSON struct {
 	NumCode  int64   `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
+}
+
+type ErrInvalidNumCode struct {
+	NumCode string
+	Valute  Valute
+}
+
+func (e ErrInvalidNumCode) Error() string {
+	return fmt.Sprintf("invalid NumCode '%s' for element: %+v", e.NumCode, e.Valute)
 }
 
 func ParseValuteXML(path string) (ValCurs, error) {
@@ -41,7 +50,12 @@ func ParseValuteXML(path string) (ValCurs, error) {
 	if err != nil {
 		return ValCurs{}, err
 	}
-	defer xmlFile.Close()
+
+	defer func() {
+		if err := xmlFile.Close(); err != nil {
+			panic(fmt.Sprintf("Error closing XML file: %v\n", err))
+		}
+	}()
 
 	var valCurs ValCurs
 	decoder := xml.NewDecoder(xmlFile)
@@ -58,35 +72,37 @@ func ParseValuteXML(path string) (ValCurs, error) {
 	return valCurs, nil
 }
 
-func ConvertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
-	var valutesJson []ValuteJson
-	for _, v := range valutes {
-		value, err := parseValue(v.Value)
+func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
+	valutesJson := make([]ValuteJSON, 0, len(valutes))
+	for _, valute := range valutes {
+		value, err := parseValue(valute.Value)
 		if err != nil {
 			return nil, err
 		}
 
-		fmt.Printf("Parsing %+v\n", v)
+		fmt.Printf("Parsing %+v\n", valute)
 		var numCode int64
-		if v.NumCode == "" {
+		if valute.NumCode == "" {
 			numCode = 0
 		} else {
 			var err error
-			numCode, err = strconv.ParseInt(v.NumCode, 10, 64)
+			numCode, err = strconv.ParseInt(valute.NumCode, 10, 64)
 			if err != nil {
-				return nil, fmt.Errorf("invalid NumCode '%s' for element: %+v", v.NumCode, v)
+				return nil, ErrInvalidNumCode{NumCode: valute.NumCode, Valute: valute}
 			}
 		}
-		valutesJson = append(valutesJson, ValuteJson{
+		valutesJson = append(valutesJson, ValuteJSON{
 			NumCode:  numCode,
-			CharCode: v.CharCode,
+			CharCode: valute.CharCode,
 			Value:    value,
 		})
 	}
+
 	return valutesJson, nil
 }
 
-func SaveToJson(valutesJson []ValuteJson, outputPath string) error {
+func SaveToJSON(valutesJson []ValuteJSON, outputPath string) error {
+
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 		return err
 	}
@@ -94,7 +110,11 @@ func SaveToJson(valutesJson []ValuteJson, outputPath string) error {
 	if err != nil {
 		return err
 	}
-	defer jsonFile.Close()
+	defer func() {
+		if err := jsonFile.Close(); err != nil {
+			panic(fmt.Sprintf("Error closing JSON file: %v\n", err))
+		}
+	}()
 
 	encoder := json.NewEncoder(jsonFile)
 	encoder.SetIndent("", "  ")

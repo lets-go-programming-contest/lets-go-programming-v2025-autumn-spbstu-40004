@@ -18,5 +18,6 @@ func LoadConfig(file string) (Config, error) {
 		return config, err
 	}
 	err = yaml.Unmarshal(data, &config)
+	
 	return config, err
 }
