@@ -7,11 +7,11 @@ import (
 	"io"
 	"os"
 
-	types "github.com/15446-rus75/task-3/internal/currency_utils"
+	"github.com/mkryloff/task-3/internal/currency_utils"
 	"golang.org/x/net/html/charset"
 )
 
-func ParseCurrencyData(filePath string) (*types.CurrencyData, error) {
+func ParseCurrencyData(filePath string) (*currency_utils.CurrencyData, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("open file: %w", err)
@@ -33,7 +33,7 @@ func ParseCurrencyData(filePath string) (*types.CurrencyData, error) {
 	decoder := xml.NewDecoder(bytes.NewReader(contentWithDots))
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	var data types.CurrencyData
+	var data currency_utils.CurrencyData
 	if err := decoder.Decode(&data); err != nil {
 		return nil, fmt.Errorf("decode xml: %w", err)
 	}

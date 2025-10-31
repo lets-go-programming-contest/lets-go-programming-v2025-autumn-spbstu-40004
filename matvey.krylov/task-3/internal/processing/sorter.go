@@ -3,7 +3,7 @@ package processing
 import (
 	"sort"
 
-	types "github.com/15446-rus75/task-3/internal/currency_utils"
+	types "github.com/mkryloff/task-3/internal/currency_utils"
 )
 
 func SortCurrenciesByValue(valutes []types.Valute) []types.CurrencyOutput {

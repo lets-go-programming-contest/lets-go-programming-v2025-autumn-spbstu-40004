@@ -4,8 +4,7 @@ import (
 	"flag"
 
 	"github.com/mkryloff/task-3/internal/ioutils"
-	"github.com/mkryloff/task-3/internal/parser"
-	"github.com/mkryloff/task-3/internal/processor"
+	"github.com/mkryloff/task-3/internal/processing"
 )
 
 func main() {
@@ -21,12 +20,12 @@ func main() {
 		panic("failed to load configuration: " + err.Error())
 	}
 
-	currencyData, err := parser.ParseCurrencyData(cfg.InputFile)
+	currencyData, err := processing.ParseCurrencyData(cfg.InputFile)
 	if err != nil {
 		panic("failed to parse currency data: " + err.Error())
 	}
 
-	sortedCurrencies := processor.SortCurrenciesByValue(currencyData.Valutes)
+	sortedCurrencies := processing.SortCurrenciesByValue(currencyData.Valutes)
 
 	err = ioutils.WriteJSONOutput(sortedCurrencies, cfg.OutputFile)
 	if err != nil {
