@@ -4,8 +4,8 @@ import (
 	"sort"
 )
 
-func SortDescendingByValue(valCurs *ValCurs) {
-	sort.Slice(valCurs.Valutes, func(i, j int) bool {
-		return valCurs.Valutes[i].Value > valCurs.Valutes[j].Value
+func SortDescendingByValue(valCurs []ValuteJson) {
+	sort.Slice(valCurs, func(i, j int) bool {
+		return valCurs[i].Value > valCurs[j].Value
 	})
 }
