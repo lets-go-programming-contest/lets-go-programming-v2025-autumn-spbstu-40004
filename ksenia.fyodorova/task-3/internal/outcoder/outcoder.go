@@ -16,6 +16,7 @@ const (
 
 func SaveCurrencyData(outputPath string, data indecoder.CurrencyCollection) error {
 	dir := filepath.Dir(outputPath)
+
 	err := os.MkdirAll(dir, dirPerm)
 	if err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
