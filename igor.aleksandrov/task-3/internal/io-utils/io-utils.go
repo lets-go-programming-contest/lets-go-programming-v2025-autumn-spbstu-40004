@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+const Perm = 0600
+
 func resolveFolders(filename string) error {
 	stringsSlice := strings.Split(filename, "/")
 	if len(stringsSlice) == 1 {
@@ -16,7 +18,7 @@ func resolveFolders(filename string) error {
 
 	err := os.MkdirAll(folderPath, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("%w", err)
+		return fmt.Errorf("failed to create dir %w", err)
 	}
 
 	return nil
@@ -28,9 +30,9 @@ func WriteBytesToFile(filename string, data []byte) error {
 		return err
 	}
 
-	err = os.WriteFile(filename, data, 0600)
+	err = os.WriteFile(filename, data, Perm)
 	if err != nil {
-		return fmt.Errorf("%w", err)
+		return fmt.Errorf("failed to write JSON to file %w", err)
 	}
 
 	return nil
