@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -65,6 +66,7 @@ func convertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 			return nil, err
 		}
 
+		fmt.Printf("Parsing %+v\n", v)
 		var numCode int64
 		if v.NumCode == "" {
 			numCode = 0
