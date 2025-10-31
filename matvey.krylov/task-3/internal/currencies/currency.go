@@ -1,4 +1,4 @@
-package currency_utils
+package currencies
 
 import "encoding/xml"
 
