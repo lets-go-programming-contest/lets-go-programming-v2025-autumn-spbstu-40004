@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"task-3/internal/models"
+	"github.com/widgeiw/task-3/internal/models"
 
 	"golang.org/x/net/html/charset"
 )

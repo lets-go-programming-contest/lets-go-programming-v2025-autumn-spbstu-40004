@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"task-3/internal/models"
+	"github.com/widgeiw/task-3/internal/models"
 )
 
 const (
