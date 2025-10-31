@@ -69,12 +69,12 @@ func convertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 		fmt.Printf("Parsing %+v\n", v)
 		var numCode int64
 		if v.NumCode == "" {
-			numCode = 0
+			return nil, fmt.Errorf("invalid NumCode for element: %+v", v)
 		} else {
 			var err error
 			numCode, err = strconv.ParseInt(v.NumCode, 10, 64)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("invalid NumCode '%s' for element: %+v", v.NumCode, v)
 			}
 		}
 		valutesJson = append(valutesJson, ValuteJson{
