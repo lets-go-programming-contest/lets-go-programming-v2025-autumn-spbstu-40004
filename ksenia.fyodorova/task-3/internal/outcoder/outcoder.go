@@ -9,9 +9,14 @@ import (
 	"github.com/lolnyok/task-3/internal/indecoder"
 )
 
+const (
+	dirPerm  = 0o755
+	filePerm = 0o600
+)
+
 func SaveCurrencyData(outputPath string, data indecoder.CurrencyCollection) error {
 	dir := filepath.Dir(outputPath)
-	err := os.MkdirAll(dir, 0o755)
+	err := os.MkdirAll(dir, dirPerm)
 	if err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
@@ -21,7 +26,7 @@ func SaveCurrencyData(outputPath string, data indecoder.CurrencyCollection) erro
 		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
 
-	err = os.WriteFile(outputPath, jsonData, 0o600)
+	err = os.WriteFile(outputPath, jsonData, filePerm)
 	if err != nil {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
