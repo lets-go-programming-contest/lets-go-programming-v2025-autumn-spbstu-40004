@@ -65,9 +65,15 @@ func convertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 			return nil, err
 		}
 
-		numCode, err := strconv.ParseInt(v.NumCode, 10, 64)
-		if err != nil {
-			return nil, err
+		var numCode int64
+		if v.NumCode == "" {
+			numCode = 0
+		} else {
+			var err error
+			numCode, err = strconv.ParseInt(v.NumCode, 10, 64)
+			if err != nil {
+				return nil, err
+			}
 		}
 		valutesJson = append(valutesJson, ValuteJson{
 			NumCode:  numCode,
