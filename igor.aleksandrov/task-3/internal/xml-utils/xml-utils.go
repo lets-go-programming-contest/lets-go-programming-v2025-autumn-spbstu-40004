@@ -23,7 +23,7 @@ type Valute struct {
 }
 
 type Currency struct {
-	NumericalCode string  `json:"num_code"`
+	NumericalCode int     `json:"num_code"`
 	CharacterCode string  `json:"char_code"`
 	Value         float64 `json:"value"`
 }
@@ -31,7 +31,7 @@ type Currency struct {
 func ParseXML(filePath string) ([]Currency, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("i/o xml: failed to read file %s: %w", filePath, err)
+		return nil, fmt.Errorf("failed to read file %s: %w", filePath, err)
 	}
 
 	transformedData := strings.ReplaceAll(string(data), ",", ".")
@@ -42,7 +42,7 @@ func ParseXML(filePath string) ([]Currency, error) {
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	if err := decoder.Decode(&valCurs); err != nil {
-		return nil, fmt.Errorf("xml decoder: failed to unmarshal XML data: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal XML data: %w", err)
 	}
 
 	result := make([]Currency, 0, len(valCurs.Valutes))
@@ -50,11 +50,20 @@ func ParseXML(filePath string) ([]Currency, error) {
 	for _, valute := range valCurs.Valutes {
 		value, err := strconv.ParseFloat(valute.ValueStr, 64)
 		if err != nil {
-			return nil, fmt.Errorf("data conversion: failed to parse value '%s' to float: %w", valute.ValueStr, err)
+			return nil, fmt.Errorf("failed to parse value '%s' to float: %w", valute.ValueStr, err)
+		}
+
+		numCode := 0
+		if valute.NumCode != "" {
+			convertedCode, err := strconv.Atoi(valute.NumCode)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse num_code '%s' to int: %w", valute.NumCode, err)
+			}
+			numCode = convertedCode
 		}
 
 		result = append(result, Currency{
-			NumericalCode: valute.NumCode,
+			NumericalCode: numCode,
 			CharacterCode: valute.CharCode,
 			Value:         value,
 		})
