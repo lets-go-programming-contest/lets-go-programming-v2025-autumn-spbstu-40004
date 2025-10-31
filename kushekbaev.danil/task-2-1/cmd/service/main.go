@@ -60,7 +60,7 @@ func main() {
 				fmt.Println(invalidValue)
 			}
 
-			finalTemp, err := temp.setTemperature(operator, desirableTemp)
+			finalTemp, err := temp.SetTemperature(operator, desirableTemp)
 			if err != nil {
 				fmt.Println(err)
 
