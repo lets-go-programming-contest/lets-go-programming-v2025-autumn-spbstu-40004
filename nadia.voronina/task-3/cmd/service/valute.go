@@ -50,7 +50,7 @@ type FailedFileOpenError struct {
 }
 
 func (e FailedFileOpenError) Error() string {
-	return fmt.Sprintf("failed to open file: %s", e.FilePath)
+	return "failed to open file: " + e.FilePath
 }
 
 type FailedFileCloseError struct {
@@ -58,22 +58,22 @@ type FailedFileCloseError struct {
 }
 
 func (e FailedFileCloseError) Error() string {
-	return fmt.Sprintf("failed to close file: %s", e.FilePath)
+	return "failed to close file: " + e.FilePath
 }
 
-type XmlDecodeError struct {
+type XMLDecodeError struct {
 	FilePath string
 	Err      error
 }
 
-func (e XmlDecodeError) Error() string {
+func (e XMLDecodeError) Error() string {
 	return fmt.Sprintf("failed to decode XML file '%s': %v", e.FilePath, e.Err)
 }
 
 func ParseValuteXML(path string) (ValCurs, error) {
 	xmlFile, err := os.Open(path)
 	if err != nil {
-		return ValCurs{}, FailedFileOpenError{FilePath: path}
+		return ValCurs{}, err
 	}
 
 	defer func() {
@@ -88,10 +88,11 @@ func ParseValuteXML(path string) (ValCurs, error) {
 		if encoding == "windows-1251" {
 			return charmap.Windows1251.NewDecoder().Reader(input), nil
 		}
+
 		return input, nil
 	}
 	if err := decoder.Decode(&valCurs); err != nil {
-		return ValCurs{}, XmlDecodeError{FilePath: path, Err: err}
+		return ValCurs{}, XMLDecodeError{FilePath: path, Err: err}
 	}
 
 	return valCurs, nil
@@ -111,7 +112,7 @@ func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
 			numCode = 0
 		} else {
 			var err error
-			
+
 			numCode, err = strconv.ParseInt(valute.NumCode, 10, 64)
 			if err != nil {
 				return nil, InvalidNumCodeError{NumCode: valute.NumCode, Valute: valute}
@@ -131,7 +132,7 @@ func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 		return err
 	}
-	
+
 	jsonFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
