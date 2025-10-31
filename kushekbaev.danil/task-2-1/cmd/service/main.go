@@ -42,7 +42,7 @@ func main() {
 			return
 		}
 
-		temp := temperature.Temperature{
+		temp := temperature.Temperature {
 			LowerBound: minTemp
 			UpperBound: maxTemp
 		}
