@@ -5,7 +5,7 @@ import (
 	"flag"
 	"os"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 var errEmptyFlag = errors.New("config flag is empty")
