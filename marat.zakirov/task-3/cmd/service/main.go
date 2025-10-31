@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"os"
+	"path/filepath"
 
 	"github.com/ZakirovMS/task-3/internal/codingprocessor"
 	"github.com/ZakirovMS/task-3/internal/currencyprocessor"
@@ -48,6 +49,11 @@ func main() {
 	outData, err := json.MarshalIndent(jsonData, "", "  ")
 	if err != nil {
 		panic("Some errors in json encoding")
+	}
+
+	err = os.MkdirAll(filepath.Dir(ioPath.OutPath), 0o755)
+	if err != nil {
+		panic("Some errors in creating directories")
 	}
 
 	err = os.WriteFile(ioPath.OutPath, outData, permission)
