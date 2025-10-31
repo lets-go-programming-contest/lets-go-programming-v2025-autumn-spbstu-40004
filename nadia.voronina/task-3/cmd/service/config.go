@@ -35,13 +35,12 @@ func LoadConfig(file string) (Config, error) {
 
 	data, err := os.ReadFile(file)
 	if err != nil {
-
 		return config, &FileReadingError{File: file, Err: err}
 	}
 
 	err = yaml.Unmarshal(data, &config)
+
 	if err != nil {
-		
 		return config, &FileUnmarshalError{File: file, Err: err}
 	}
 

@@ -50,11 +50,27 @@ type FailedFileOpenError struct {
 }
 
 func (e FailedFileOpenError) Error() string {
-	return "failed to open file: " + e.FilePath
+	return "no such file or directory: " + e.FilePath
 }
 
 type FailedFileCloseError struct {
 	FilePath string
+}
+
+type FailedCreateFileError struct {
+	FilePath string
+}
+
+func (e FailedCreateFileError) Error() string {
+	return "failed to create file: " + e.FilePath
+}
+
+type FailedCreateDirsError struct {
+	DirPath string
+}
+
+func (e FailedCreateDirsError) Error() string {
+	return "failed to create directories: " + e.DirPath
 }
 
 func (e FailedFileCloseError) Error() string {
@@ -70,6 +86,14 @@ func (e XMLDecodeError) Error() string {
 	return fmt.Sprintf("failed to decode XML file '%s': %v", e.FilePath, e.Err)
 }
 
+type FailedEncodeError struct {
+	FilePath string
+}
+
+func (e FailedEncodeError) Error() string {
+	return "failed to encode JSON file: " + e.FilePath
+}
+
 func ParseValuteXML(path string) (ValCurs, error) {
 	xmlFile, err := os.Open(path)
 	if err != nil {
@@ -83,7 +107,9 @@ func ParseValuteXML(path string) (ValCurs, error) {
 	}()
 
 	var valCurs ValCurs
+
 	decoder := xml.NewDecoder(xmlFile)
+
 	decoder.CharsetReader = func(encoding string, input io.Reader) (io.Reader, error) {
 		if encoding == "windows-1251" {
 			return charmap.Windows1251.NewDecoder().Reader(input), nil
@@ -91,6 +117,7 @@ func ParseValuteXML(path string) (ValCurs, error) {
 
 		return input, nil
 	}
+
 	if err := decoder.Decode(&valCurs); err != nil {
 		return ValCurs{}, XMLDecodeError{FilePath: path, Err: err}
 	}
@@ -100,6 +127,7 @@ func ParseValuteXML(path string) (ValCurs, error) {
 
 func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
 	valutesJSON := make([]ValuteJSON, 0, len(valutes))
+	
 	for _, valute := range valutes {
 		value, err := parseValue(valute.Value)
 		if err != nil {
@@ -107,6 +135,7 @@ func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
 		}
 
 		fmt.Printf("Parsing %+v\n", valute)
+
 		var numCode int64
 		if valute.NumCode == "" {
 			numCode = 0
@@ -118,6 +147,7 @@ func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
 				return nil, InvalidNumCodeError{NumCode: valute.NumCode, Valute: valute}
 			}
 		}
+
 		valutesJSON = append(valutesJSON, ValuteJSON{
 			NumCode:  numCode,
 			CharCode: valute.CharCode,
@@ -133,12 +163,12 @@ func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 
 	err = os.MkdirAll(filepath.Dir(outputPath), 0755)
 	if err != nil {
-		return err
+		return FailedCreateDirsError{DirPath: filepath.Dir(outputPath)}
 	}
 
 	jsonFile, err := os.Create(outputPath)
 	if err != nil {
-		return err
+		return FailedCreateFileError{FilePath: outputPath}
 	}
 
 	defer func() {
@@ -150,7 +180,7 @@ func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 	encoder := json.NewEncoder(jsonFile)
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(valutesJSON); err != nil {
-		return err
+		return FailedEncodeError{FilePath: outputPath}
 	}
 
 	return nil
