@@ -19,7 +19,12 @@ func WriteJSONToFile(currencies []currency.Currency, outputPath string) {
 	if err != nil {
 		panic("Failed to create output file: " + err.Error())
 	}
-	defer outputFile.Close()
+
+	defer func() {
+		if closeErr := outputFile.Close(); closeErr != nil {
+			panic("Failed to close output file: " + closeErr.Error())
+		}
+	}()
 
 	encoder := json.NewEncoder(outputFile)
 	encoder.SetIndent("", "  ")
