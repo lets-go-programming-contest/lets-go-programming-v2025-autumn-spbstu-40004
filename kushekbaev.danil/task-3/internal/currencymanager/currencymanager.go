@@ -40,7 +40,7 @@ func Read(path string) (currencyparser.Currencies, error) {
 }
 
 func Write(path string, currencies currencyparser.Currencies) error {
-	data, err := json.MarshalIndent(currencies, "", "\t")
+	data, err := json.MarshalIndent(currencies.AllCurrencies, "", "\t")
 	if err != nil {
 		return err
 	}
