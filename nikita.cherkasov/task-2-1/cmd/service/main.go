@@ -1,90 +1,62 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+
+	"github.com/cherkasoov/task-2-1/internal/temperature"
 )
 
-var errOperation = errors.New("invalid operation")
 
-func updateTemperatureRange(minTemp int, maxTemp int, targetTemp int, operation string) (int, int, error) {
-	if minTemp == -1 && maxTemp == -1 {
-		return minTemp, maxTemp, nil
-	}
+func handleDepartmentRequests(employeeCount int) error {
+	tr := temperature.NewTemperatureRange(temperature.MinTemperature, temperature.MaxTemperature)
 
-	switch operation {
-	case ">=":
-		if targetTemp > maxTemp {
-			minTemp = -1
-			maxTemp = -1
-		} else if minTemp <= targetTemp && targetTemp <= maxTemp {
-			minTemp = targetTemp
-		}
-	case "<=":
-		if targetTemp < minTemp {
-			minTemp = -1
-			maxTemp = -1
-		} else if minTemp <= targetTemp && targetTemp <= maxTemp {
-			maxTemp = targetTemp
-		}
-	default:
-		return minTemp, maxTemp, errOperation
-	}
+	for i := 0; i < employeeCount; i++ {
+		var condition string
+		var targetTemp int
 
-	return minTemp, maxTemp, nil
-}
-
-func handleDepartmentRequests(employeeCount int, lowTemp int, hightTemp int) {
-	var (
-		condition  string
-		targetTemp int
-	)
-
-	minTemp := lowTemp
-	maxTemp := hightTemp
-
-	for range employeeCount {
 		_, err := fmt.Scanln(&condition, &targetTemp)
-		if err != nil || targetTemp < 15 || targetTemp > 30 {
-			fmt.Println("Invalid employee input")
-
-			return
+		if err != nil || targetTemp < temperature.MinTemperature || targetTemp > temperature.MaxTemperature {
+			return temperature.ErrInvalidInput
 		}
 
-		minTemp, maxTemp, err = updateTemperatureRange(minTemp, maxTemp, targetTemp, condition)
+		err = tr.Update(targetTemp, condition)
 		if err != nil {
-			fmt.Println(err)
-
-			return
+			return err
 		}
 
-		fmt.Println(minTemp)
+		fmt.Println(tr.GetMin())
 	}
+
+	return nil
 }
 
 func main() {
 	const (
-		minTemperature = 15
-		maxTemperature = 30
+		minDepartmentCount = 1
+		maxDepartmentCount = 1000
+		minEmployeeCount   = 1
+		maxEmployeeCount   = 1000
 	)
 
 	var departmentCount, employeeCount int
 
 	_, err := fmt.Scanln(&departmentCount)
-	if err != nil || departmentCount < 1 || departmentCount > 1000 {
+	if err != nil || departmentCount < minDepartmentCount || departmentCount > maxDepartmentCount {
 		fmt.Println("Invalid department count")
-
 		return
 	}
 
-	for range departmentCount {
+	for i := 0; i < departmentCount; i++ {
 		_, err = fmt.Scanln(&employeeCount)
-		if err != nil || employeeCount < 1 || employeeCount > 1000 {
+		if err != nil || employeeCount < minEmployeeCount || employeeCount > maxEmployeeCount {
 			fmt.Println("Invalid employee count")
-
 			return
 		}
 
-		handleDepartmentRequests(employeeCount, minTemperature, maxTemperature)
+		err := handleDepartmentRequests(employeeCount)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }
