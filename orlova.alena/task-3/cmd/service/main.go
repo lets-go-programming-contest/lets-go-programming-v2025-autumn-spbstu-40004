@@ -8,18 +8,9 @@ import (
 func main() {
 	cfg := config.Load()
 
-	valCurs, err := converter.ParseXML(cfg.InputFile)
-	if err != nil {
-		panic(err)
-	}
+	valCurs := converter.ParseXML(cfg.InputFile)
 
 	currencies := converter.ConvertToCurrencies(valCurs)
-	if err != nil {
-		panic(err)
-	}
 
-	err = converter.WriteJSON(currencies, cfg.OutputFile)
-	if err != nil {
-		panic(err)
-	}
+	converter.WriteJSON(currencies, cfg.OutputFile)
 }

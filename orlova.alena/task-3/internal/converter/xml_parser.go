@@ -7,17 +7,18 @@ import (
 	"task-3/internal/models"
 )
 
-func ParseXML(filePath string) (*models.ValCurs, error) {
+func ParseXML(filePath string) *models.ValCurs {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, err
+		panic("failed to read xml file" + err.Error())
 	}
 
 	var valCurs models.ValCurs
+
 	err = xml.Unmarshal(data, &valCurs)
 	if err != nil {
-		return nil, err
+		panic("failed to unmarshall xml" + err.Error())
 	}
 
-	return &valCurs, nil
+	return &valCurs
 }
