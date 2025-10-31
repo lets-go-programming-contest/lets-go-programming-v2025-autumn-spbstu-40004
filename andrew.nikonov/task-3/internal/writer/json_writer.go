@@ -28,6 +28,7 @@ func WriteJSONToFile(currencies []currency.Currency, outputPath string) {
 
 	encoder := json.NewEncoder(outputFile)
 	encoder.SetIndent("", "  ")
+
 	err = encoder.Encode(currencies)
 	if err != nil {
 		panic("Failed to encode JSON: " + err.Error())
