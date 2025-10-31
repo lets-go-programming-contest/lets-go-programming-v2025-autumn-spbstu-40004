@@ -11,6 +11,7 @@ import (
 func WriteJSONToFile(currencies []currency.Currency, outputPath string) {
 	outputDir := filepath.Dir(outputPath)
 	err := os.MkdirAll(outputDir, 0755)
+
 	if err != nil {
 		panic("Failed to create output directory: " + err.Error())
 	}

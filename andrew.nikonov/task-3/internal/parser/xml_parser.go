@@ -7,8 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ysffmn/task-3/internal/currency"
 	"golang.org/x/text/encoding/charmap"
+
+	"github.com/ysffmn/task-3/internal/currency"
 )
 
 func ParseXMLFile(filePath string) currency.ValCurs {
@@ -45,7 +46,7 @@ func ConvertToCurrencies(valCurs currency.ValCurs) []currency.Currency {
 	currencies := make([]currency.Currency, 0, len(valCurs.Valutes))
 
 	for _, valute := range valCurs.Valutes {
-		if valute.NumCode == "" || valute.CharCode == "" || valute.Value == "" {
+		if valute.CharCode == "" || valute.Value == "" {
 			continue
 		}
 
@@ -55,9 +56,13 @@ func ConvertToCurrencies(valCurs currency.ValCurs) []currency.Currency {
 			panic("Failed to parse currency value: " + err.Error())
 		}
 
-		numCode, err := strconv.Atoi(valute.NumCode)
-		if err != nil {
-			panic("Failed to parse numeric code: " + err.Error())
+		numCode := 0
+		if valute.NumCode != "" {
+			var err error
+			numCode, err = strconv.Atoi(valute.NumCode)
+			if err != nil {
+				panic("Failed to parse numeric code: " + err.Error())
+			}
 		}
 
 		currencies = append(currencies, currency.Currency{
