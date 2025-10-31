@@ -17,10 +17,10 @@ type TemperatureRange struct {
 	max int
 }
 
-func NewTemperatureRange(min, max int) *TemperatureRange {
+func NewTemperatureRange(minTemp, maxTemp int) *TemperatureRange {
 	return &TemperatureRange{
-		min: min,
-		max: max,
+		min: minTemp,
+		max: maxTemp,
 	}
 }
 
