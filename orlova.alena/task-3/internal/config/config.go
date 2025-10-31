@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -12,7 +13,7 @@ type Config struct {
 	OutputFile string `yaml:"output-file"`
 }
 
-func Load() *Config {
+func Load() (*Config, error) {
 	var cfg Config
 
 	configPath := flag.String("config", "config.yaml", "path to config file")
@@ -20,13 +21,13 @@ func Load() *Config {
 
 	data, err := os.ReadFile(*configPath)
 	if err != nil {
-		panic("failed to read config: " + err.Error())
+		return nil, fmt.Errorf("failed to read config: %w", err)
 	}
 
 	err = yaml.Unmarshal(data, &cfg)
 	if err != nil {
-		panic("failed to parse config: " + err.Error())
+		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
 
-	return &cfg
+	return &cfg, nil
 }
