@@ -43,8 +43,8 @@ func main() {
 		}
 
 		temp := temperature.Temperature {
-			LowerBound: minTemp
-			UpperBound: maxTemp
+			LowerBound: minTemp,
+			UpperBound: maxTemp,
 		}
 
 		for range employeeNumber {
