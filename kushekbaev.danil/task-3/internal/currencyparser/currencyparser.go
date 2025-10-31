@@ -40,7 +40,7 @@ func (dotFloat *DotFloat) UnmarshalXML(decoder *xml.Decoder, start xml.StartElem
 
   num, err := strconv.ParseFloat(str, 64)
   if err != nil {
-    return fmt.Errorf("parsing float '%s: %w", str, err)
+    return fmt.Errorf("parsing float '%s': %w", str, err)
   }
 
   *dotFloat = DotFloat(num)
