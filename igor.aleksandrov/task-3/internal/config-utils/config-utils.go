@@ -1,11 +1,14 @@
 package configutils
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
 )
+
+var ErrMissingConfigFields = errors.New("config field input and output files cannot be empty")
 
 type Config struct {
 	InputFile  string `yaml:"input-file"`
@@ -26,7 +29,7 @@ func LoadConfig(configPath string) (*Config, error) {
 	}
 
 	if cfg.InputFile == "" || cfg.OutputFile == "" {
-		return nil, fmt.Errorf("config fields input-file and output-file cannot be empty")
+		return nil, ErrMissingConfigFields
 	}
 
 	return &cfg, nil
