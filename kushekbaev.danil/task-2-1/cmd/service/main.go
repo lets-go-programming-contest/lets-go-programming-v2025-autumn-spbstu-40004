@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"errors"
+
+	"github.com/Z-1337/task-2-1/internal/temperature"
 )
 
 var (
@@ -41,8 +42,10 @@ func main() {
 			return
 		}
 
-		lowerBound := minTemp
-		upperBound := maxTemp
+		temp := temperature.Temperature{
+			LowerBound: minTemp
+			UpperBound: maxTemp
+		}
 
 		for range employeeNumber {
 			_, err = fmt.Scan(&operator, &desirableTemp)
@@ -56,28 +59,14 @@ func main() {
 				fmt.Println(invalidValue)
 			}
 
-			switch operator {
-			case "<=":
-				upperBound = ternaryInt(upperBound < desirableTemp, upperBound, desirableTemp)
-			case ">=":
-				lowerBound = ternaryInt(lowerBound > desirableTemp, lowerBound, desirableTemp)
-			default:
-				fmt.Println(ErrInvalidOp)
+			finalTemp, err := temp.setTemperature(operator, desirableTemp)
+			if err != nil {
+				fmt.Println(err)
+
+				continue
 			}
 
-			if lowerBound <= upperBound {
-				fmt.Println(lowerBound)
-			} else {
-				fmt.Println(invalidValue)
-			}
+			fmt.Println(finalTemp);
 		}
 	}
-}
-
-func ternaryInt(condition bool, trueValue int, falseValue int) int {
-	if condition {
-		return trueValue
-	}
-
-	return falseValue
 }
