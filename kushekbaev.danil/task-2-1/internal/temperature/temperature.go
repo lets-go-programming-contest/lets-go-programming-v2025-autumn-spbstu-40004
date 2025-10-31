@@ -8,14 +8,16 @@ var (
 	ErrInvalidOp = errors.New("invalid operator")
 )
 
+const {
+	invalidValue int = -1;
+}
+
 type Temperature struct {
 	UpperBound int
 	LowerBound int
 }
 
 func (temp *Temperature) SetTemperature(operator string, desirableTemp int) (int, error) {
-	const invalidValue int = -1;
-
 	switch operator {
 	case "<=":
 		temp.UpperBound = ternaryInt(temp.UpperBound < desirableTemp, temp.UpperBound, desirableTemp)
