@@ -30,6 +30,7 @@ func ParseXMLFile(filePath string) currency.ValCurs {
 		if charset == "windows-1251" {
 			return charmap.Windows1251.NewDecoder().Reader(input), nil
 		}
+
 		return input, nil
 	}
 
@@ -44,6 +45,10 @@ func ConvertToCurrencies(valCurs currency.ValCurs) []currency.Currency {
 	currencies := make([]currency.Currency, 0, len(valCurs.Valutes))
 
 	for _, valute := range valCurs.Valutes {
+		if valute.NumCode == "" || valute.CharCode == "" || valute.Value == "" {
+			continue
+		}
+
 		valueStr := strings.ReplaceAll(valute.Value, ",", ".")
 		value, err := strconv.ParseFloat(valueStr, 64)
 		if err != nil {
