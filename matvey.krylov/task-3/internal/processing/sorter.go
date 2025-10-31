@@ -3,14 +3,14 @@ package processing
 import (
 	"sort"
 
-	types "github.com/mkryloff/task-3/internal/currency_utils"
+	"github.com/mkryloff/task-3/internal/currencies"
 )
 
-func SortCurrenciesByValue(valutes []types.Valute) []types.CurrencyOutput {
-	output := make([]types.CurrencyOutput, len(valutes))
+func SortCurrenciesByValue(valutes []currencies.Valute) []currencies.CurrencyOutput {
+	output := make([]currencies.CurrencyOutput, len(valutes))
 
 	for i, valute := range valutes {
-		output[i] = types.CurrencyOutput{
+		output[i] = currencies.CurrencyOutput{
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
 			Value:    valute.Value,
