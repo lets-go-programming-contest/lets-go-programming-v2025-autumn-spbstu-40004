@@ -4,14 +4,17 @@ type CurrencyCollection struct {
 	Items []CurrencyItem `xml:"Valute"`
 }
 
-func (cc CurrencyCollection) Count() int {
+// Len возвращает количество элементов
+func (cc CurrencyCollection) Len() int {
 	return len(cc.Items)
 }
 
-func (cc CurrencyCollection) Exchange(i, j int) {
+// Swap меняет местами элементы i и j
+func (cc CurrencyCollection) Swap(i, j int) {
 	cc.Items[i], cc.Items[j] = cc.Items[j], cc.Items[i]
 }
 
-func (cc CurrencyCollection) HigherValue(i, j int) bool {
+// Less определяет порядок сортировки (по убыванию значения)
+func (cc CurrencyCollection) Less(i, j int) bool {
 	return cc.Items[i].ConvertedAmount > cc.Items[j].ConvertedAmount
 }
