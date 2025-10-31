@@ -8,8 +8,12 @@ import (
 	"task-3/internal/models"
 )
 
+const (
+	dir = 0o755
+)
+
 func WriteJSON(currencies []models.Currency, filePath string) error {
-	err := os.MkdirAll(filepath.Dir(filePath), 0o755)
+	err := os.MkdirAll(filepath.Dir(filePath), dir)
 	if err != nil {
 		panic("failed to create directory" + err.Error())
 	}
