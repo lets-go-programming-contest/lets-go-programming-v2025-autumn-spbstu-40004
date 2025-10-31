@@ -15,6 +15,7 @@ import (
 
 func main() {
 	nFlag := flag.String("config", "", "Path to YAML config file")
+
 	const dirPerm, filePerm = 0o755, 0o666
 
 	flag.Parse()
