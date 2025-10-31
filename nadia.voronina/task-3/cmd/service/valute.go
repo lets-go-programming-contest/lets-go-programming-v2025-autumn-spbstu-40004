@@ -31,7 +31,7 @@ type Valute struct {
 }
 
 type ValuteJson struct {
-	NumCode  int64   `json:"num_code"`
+	NumCode  int     `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
 }
@@ -67,12 +67,12 @@ func convertValutesToJson(valutes []Valute) ([]ValuteJson, error) {
 		}
 
 		fmt.Printf("Parsing %+v\n", v)
-		var numCode int64
+		var numCode int
 		if v.NumCode == "" {
-			return nil, fmt.Errorf("invalid NumCode for element: %+v", v)
+			numCode = 0
 		} else {
 			var err error
-			numCode, err = strconv.ParseInt(v.NumCode, 10, 64)
+			numCode, err = strconv.Atoi(v.NumCode)
 			if err != nil {
 				return nil, fmt.Errorf("invalid NumCode '%s' for element: %+v", v.NumCode, v)
 			}
