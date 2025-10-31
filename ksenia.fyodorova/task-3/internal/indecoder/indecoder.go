@@ -2,6 +2,7 @@ package indecoder
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -12,8 +13,9 @@ import (
 func ProcessCurrencyFile(filePath string) (CurrencyCollection, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return CurrencyCollection{}, err
+		return CurrencyCollection{}, fmt.Errorf("failed to open currency file: %w", err)
 	}
+
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
 			panic(closeErr.Error())
@@ -32,13 +34,13 @@ func ProcessCurrencyFile(filePath string) (CurrencyCollection, error) {
 	var data CurrencyCollection
 	err = decoder.Decode(&data)
 	if err != nil {
-		return CurrencyCollection{}, err
+		return CurrencyCollection{}, fmt.Errorf("failed to decode XML: %w", err)
 	}
 
 	for i := range data.Items {
 		err = data.Items[i].TransformValue()
 		if err != nil {
-			return CurrencyCollection{}, err
+			return CurrencyCollection{}, fmt.Errorf("failed to transform currency value: %w", err)
 		}
 	}
 
