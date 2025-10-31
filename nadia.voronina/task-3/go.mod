@@ -5,7 +5,7 @@ go 1.22.7
 require (
 	github.com/alexflint/go-arg v1.6.0
 	github.com/go-yaml/yaml v2.1.0+incompatible
-	golang.org/x/text v0.30.0
+	golang.org/x/text v0.20.0
 )
 
 require (
