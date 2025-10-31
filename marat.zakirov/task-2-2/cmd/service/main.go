@@ -8,7 +8,7 @@ import (
 	"github.com/ZakirovMS/task-2-2/internal/maxheap"
 )
 
-var errorInput = errors.New("ERROR Incorrect input")
+var errInput = errors.New("ERROR Incorrect input")
 
 func main() {
 	var (
@@ -27,7 +27,7 @@ func main() {
 
 	_, err := fmt.Scan(&dishesNum)
 	if err != nil || dishesNum < minDishQuantity || dishesNum > maxDishQuantity {
-		fmt.Println(errorInput)
+		fmt.Println(errInput)
 
 		return
 	}
@@ -37,7 +37,7 @@ func main() {
 	for range dishesNum {
 		_, err = fmt.Scan(&currentPref)
 		if err != nil || currentPref < minPrefQunatity || currentPref > maxPrefQunatity {
-			fmt.Println(errorInput)
+			fmt.Println(errInput)
 
 			return
 		}
@@ -47,7 +47,7 @@ func main() {
 
 	_, err = fmt.Scan(&orderPred)
 	if err != nil || orderPred < 1 || orderPred > customHeap.Len() {
-		fmt.Println(errorInput)
+		fmt.Println(errInput)
 
 		return
 	}
