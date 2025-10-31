@@ -11,15 +11,15 @@ import (
 )
 
 type ValCurs struct {
-	XMLName struct{}  `xml:"ValCurs"`
-	Valutes  []Valute `xml:"Valute"`
+	XMLName struct{} `xml:"ValCurs"`
+	Valutes []Valute `xml:"Valute"`
 }
 
 type Valute struct {
-	XMLName struct{} `xml:"Valute"`
-	NumCode string   `xml:"NumCode"`
-	CharCode string  `xml:"CharCode"`
-	ValueStr string  `xml:"Value"`
+	XMLName  struct{} `xml:"Valute"`
+	NumCode  string   `xml:"NumCode"`
+	CharCode string   `xml:"CharCode"`
+	ValueStr string   `xml:"Value"`
 }
 
 type Currency struct {
@@ -53,7 +53,8 @@ func ParseXML(filePath string) ([]Currency, error) {
 			return nil, fmt.Errorf("failed to parse value '%s' to float: %w", valute.ValueStr, err)
 		}
 
-		numCode := 0
+		var numCode int
+
 		if valute.NumCode != "" {
 			convertedCode, err := strconv.Atoi(valute.NumCode)
 			if err != nil {

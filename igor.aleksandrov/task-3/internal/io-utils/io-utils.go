@@ -28,7 +28,7 @@ func WriteBytesToFile(filename string, data []byte) error {
 		return err
 	}
 
-	err = os.WriteFile(filename, data, 0644)
+	err = os.WriteFile(filename, data, 0600)
 	if err != nil {
 		return fmt.Errorf("i/o: %w", err)
 	}
