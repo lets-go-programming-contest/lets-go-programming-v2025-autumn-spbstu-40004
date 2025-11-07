@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strings"
 
 	"golang.org/x/net/html/charset"
@@ -20,13 +21,14 @@ type CurrenciesXML struct {
 	Currencies []Currency `xml:"Valute"`
 }
 
-func replaceCharInFileReader(file *os.File, oldChar, newChar string) (io.Reader, error) {
+func replaceCommaWithDotInFloat(file *os.File) (io.Reader, error) {
 	content, err := io.ReadAll(file)
 	if err != nil {
 		return nil, fmt.Errorf("transforming file reader: %w", err)
 	}
 
-	transformed := strings.ReplaceAll(string(content), oldChar, newChar)
+	regex := regexp.MustCompile(`(<[A-Za-z0-9]+>[0-9]+),([0-9]+<\/[A-Za-z]+>)`)
+	transformed := regex.ReplaceAllString(string(content), "$1.$2")
 
 	return strings.NewReader(transformed), nil
 }
@@ -45,7 +47,7 @@ func ParseXML(filePath string) ([]Currency, error) {
 		}
 	}()
 
-	transformedReader, err := replaceCharInFileReader(file, ",", ".")
+	transformedReader, err := replaceCommaWithDotInFloat(file)
 	if err != nil {
 		return nil, err
 	}
