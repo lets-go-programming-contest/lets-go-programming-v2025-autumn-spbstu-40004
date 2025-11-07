@@ -11,6 +11,10 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
+const (
+	regexForReplacingCommasToDots = `(<[A-Za-z0-9]+>[0-9]+),([0-9]+<\/[A-Za-z]+>)`
+)
+
 type Currency struct {
 	NumericalCode int     `json:"num_code"  xml:"NumCode"`
 	CharacterCode string  `json:"char_code" xml:"CharCode"`
@@ -27,7 +31,7 @@ func replaceCommaWithDotInFloat(file *os.File) (io.Reader, error) {
 		return nil, fmt.Errorf("transforming file reader: %w", err)
 	}
 
-	regex := regexp.MustCompile(`(<[A-Za-z0-9]+>[0-9]+),([0-9]+<\/[A-Za-z]+>)`)
+	regex := regexp.MustCompile(regexForReplacingCommasToDots)
 	transformed := regex.ReplaceAllString(string(content), "$1.$2")
 
 	return strings.NewReader(transformed), nil
