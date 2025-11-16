@@ -1,26 +1,16 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"fmt"
 	"slices"
 
 	"github.com/jambii1/task-3/internal/config"
 	"github.com/jambii1/task-3/internal/currency"
 )
 
-var errInvalidCommandParameters = errors.New("invalid command parameters")
-
 func main() {
-	configPath := flag.String("config", "", "config path")
+	configPath := flag.String("config", "./config.yaml", "config path")
 	flag.Parse()
-
-	if *configPath == "" {
-		fmt.Println(errInvalidCommandParameters)
-
-		return
-	}
 
 	config, err := config.Parse(*configPath)
 	if err != nil {
