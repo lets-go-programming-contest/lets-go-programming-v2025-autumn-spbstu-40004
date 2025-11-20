@@ -27,7 +27,6 @@ type DirHandle struct {
 }
 
 type ValCurs struct {
-	XMLName xml.Name `xml:"ValCurs"`
 	Valutes []Valute `xml:"Valute"`
 }
 
