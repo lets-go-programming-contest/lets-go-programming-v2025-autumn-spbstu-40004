@@ -26,7 +26,7 @@ func WriteJSONOutput(currencies []types.CurrencyOutput, outputPath string) error
 
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			_ = closeErr
+      panic("failed to close file: " + closeErr.Error())
 		}
 	}()
 
