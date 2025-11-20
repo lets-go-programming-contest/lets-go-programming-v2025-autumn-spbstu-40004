@@ -13,9 +13,9 @@ func CreateJSON(curs *ValCurs) ([]byte, error) {
 
 	for _, value := range curs.Valutes {
 		valTemp := Valute{
-			NumCode:   value.NumCode,
-			CharCode:  value.CharCode,
-			Value:     value.Value,
+			NumCode:  value.NumCode,
+			CharCode: value.CharCode,
+			Value:    value.Value,
 		}
 
 		cursTemp = append(cursTemp, valTemp)
