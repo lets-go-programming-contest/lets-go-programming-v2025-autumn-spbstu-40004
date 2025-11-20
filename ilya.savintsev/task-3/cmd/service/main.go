@@ -4,9 +4,9 @@ import (
 	"flag"
 	"os"
 
-	"gopkg.in/yaml.v2"
 	"github.com/faxryzen/task-3/internal/file_saver"
 	"github.com/faxryzen/task-3/internal/valute_system"
+	"gopkg.in/yaml.v2"
 )
 
 type DirHandle struct {
