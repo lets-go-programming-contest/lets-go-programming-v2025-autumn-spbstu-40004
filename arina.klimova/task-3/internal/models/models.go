@@ -56,5 +56,5 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 
 type ValCurs struct {
 	XMLName    xml.Name   `json:"-"          xml:"ValCurs"`
-	Currencies []Currency `json:"currencies" xml:"Valute" `
+	Currencies []Currency `json:"currencies" xml:"Valute"`
 }
