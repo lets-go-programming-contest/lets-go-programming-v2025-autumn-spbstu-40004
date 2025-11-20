@@ -28,15 +28,10 @@ func WriteJSON(currencies []models.Currency, outputPath string) error {
 		}
 	}()
 
-	output := make([]models.CurrencyOutput, len(currencies))
-	for i, currency := range currencies {
-		output[i] = models.CurrencyOutput(currency)
-	}
-
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 
-	if err := encoder.Encode(output); err != nil {
+	if err := encoder.Encode(currencies); err != nil {
 		return fmt.Errorf("encode JSON: %w", err)
 	}
 
