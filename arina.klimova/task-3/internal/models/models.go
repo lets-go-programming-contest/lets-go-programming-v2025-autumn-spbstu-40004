@@ -14,9 +14,9 @@ type currencyXML struct {
 }
 
 type Currency struct {
-	NumCode  int     `xml:"-"`
-	CharCode string  `xml:"-"`
-	Value    float64 `xml:"-"`
+	NumCode  int     `xml:"NumCode" json:"num_code"`
+	CharCode string  `xml:"CharCode" json:"char_code"`
+	Value    float64 `xml:"Value" json:"value"`
 }
 
 func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
@@ -55,12 +55,6 @@ func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 }
 
 type ValCurs struct {
-	XMLName    xml.Name   `xml:"ValCurs"`
-	Currencies []Currency `xml:"Valute"`
-}
-
-type CurrencyOutput struct {
-	NumCode  int     `json:"num_code"`
-	CharCode string  `json:"char_code"`
-	Value    float64 `json:"value"`
+	XMLName    xml.Name   `xml:"ValCurs" json:"-"`
+	Currencies []Currency `xml:"Valute" json:"currencies"`
 }
