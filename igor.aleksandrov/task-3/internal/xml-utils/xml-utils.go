@@ -11,21 +11,16 @@ import (
 )
 
 type ValCurs struct {
-	XMLName struct{} `xml:"ValCurs"`
-	Valutes []Valute `xml:"Valute"`
-}
-
-type Valute struct {
-	XMLName  struct{} `xml:"Valute"`
-	NumCode  string   `xml:"NumCode"`
-	CharCode string   `xml:"CharCode"`
-	ValueStr string   `xml:"Value"`
+	Valutes []Currency `xml:"Valute"`
 }
 
 type Currency struct {
-	NumericalCode int     `json:"num_code"`
-	CharacterCode string  `json:"char_code"`
-	Value         float64 `json:"value"`
+	NumCode  string `xml:"NumCode" json:"-"`
+	CharCode string `xml:"CharCode" json:"char_code"`
+	ValueStr string `xml:"Value" json:"-"`
+
+	NumericalCode int     `xml:"-" json:"num_code"`
+	Value         float64 `xml:"-" json:"value"`
 }
 
 func ParseXML(filePath string) ([]Currency, error) {
@@ -45,31 +40,25 @@ func ParseXML(filePath string) ([]Currency, error) {
 		return nil, fmt.Errorf("failed to unmarshal XML data: %w", err)
 	}
 
-	result := make([]Currency, 0, len(valCurs.Valutes))
+	for i := range valCurs.Valutes {
+		currency := &valCurs.Valutes[i]
 
-	for _, valute := range valCurs.Valutes {
-		value, err := strconv.ParseFloat(valute.ValueStr, 64)
+		value, err := strconv.ParseFloat(currency.ValueStr, 64)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse value '%s' to float: %w", valute.ValueStr, err)
+			return nil, fmt.Errorf("failed to parse value '%s' to float: %w", currency.ValueStr, err)
 		}
+		currency.Value = value
 
-		var numCode int
-
-		if valute.NumCode != "" {
-			convertedCode, err := strconv.Atoi(valute.NumCode)
+		numCode := 0
+		if currency.NumCode != "" {
+			convertedCode, err := strconv.Atoi(currency.NumCode)
 			if err != nil {
-				return nil, fmt.Errorf("failed to parse num_code '%s' to int: %w", valute.NumCode, err)
+				return nil, fmt.Errorf("failed to parse num_code '%s' to int: %w", currency.NumCode, err)
 			}
-
 			numCode = convertedCode
 		}
-
-		result = append(result, Currency{
-			NumericalCode: numCode,
-			CharacterCode: valute.CharCode,
-			Value:         value,
-		})
+		currency.NumericalCode = numCode
 	}
 
-	return result, nil
+	return valCurs.Valutes, nil
 }

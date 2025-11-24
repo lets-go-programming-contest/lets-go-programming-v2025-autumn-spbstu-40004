@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var ErrMissingConfigFields = errors.New("config field input and output files cannot be empty")
+var ErrMissingConfigFields = errors.New("config fields input-file and output-file cannot be empty")
 
 type Config struct {
 	InputFile  string `yaml:"input-file"`
