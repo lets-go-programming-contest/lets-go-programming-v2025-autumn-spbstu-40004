@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+const filePerm = 0600
+
 func resolveFolders(filename string) error {
 	stringsSlice := strings.Split(filename, "/")
 	if len(stringsSlice) == 1 {
@@ -27,9 +29,10 @@ func WriteBytesToFile(filename string, data []byte) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(filename, data, 0600)
+
+	err = os.WriteFile(filename, data, filePerm)
 	if err != nil {
-		return fmt.Errorf("failed to write JSON to file %w", err)
+		return fmt.Errorf("failed to write file %w", err)
 	}
 
 	return nil
