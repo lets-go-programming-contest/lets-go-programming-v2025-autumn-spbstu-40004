@@ -20,6 +20,7 @@ type conveyer struct {
 	separators   []separatorConfig
 	cancel       context.CancelFunc
 	wg           sync.WaitGroup
+	errCh        chan error
 }
 
 type decoratorConfig struct {
@@ -44,6 +45,7 @@ func New(size int) *conveyer {
 	return &conveyer{
 		channels: make(map[string]chan string),
 		size:     size,
+		errCh:    make(chan error, 10),
 	}
 }
 
@@ -76,9 +78,6 @@ func (c *conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	c.getOrCreateChannel(input)
-	c.getOrCreateChannel(output)
-
 	c.decorators = append(c.decorators, decoratorConfig{
 		fn:     fn,
 		input:  input,
@@ -91,11 +90,6 @@ func (c *conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	for _, input := range inputs {
-		c.getOrCreateChannel(input)
-	}
-	c.getOrCreateChannel(output)
-
 	c.multiplexers = append(c.multiplexers, multiplexerConfig{
 		fn:     fn,
 		inputs: inputs,
@@ -108,11 +102,6 @@ func (c *conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	c.getOrCreateChannel(input)
-	for _, output := range outputs {
-		c.getOrCreateChannel(output)
-	}
-
 	c.separators = append(c.separators, separatorConfig{
 		fn:      fn,
 		input:   input,
@@ -125,20 +114,35 @@ func (c *conveyer) Run(ctx context.Context) error {
 	c.cancel = cancel
 	defer cancel()
 
+	for _, d := range c.decorators {
+		c.getOrCreateChannel(d.input)
+		c.getOrCreateChannel(d.output)
+	}
+	for _, m := range c.multiplexers {
+		for _, input := range m.inputs {
+			c.getOrCreateChannel(input)
+		}
+		c.getOrCreateChannel(m.output)
+	}
+	for _, s := range c.separators {
+		c.getOrCreateChannel(s.input)
+		for _, output := range s.outputs {
+			c.getOrCreateChannel(output)
+		}
+	}
+
 	for _, decorator := range c.decorators {
-		inputChan, err := c.getChannel(decorator.input)
-		if err != nil {
-			return err
-		}
-		outputChan, err := c.getChannel(decorator.output)
-		if err != nil {
-			return err
-		}
+		inputChan, _ := c.getChannel(decorator.input)
+		outputChan, _ := c.getChannel(decorator.output)
 
 		c.wg.Add(1)
 		go func(d decoratorConfig, in, out chan string) {
 			defer c.wg.Done()
 			if err := d.fn(ctx, in, out); err != nil {
+				select {
+				case c.errCh <- err:
+				default:
+				}
 				cancel()
 			}
 		}(decorator, inputChan, outputChan)
@@ -147,44 +151,38 @@ func (c *conveyer) Run(ctx context.Context) error {
 	for _, multiplexer := range c.multiplexers {
 		inputChans := make([]chan string, len(multiplexer.inputs))
 		for i, input := range multiplexer.inputs {
-			ch, err := c.getChannel(input)
-			if err != nil {
-				return err
-			}
-			inputChans[i] = ch
+			inputChans[i], _ = c.getChannel(input)
 		}
-		outputChan, err := c.getChannel(multiplexer.output)
-		if err != nil {
-			return err
-		}
+		outputChan, _ := c.getChannel(multiplexer.output)
 
 		c.wg.Add(1)
 		go func(m multiplexerConfig, in []chan string, out chan string) {
 			defer c.wg.Done()
 			if err := m.fn(ctx, in, out); err != nil {
+				select {
+				case c.errCh <- err:
+				default:
+				}
 				cancel()
 			}
 		}(multiplexer, inputChans, outputChan)
 	}
 
 	for _, separator := range c.separators {
-		inputChan, err := c.getChannel(separator.input)
-		if err != nil {
-			return err
-		}
+		inputChan, _ := c.getChannel(separator.input)
 		outputChans := make([]chan string, len(separator.outputs))
 		for i, output := range separator.outputs {
-			ch, err := c.getChannel(output)
-			if err != nil {
-				return err
-			}
-			outputChans[i] = ch
+			outputChans[i], _ = c.getChannel(output)
 		}
 
 		c.wg.Add(1)
 		go func(s separatorConfig, in chan string, outs []chan string) {
 			defer c.wg.Done()
 			if err := s.fn(ctx, in, outs); err != nil {
+				select {
+				case c.errCh <- err:
+				default:
+				}
 				cancel()
 			}
 		}(separator, inputChan, outputChans)
@@ -192,13 +190,17 @@ func (c *conveyer) Run(ctx context.Context) error {
 
 	go func() {
 		c.wg.Wait()
-		cancel()
+		c.closeAllChannels()
+		close(c.errCh)
 	}()
 
 	select {
 	case <-ctx.Done():
 		c.closeAllChannels()
 		return ctx.Err()
+	case err := <-c.errCh:
+		c.closeAllChannels()
+		return err
 	}
 }
 

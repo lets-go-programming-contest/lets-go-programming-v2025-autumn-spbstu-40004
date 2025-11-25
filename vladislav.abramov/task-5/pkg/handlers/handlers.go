@@ -13,7 +13,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		case data, ok := <-input:
 			if !ok {
 				return nil
@@ -30,7 +30,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			select {
 			case output <- data:
 			case <-ctx.Done():
-				return ctx.Err()
+				return nil
 			}
 		}
 	}
@@ -41,24 +41,24 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		return nil
 	}
 
-	var counter int64 = 0
+	var counter uint64
 
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		case data, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			index := atomic.AddInt64(&counter, 1) - 1
+			index := atomic.AddUint64(&counter, 1) - 1
 			outputIndex := int(index) % len(outputs)
 
 			select {
 			case outputs[outputIndex] <- data:
 			case <-ctx.Done():
-				return ctx.Err()
+				return nil
 			}
 		}
 	}
@@ -69,10 +69,14 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	merged := make(chan string, len(inputs)*10)
+	type dataWithSource struct {
+		data string
+	}
 
-	for _, input := range inputs {
-		go func(in chan string) {
+	merged := make(chan dataWithSource, len(inputs)*10)
+
+	for i, input := range inputs {
+		go func(in chan string, source int) {
 			for {
 				select {
 				case <-ctx.Done():
@@ -81,34 +85,33 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					if !ok {
 						return
 					}
-
 					select {
-					case merged <- data:
+					case merged <- dataWithSource{data: data}:
 					case <-ctx.Done():
 						return
 					}
 				}
 			}
-		}(input)
+		}(input, i)
 	}
 
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
-		case data, ok := <-merged:
+			return nil
+		case item, ok := <-merged:
 			if !ok {
 				return nil
 			}
 
-			if strings.Contains(data, "no multiplexer") {
+			if strings.Contains(item.data, "no multiplexer") {
 				continue
 			}
 
 			select {
-			case output <- data:
+			case output <- item.data:
 			case <-ctx.Done():
-				return ctx.Err()
+				return nil
 			}
 		}
 	}
