@@ -13,14 +13,14 @@ var (
 )
 
 type conveyer struct {
-	mu          sync.RWMutex
-	channels    map[string]chan string
-	size        int
-	decorators  []decoratorConfig
+	mu           sync.RWMutex
+	channels     map[string]chan string
+	size         int
+	decorators   []decoratorConfig
 	multiplexers []multiplexerConfig
-	separators  []separatorConfig
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
+	separators   []separatorConfig
+	cancel       context.CancelFunc
+	wg           sync.WaitGroup
 }
 
 type decoratorConfig struct {
