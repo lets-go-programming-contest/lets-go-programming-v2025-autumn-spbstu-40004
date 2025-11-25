@@ -70,13 +70,13 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	var wg sync.WaitGroup
+	var wGroup sync.WaitGroup
 
 	wg.Add(len(inputs))
 
-	for i := range inputs {
+	for iIndex := range inputs {
 		go func(idx int) {
-			defer wg.Done()
+			defer wGroup.Done()
 
 			for {
 				select {
@@ -96,10 +96,10 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					return
 				}
 			}
-		}(i)
+		}(iIndex)
 	}
 
-	wg.Wait()
+	wGroup.Wait()
 
 	return nil
 }
