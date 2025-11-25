@@ -8,9 +8,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	ErrChanNotFound = errors.New("chan not found")
-)
+var ErrChanNotFound = errors.New("chan not found")
 
 const errUndefined = "undefined"
 
