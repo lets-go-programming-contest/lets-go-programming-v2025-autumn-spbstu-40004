@@ -130,6 +130,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 		outputChannel, _ := c.getChannel(decorator.output)
 
 		currentDecorator := decorator
+
 		errorGroup.Go(func() error {
 			return currentDecorator.fn(groupCtx, inputChannel, outputChannel)
 		})
@@ -145,6 +146,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 		outputChannel, _ := c.getChannel(multiplexer.output)
 
 		currentMultiplexer := multiplexer
+
 		errorGroup.Go(func() error {
 			return currentMultiplexer.fn(groupCtx, inputChannels, outputChannel)
 		})
@@ -159,6 +161,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 		}
 
 		currentSeparator := separator
+
 		errorGroup.Go(func() error {
 			return currentSeparator.fn(groupCtx, inputChannel, outputChannels)
 		})

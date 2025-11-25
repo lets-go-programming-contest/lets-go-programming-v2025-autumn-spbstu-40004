@@ -71,6 +71,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	}
 
 	var wg sync.WaitGroup
+
 	wg.Add(len(inputs))
 
 	for i := range inputs {
@@ -99,5 +100,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	}
 
 	wg.Wait()
+
 	return nil
 }
