@@ -3,7 +3,6 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -77,19 +76,14 @@ func (c *conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	inputChan := c.getOrCreateChannel(input)
-	outputChan := c.getOrCreateChannel(output)
+	c.getOrCreateChannel(input)
+	c.getOrCreateChannel(output)
 
 	c.decorators = append(c.decorators, decoratorConfig{
 		fn:     fn,
 		input:  input,
 		output: output,
 	})
-
-	c.wg.Add(1)
-	go func() {
-		defer c.wg.Done()
-	}()
 }
 
 func (c *conveyer) RegisterMultiplexer(
@@ -97,22 +91,16 @@ func (c *conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	inputChans := make([]chan string, len(inputs))
-	for i, input := range inputs {
-		inputChans[i] = c.getOrCreateChannel(input)
+	for _, input := range inputs {
+		c.getOrCreateChannel(input)
 	}
-	outputChan := c.getOrCreateChannel(output)
+	c.getOrCreateChannel(output)
 
 	c.multiplexers = append(c.multiplexers, multiplexerConfig{
 		fn:     fn,
 		inputs: inputs,
 		output: output,
 	})
-
-	c.wg.Add(1)
-	go func() {
-		defer c.wg.Done()
-	}()
 }
 
 func (c *conveyer) RegisterSeparator(
@@ -120,10 +108,9 @@ func (c *conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	inputChan := c.getOrCreateChannel(input)
-	outputChans := make([]chan string, len(outputs))
-	for i, output := range outputs {
-		outputChans[i] = c.getOrCreateChannel(output)
+	c.getOrCreateChannel(input)
+	for _, output := range outputs {
+		c.getOrCreateChannel(output)
 	}
 
 	c.separators = append(c.separators, separatorConfig{
@@ -131,11 +118,6 @@ func (c *conveyer) RegisterSeparator(
 		input:   input,
 		outputs: outputs,
 	})
-
-	c.wg.Add(1)
-	go func() {
-		defer c.wg.Done()
-	}()
 }
 
 func (c *conveyer) Run(ctx context.Context) error {
@@ -144,8 +126,14 @@ func (c *conveyer) Run(ctx context.Context) error {
 	defer cancel()
 
 	for _, decorator := range c.decorators {
-		inputChan, _ := c.getChannel(decorator.input)
-		outputChan, _ := c.getChannel(decorator.output)
+		inputChan, err := c.getChannel(decorator.input)
+		if err != nil {
+			return err
+		}
+		outputChan, err := c.getChannel(decorator.output)
+		if err != nil {
+			return err
+		}
 
 		c.wg.Add(1)
 		go func(d decoratorConfig, in, out chan string) {
@@ -159,9 +147,16 @@ func (c *conveyer) Run(ctx context.Context) error {
 	for _, multiplexer := range c.multiplexers {
 		inputChans := make([]chan string, len(multiplexer.inputs))
 		for i, input := range multiplexer.inputs {
-			inputChans[i], _ = c.getChannel(input)
+			ch, err := c.getChannel(input)
+			if err != nil {
+				return err
+			}
+			inputChans[i] = ch
 		}
-		outputChan, _ := c.getChannel(multiplexer.output)
+		outputChan, err := c.getChannel(multiplexer.output)
+		if err != nil {
+			return err
+		}
 
 		c.wg.Add(1)
 		go func(m multiplexerConfig, in []chan string, out chan string) {
@@ -173,10 +168,17 @@ func (c *conveyer) Run(ctx context.Context) error {
 	}
 
 	for _, separator := range c.separators {
-		inputChan, _ := c.getChannel(separator.input)
+		inputChan, err := c.getChannel(separator.input)
+		if err != nil {
+			return err
+		}
 		outputChans := make([]chan string, len(separator.outputs))
 		for i, output := range separator.outputs {
-			outputChans[i], _ = c.getChannel(output)
+			ch, err := c.getChannel(output)
+			if err != nil {
+				return err
+			}
+			outputChans[i] = ch
 		}
 
 		c.wg.Add(1)
@@ -188,15 +190,15 @@ func (c *conveyer) Run(ctx context.Context) error {
 		}(separator, inputChan, outputChans)
 	}
 
+	go func() {
+		c.wg.Wait()
+		cancel()
+	}()
+
 	select {
 	case <-ctx.Done():
 		c.closeAllChannels()
-		c.wg.Wait()
 		return ctx.Err()
-	default:
-		c.wg.Wait()
-		c.closeAllChannels()
-		return nil
 	}
 }
 

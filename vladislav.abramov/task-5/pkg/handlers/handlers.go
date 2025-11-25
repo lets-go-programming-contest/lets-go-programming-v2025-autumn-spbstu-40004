@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"sync/atomic"
 )
@@ -45,7 +46,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Done()
+			return ctx.Err()
 		case data, ok := <-input:
 			if !ok {
 				return nil
@@ -57,7 +58,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			select {
 			case outputs[outputIndex] <- data:
 			case <-ctx.Done():
-				return ctx.Done()
+				return ctx.Err()
 			}
 		}
 	}
@@ -94,7 +95,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Done()
+			return ctx.Err()
 		case data, ok := <-merged:
 			if !ok {
 				return nil
@@ -107,7 +108,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 			select {
 			case output <- data:
 			case <-ctx.Done():
-				return ctx.Done()
+				return ctx.Err()
 			}
 		}
 	}
