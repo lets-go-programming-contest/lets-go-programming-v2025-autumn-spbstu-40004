@@ -72,7 +72,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	var wGroup sync.WaitGroup
 
-	wg.Add(len(inputs))
+	wGroup.Add(len(inputs))
 
 	for iIndex := range inputs {
 		go func(idx int) {
