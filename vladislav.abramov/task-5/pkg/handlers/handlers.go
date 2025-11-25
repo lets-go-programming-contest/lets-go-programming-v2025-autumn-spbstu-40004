@@ -5,27 +5,26 @@ import (
 	"errors"
 	"strings"
 	"sync"
-	"sync/atomic"
+)
+
+var (
+	ErrNoDecorator = errors.New("can't be decorated")
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
-	prefix := "decorated: "
-
 	for {
 		select {
-		case <-ctx.Done():
-			return nil
 		case data, ok := <-input:
 			if !ok {
 				return nil
 			}
 
 			if strings.Contains(data, "no decorator") {
-				return errors.New("can't be decorated")
+				return ErrNoDecorator
 			}
 
-			if !strings.HasPrefix(data, prefix) {
-				data = prefix + data
+			if !strings.HasPrefix(data, "decorated: ") {
+				data = "decorated: " + data
 			}
 
 			select {
@@ -33,6 +32,8 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			case <-ctx.Done():
 				return nil
 			}
+		case <-ctx.Done():
+			return nil
 		}
 	}
 }
@@ -42,25 +43,24 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		return nil
 	}
 
-	var counter uint64
+	var index int
 
 	for {
 		select {
-		case <-ctx.Done():
-			return nil
 		case data, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			index := atomic.AddUint64(&counter, 1) - 1
-			outputIndex := int(index) % len(outputs)
-
 			select {
-			case outputs[outputIndex] <- data:
+			case outputs[index] <- data:
 			case <-ctx.Done():
 				return nil
 			}
+
+			index = (index + 1) % len(outputs)
+		case <-ctx.Done():
+			return nil
 		}
 	}
 }
@@ -70,57 +70,34 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	var wg sync.WaitGroup
+	wg.Add(len(inputs))
 
-	merged := make(chan string, len(inputs)*10)
+	for i := range inputs {
+		go func(idx int) {
+			defer wg.Done()
 
-	var readerWg sync.WaitGroup
-	for _, input := range inputs {
-		readerWg.Add(1)
-		go func(in chan string) {
-			defer readerWg.Done()
 			for {
 				select {
-				case <-ctx.Done():
-					return
-				case data, ok := <-in:
+				case data, ok := <-inputs[idx]:
 					if !ok {
 						return
 					}
-					select {
-					case merged <- data:
-					case <-ctx.Done():
-						return
+
+					if !strings.Contains(data, "no multiplexer") {
+						select {
+						case output <- data:
+						case <-ctx.Done():
+							return
+						}
 					}
+				case <-ctx.Done():
+					return
 				}
 			}
-		}(input)
+		}(i)
 	}
 
-	go func() {
-		readerWg.Wait()
-		close(merged)
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case data, ok := <-merged:
-			if !ok {
-				return nil
-			}
-
-			if strings.Contains(data, "no multiplexer") {
-				continue
-			}
-
-			select {
-			case output <- data:
-			case <-ctx.Done():
-				return nil
-			}
-		}
-	}
+	wg.Wait()
+	return nil
 }

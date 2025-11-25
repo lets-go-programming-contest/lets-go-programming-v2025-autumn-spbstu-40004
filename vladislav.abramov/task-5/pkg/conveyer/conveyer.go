@@ -3,7 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"sync"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -12,16 +12,11 @@ var (
 )
 
 type conveyer struct {
-	mu           sync.RWMutex
-	channels     map[string]chan string
-	size         int
-	decorators   []decoratorConfig
+	channels    map[string]chan string
+	size        int
+	decorators  []decoratorConfig
 	multiplexers []multiplexerConfig
-	separators   []separatorConfig
-	cancel       context.CancelFunc
-	wg           sync.WaitGroup
-	errCh        chan error
-	started      bool
+	separators  []separatorConfig
 }
 
 type decoratorConfig struct {
@@ -46,14 +41,10 @@ func New(size int) *conveyer {
 	return &conveyer{
 		channels: make(map[string]chan string),
 		size:     size,
-		errCh:    make(chan error, 10),
 	}
 }
 
 func (c *conveyer) getOrCreateChannel(name string) chan string {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	if ch, exists := c.channels[name]; exists {
 		return ch
 	}
@@ -64,13 +55,9 @@ func (c *conveyer) getOrCreateChannel(name string) chan string {
 }
 
 func (c *conveyer) getChannel(name string) (chan string, error) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
 	if ch, exists := c.channels[name]; exists {
 		return ch, nil
 	}
-
 	return nil, ErrChanNotFound
 }
 
@@ -124,119 +111,49 @@ func (c *conveyer) RegisterSeparator(
 }
 
 func (c *conveyer) Run(ctx context.Context) error {
-	if c.started {
-		return errors.New("conveyer already started")
-	}
-	c.started = true
+	defer c.closeAllChannels()
 
-	ctx, cancel := context.WithCancel(ctx)
-	c.cancel = cancel
+	g, ctx := errgroup.WithContext(ctx)
 
 	for _, decorator := range c.decorators {
-		inputChan, err := c.getChannel(decorator.input)
-		if err != nil {
-			cancel()
-			return err
-		}
-		outputChan, err := c.getChannel(decorator.output)
-		if err != nil {
-			cancel()
-			return err
-		}
+		inputChan, _ := c.getChannel(decorator.input)
+		outputChan, _ := c.getChannel(decorator.output)
 
-		c.wg.Add(1)
-		go func(d decoratorConfig, in, out chan string) {
-			defer c.wg.Done()
-			if err := d.fn(ctx, in, out); err != nil {
-				select {
-				case c.errCh <- err:
-				default:
-				}
-				cancel()
-			}
-		}(decorator, inputChan, outputChan)
+		g.Go(func() error {
+			return decorator.fn(ctx, inputChan, outputChan)
+		})
 	}
 
 	for _, multiplexer := range c.multiplexers {
 		inputChans := make([]chan string, len(multiplexer.inputs))
 		for i, input := range multiplexer.inputs {
-			ch, err := c.getChannel(input)
-			if err != nil {
-				cancel()
-				return err
-			}
-			inputChans[i] = ch
+			inputChans[i], _ = c.getChannel(input)
 		}
-		outputChan, err := c.getChannel(multiplexer.output)
-		if err != nil {
-			cancel()
-			return err
-		}
+		outputChan, _ := c.getChannel(multiplexer.output)
 
-		c.wg.Add(1)
-		go func(m multiplexerConfig, in []chan string, out chan string) {
-			defer c.wg.Done()
-			if err := m.fn(ctx, in, out); err != nil {
-				select {
-				case c.errCh <- err:
-				default:
-				}
-				cancel()
-			}
-		}(multiplexer, inputChans, outputChan)
+		g.Go(func() error {
+			return multiplexer.fn(ctx, inputChans, outputChan)
+		})
 	}
 
 	for _, separator := range c.separators {
-		inputChan, err := c.getChannel(separator.input)
-		if err != nil {
-			cancel()
-			return err
-		}
+		inputChan, _ := c.getChannel(separator.input)
 		outputChans := make([]chan string, len(separator.outputs))
 		for i, output := range separator.outputs {
-			ch, err := c.getChannel(output)
-			if err != nil {
-				cancel()
-				return err
-			}
-			outputChans[i] = ch
+			outputChans[i], _ = c.getChannel(output)
 		}
 
-		c.wg.Add(1)
-		go func(s separatorConfig, in chan string, outs []chan string) {
-			defer c.wg.Done()
-			if err := s.fn(ctx, in, outs); err != nil {
-				select {
-				case c.errCh <- err:
-				default:
-				}
-				cancel()
-			}
-		}(separator, inputChan, outputChans)
+		g.Go(func() error {
+			return separator.fn(ctx, inputChan, outputChans)
+		})
 	}
 
-	go func() {
-		c.wg.Wait()
-		c.closeAllChannels()
-		close(c.errCh)
-	}()
-
-	select {
-	case <-ctx.Done():
-		c.closeAllChannels()
-		return ctx.Err()
-	case err := <-c.errCh:
-		return err
-	}
+	return g.Wait()
 }
 
 func (c *conveyer) closeAllChannels() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	for name, ch := range c.channels {
+	for _, ch := range c.channels {
 		close(ch)
-		delete(c.channels, name)
 	}
 }
 
@@ -246,12 +163,8 @@ func (c *conveyer) Send(input string, data string) error {
 		return err
 	}
 
-	select {
-	case ch <- data:
-		return nil
-	default:
-		return errors.New("channel is full")
-	}
+	ch <- data
+	return nil
 }
 
 func (c *conveyer) Recv(output string) (string, error) {
@@ -260,13 +173,9 @@ func (c *conveyer) Recv(output string) (string, error) {
 		return "", err
 	}
 
-	select {
-	case data, ok := <-ch:
-		if !ok {
-			return ErrUndefined, nil
-		}
-		return data, nil
-	default:
-		return "", errors.New("no data available")
+	data, ok := <-ch
+	if !ok {
+		return ErrUndefined, nil
 	}
+	return data, nil
 }
