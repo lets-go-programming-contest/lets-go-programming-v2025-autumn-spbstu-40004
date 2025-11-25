@@ -69,14 +69,14 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	type dataWithSource struct {
+	type dataItem struct {
 		data string
 	}
 
-	merged := make(chan dataWithSource, len(inputs)*10)
+	merged := make(chan dataItem, len(inputs)*10)
 
-	for i, input := range inputs {
-		go func(in chan string, source int) {
+	for _, input := range inputs {
+		go func(in chan string) {
 			for {
 				select {
 				case <-ctx.Done():
@@ -86,13 +86,13 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return
 					}
 					select {
-					case merged <- dataWithSource{data: data}:
+					case merged <- dataItem{data: data}:
 					case <-ctx.Done():
 						return
 					}
 				}
 			}
-		}(input, i)
+		}(input)
 	}
 
 	for {

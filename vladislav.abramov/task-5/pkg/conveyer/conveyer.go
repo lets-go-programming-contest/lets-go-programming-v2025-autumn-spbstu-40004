@@ -78,6 +78,9 @@ func (c *conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	c.getOrCreateChannel(input)
+	c.getOrCreateChannel(output)
+
 	c.decorators = append(c.decorators, decoratorConfig{
 		fn:     fn,
 		input:  input,
@@ -90,6 +93,11 @@ func (c *conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	for _, input := range inputs {
+		c.getOrCreateChannel(input)
+	}
+	c.getOrCreateChannel(output)
+
 	c.multiplexers = append(c.multiplexers, multiplexerConfig{
 		fn:     fn,
 		inputs: inputs,
@@ -102,6 +110,11 @@ func (c *conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	c.getOrCreateChannel(input)
+	for _, output := range outputs {
+		c.getOrCreateChannel(output)
+	}
+
 	c.separators = append(c.separators, separatorConfig{
 		fn:      fn,
 		input:   input,
@@ -112,28 +125,18 @@ func (c *conveyer) RegisterSeparator(
 func (c *conveyer) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	c.cancel = cancel
-	defer cancel()
-
-	for _, d := range c.decorators {
-		c.getOrCreateChannel(d.input)
-		c.getOrCreateChannel(d.output)
-	}
-	for _, m := range c.multiplexers {
-		for _, input := range m.inputs {
-			c.getOrCreateChannel(input)
-		}
-		c.getOrCreateChannel(m.output)
-	}
-	for _, s := range c.separators {
-		c.getOrCreateChannel(s.input)
-		for _, output := range s.outputs {
-			c.getOrCreateChannel(output)
-		}
-	}
 
 	for _, decorator := range c.decorators {
-		inputChan, _ := c.getChannel(decorator.input)
-		outputChan, _ := c.getChannel(decorator.output)
+		inputChan, err := c.getChannel(decorator.input)
+		if err != nil {
+			cancel()
+			return err
+		}
+		outputChan, err := c.getChannel(decorator.output)
+		if err != nil {
+			cancel()
+			return err
+		}
 
 		c.wg.Add(1)
 		go func(d decoratorConfig, in, out chan string) {
@@ -151,9 +154,18 @@ func (c *conveyer) Run(ctx context.Context) error {
 	for _, multiplexer := range c.multiplexers {
 		inputChans := make([]chan string, len(multiplexer.inputs))
 		for i, input := range multiplexer.inputs {
-			inputChans[i], _ = c.getChannel(input)
+			ch, err := c.getChannel(input)
+			if err != nil {
+				cancel()
+				return err
+			}
+			inputChans[i] = ch
 		}
-		outputChan, _ := c.getChannel(multiplexer.output)
+		outputChan, err := c.getChannel(multiplexer.output)
+		if err != nil {
+			cancel()
+			return err
+		}
 
 		c.wg.Add(1)
 		go func(m multiplexerConfig, in []chan string, out chan string) {
@@ -169,10 +181,19 @@ func (c *conveyer) Run(ctx context.Context) error {
 	}
 
 	for _, separator := range c.separators {
-		inputChan, _ := c.getChannel(separator.input)
+		inputChan, err := c.getChannel(separator.input)
+		if err != nil {
+			cancel()
+			return err
+		}
 		outputChans := make([]chan string, len(separator.outputs))
 		for i, output := range separator.outputs {
-			outputChans[i], _ = c.getChannel(output)
+			ch, err := c.getChannel(output)
+			if err != nil {
+				cancel()
+				return err
+			}
+			outputChans[i] = ch
 		}
 
 		c.wg.Add(1)
