@@ -21,6 +21,7 @@ type conveyer struct {
 	cancel       context.CancelFunc
 	wg           sync.WaitGroup
 	errCh        chan error
+	started      bool
 }
 
 type decoratorConfig struct {
@@ -123,20 +124,18 @@ func (c *conveyer) RegisterSeparator(
 }
 
 func (c *conveyer) Run(ctx context.Context) error {
+	if c.started {
+		return errors.New("conveyer already started")
+	}
+	c.started = true
+
 	ctx, cancel := context.WithCancel(ctx)
 	c.cancel = cancel
+	defer cancel()
 
 	for _, decorator := range c.decorators {
-		inputChan, err := c.getChannel(decorator.input)
-		if err != nil {
-			cancel()
-			return err
-		}
-		outputChan, err := c.getChannel(decorator.output)
-		if err != nil {
-			cancel()
-			return err
-		}
+		inputChan, _ := c.getChannel(decorator.input)
+		outputChan, _ := c.getChannel(decorator.output)
 
 		c.wg.Add(1)
 		go func(d decoratorConfig, in, out chan string) {
@@ -154,18 +153,9 @@ func (c *conveyer) Run(ctx context.Context) error {
 	for _, multiplexer := range c.multiplexers {
 		inputChans := make([]chan string, len(multiplexer.inputs))
 		for i, input := range multiplexer.inputs {
-			ch, err := c.getChannel(input)
-			if err != nil {
-				cancel()
-				return err
-			}
-			inputChans[i] = ch
+			inputChans[i], _ = c.getChannel(input)
 		}
-		outputChan, err := c.getChannel(multiplexer.output)
-		if err != nil {
-			cancel()
-			return err
-		}
+		outputChan, _ := c.getChannel(multiplexer.output)
 
 		c.wg.Add(1)
 		go func(m multiplexerConfig, in []chan string, out chan string) {
@@ -181,19 +171,10 @@ func (c *conveyer) Run(ctx context.Context) error {
 	}
 
 	for _, separator := range c.separators {
-		inputChan, err := c.getChannel(separator.input)
-		if err != nil {
-			cancel()
-			return err
-		}
+		inputChan, _ := c.getChannel(separator.input)
 		outputChans := make([]chan string, len(separator.outputs))
 		for i, output := range separator.outputs {
-			ch, err := c.getChannel(output)
-			if err != nil {
-				cancel()
-				return err
-			}
-			outputChans[i] = ch
+			outputChans[i], _ = c.getChannel(output)
 		}
 
 		c.wg.Add(1)
@@ -220,7 +201,6 @@ func (c *conveyer) Run(ctx context.Context) error {
 		c.closeAllChannels()
 		return ctx.Err()
 	case err := <-c.errCh:
-		c.closeAllChannels()
 		return err
 	}
 }

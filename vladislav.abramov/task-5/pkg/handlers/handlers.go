@@ -69,14 +69,16 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	type dataItem struct {
-		data string
-	}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
-	merged := make(chan dataItem, len(inputs)*10)
+	merged := make(chan string, len(inputs)*10)
 
+	var readerWg sync.WaitGroup
 	for _, input := range inputs {
+		readerWg.Add(1)
 		go func(in chan string) {
+			defer readerWg.Done()
 			for {
 				select {
 				case <-ctx.Done():
@@ -86,7 +88,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return
 					}
 					select {
-					case merged <- dataItem{data: data}:
+					case merged <- data:
 					case <-ctx.Done():
 						return
 					}
@@ -95,21 +97,26 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(input)
 	}
 
+	go func() {
+		readerWg.Wait()
+		close(merged)
+	}()
+
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case item, ok := <-merged:
+		case data, ok := <-merged:
 			if !ok {
 				return nil
 			}
 
-			if strings.Contains(item.data, "no multiplexer") {
+			if strings.Contains(data, "no multiplexer") {
 				continue
 			}
 
 			select {
-			case output <- item.data:
+			case output <- data:
 			case <-ctx.Done():
 				return nil
 			}
