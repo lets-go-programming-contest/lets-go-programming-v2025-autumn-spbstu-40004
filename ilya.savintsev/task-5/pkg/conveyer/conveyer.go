@@ -3,13 +3,18 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 )
 
 var (
 	ErrChanNotFound = errors.New("chan not found")
+	ErrTimeout      = errors.New("timeout")
+	ErrFullChannel  = errors.New("channel is full")
 )
+
+const undefinedStr = "undefined"
 
 type specDecorator struct {
 	fn     func(ctx context.Context, input chan string, output chan string) error
@@ -45,25 +50,6 @@ func New(size int) *DefaultConveyer {
 		multiplexers: make([]specMultiplexer, 0),
 		separators:   make([]specSeparator, 0),
 	}
-}
-
-func (c *DefaultConveyer) obtainChannel(name string) chan string {
-	if channel, exists := c.channels[name]; exists {
-		return channel
-	}
-
-	channel := make(chan string, c.bufferSize)
-	c.channels[name] = channel
-
-	return channel
-}
-
-func (c *DefaultConveyer) getChannel(name string) (chan string, error) {
-	if channel, exists := c.channels[name]; exists {
-		return channel, nil
-	}
-
-	return nil, ErrChanNotFound
 }
 
 func (c *DefaultConveyer) RegisterDecorator(
@@ -162,21 +148,20 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 	return errorGroup.Wait()
 }
 
-func (c *DefaultConveyer) closeAllChannels() {
-	for _, channel := range c.channels {
-		close(channel)
-	}
-}
-
 func (c *DefaultConveyer) Send(input string, data string) error {
 	channel, err := c.getChannel(input)
 	if err != nil {
 		return err
 	}
 
-	channel <- data
-
-	return nil
+	select {
+	case channel <- data:
+		return nil
+	case <-time.After(100 * time.Millisecond):
+		return ErrTimeout
+	default:
+		return ErrFullChannel
+	}
 }
 
 func (c *DefaultConveyer) Recv(output string) (string, error) {
@@ -187,7 +172,7 @@ func (c *DefaultConveyer) Recv(output string) (string, error) {
 
 	data, ok := <-channel
 	if !ok {
-		return "undefined", nil
+		return undefinedStr, nil
 	}
 
 	return data, nil
