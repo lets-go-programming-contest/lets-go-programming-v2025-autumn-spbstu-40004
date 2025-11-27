@@ -12,11 +12,12 @@ var (
 	ErrChanNotFound = errors.New("chan not found")
 	ErrTimeout      = errors.New("timeout")
 	ErrFullChannel  = errors.New("channel is full")
+	ErrExecution    = errors.New("conveyer execution failed")
 )
 
 const (
 	undefinedStr = "undefined"
-	timeoutTime = 100;
+	timeoutTime  = 100
 )
 
 type specDecorator struct {
@@ -117,7 +118,6 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 
 	for _, decorator := range c.decorators {
 		current := decorator
-
 		launchHandler(func() error {
 			input, _ := c.getChannel(current.input)
 			output, _ := c.getChannel(current.output)
@@ -130,10 +130,10 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 		current := multiplexer
 		launchHandler(func() error {
 			inputs := make([]chan string, len(current.inputs))
-
 			for i, name := range current.inputs {
 				inputs[i], _ = c.getChannel(name)
 			}
+
 			output, _ := c.getChannel(current.output)
 
 			return current.fn(groupCtx, inputs, output)
@@ -154,7 +154,10 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 		})
 	}
 
-	return errorGroup.Wait()
+	if err := errorGroup.Wait(); err != nil {
+		return ErrExecution
+	}
+	return nil
 }
 
 func (c *DefaultConveyer) Send(input string, data string) error {
