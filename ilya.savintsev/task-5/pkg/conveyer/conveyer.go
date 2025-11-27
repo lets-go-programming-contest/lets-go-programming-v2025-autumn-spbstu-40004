@@ -8,7 +8,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Conveyer interface {
+type conveyer interface {
 	RegisterDecorator(
 		fn func(
 			ctx context.Context,
@@ -74,7 +74,7 @@ type DefaultConveyer struct {
 	separators   []specSeparator
 }
 
-func New(size int) Conveyer {
+func New(size int) conveyer {
 	return &DefaultConveyer{
 		channels:     make(map[string]chan string),
 		bufferSize:   size,
