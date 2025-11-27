@@ -3,15 +3,12 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"time"
 
 	"golang.org/x/sync/errgroup"
 )
 
 var (
 	ErrChanNotFound = errors.New("chan not found")
-	ErrTimeout      = errors.New("timeout")
-	ErrFullChannel  = errors.New("channel is full")
 )
 
 type specDecorator struct {
@@ -50,7 +47,7 @@ func New(size int) *DefaultConveyer {
 	}
 }
 
-func (c *DefaultConveyer) getOrCreateChannel(name string) chan string {
+func (c *DefaultConveyer) obtainChannel(name string) chan string {
 	if channel, exists := c.channels[name]; exists {
 		return channel
 	}
@@ -74,8 +71,8 @@ func (c *DefaultConveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	c.getOrCreateChannel(input)
-	c.getOrCreateChannel(output)
+	c.obtainChannel(input)
+	c.obtainChannel(output)
 
 	c.decorators = append(c.decorators, specDecorator{
 		fn:     decoratorFunc,
@@ -90,10 +87,10 @@ func (c *DefaultConveyer) RegisterMultiplexer(
 	output string,
 ) {
 	for _, inputName := range inputs {
-		c.getOrCreateChannel(inputName)
+		c.obtainChannel(inputName)
 	}
 
-	c.getOrCreateChannel(output)
+	c.obtainChannel(output)
 
 	c.multiplexers = append(c.multiplexers, specMultiplexer{
 		fn:     multiplexerFunc,
@@ -107,10 +104,10 @@ func (c *DefaultConveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	c.getOrCreateChannel(input)
+	c.obtainChannel(input)
 
 	for _, outputName := range outputs {
-		c.getOrCreateChannel(outputName)
+		c.obtainChannel(outputName)
 	}
 
 	c.separators = append(c.separators, specSeparator{
@@ -177,14 +174,9 @@ func (c *DefaultConveyer) Send(input string, data string) error {
 		return err
 	}
 
-	select {
-	case channel <- data:
-		return nil
-	case <-time.After(100 * time.Millisecond):
-		return ErrTimeout
-	default:
-		return ErrFullChannel
-	}
+	channel <- data
+
+	return nil
 }
 
 func (c *DefaultConveyer) Recv(output string) (string, error) {
