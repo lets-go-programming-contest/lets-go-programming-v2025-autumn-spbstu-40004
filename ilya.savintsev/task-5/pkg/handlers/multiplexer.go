@@ -2,12 +2,9 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"sync"
 )
-
-var ErrNoDecorator = errors.New("can't be decorated")
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	if len(inputs) == 0 {

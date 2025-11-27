@@ -118,6 +118,7 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 
 	for _, decorator := range c.decorators {
 		current := decorator
+
 		launchHandler(func() error {
 			input, _ := c.getChannel(current.input)
 			output, _ := c.getChannel(current.output)
@@ -128,6 +129,7 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 
 	for _, multiplexer := range c.multiplexers {
 		current := multiplexer
+
 		launchHandler(func() error {
 			inputs := make([]chan string, len(current.inputs))
 			for i, name := range current.inputs {
@@ -142,6 +144,7 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 
 	for _, separator := range c.separators {
 		current := separator
+
 		launchHandler(func() error {
 			input, _ := c.getChannel(current.input)
 
