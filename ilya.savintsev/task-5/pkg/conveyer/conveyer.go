@@ -14,7 +14,10 @@ var (
 	ErrFullChannel  = errors.New("channel is full")
 )
 
-const undefinedStr = "undefined"
+const (
+	undefinedStr = "undefined"
+	timeoutTime = 100;
+)
 
 type specDecorator struct {
 	fn     func(ctx context.Context, input chan string, output chan string) error
@@ -114,9 +117,11 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 
 	for _, decorator := range c.decorators {
 		current := decorator
+
 		launchHandler(func() error {
 			input, _ := c.getChannel(current.input)
 			output, _ := c.getChannel(current.output)
+
 			return current.fn(groupCtx, input, output)
 		})
 	}
@@ -125,10 +130,12 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 		current := multiplexer
 		launchHandler(func() error {
 			inputs := make([]chan string, len(current.inputs))
+
 			for i, name := range current.inputs {
 				inputs[i], _ = c.getChannel(name)
 			}
 			output, _ := c.getChannel(current.output)
+
 			return current.fn(groupCtx, inputs, output)
 		})
 	}
@@ -137,10 +144,12 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 		current := separator
 		launchHandler(func() error {
 			input, _ := c.getChannel(current.input)
+
 			outputs := make([]chan string, len(current.outputs))
 			for i, name := range current.outputs {
 				outputs[i], _ = c.getChannel(name)
 			}
+
 			return current.fn(groupCtx, input, outputs)
 		})
 	}
@@ -157,7 +166,7 @@ func (c *DefaultConveyer) Send(input string, data string) error {
 	select {
 	case channel <- data:
 		return nil
-	case <-time.After(100 * time.Millisecond):
+	case <-time.After(timeoutTime * time.Millisecond):
 		return ErrTimeout
 	default:
 		return ErrFullChannel
