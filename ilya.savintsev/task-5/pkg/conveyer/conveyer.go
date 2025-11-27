@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -12,7 +13,6 @@ var (
 	ErrChanNotFound = errors.New("chan not found")
 	ErrTimeout      = errors.New("timeout")
 	ErrFullChannel  = errors.New("channel is full")
-	ErrExecution    = errors.New("conveyer execution failed")
 )
 
 const (
@@ -158,7 +158,7 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 	}
 
 	if err := errorGroup.Wait(); err != nil {
-		return ErrExecution
+		return fmt.Errorf("conveyer finished with error: %w", err)
 	}
 
 	return nil
