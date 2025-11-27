@@ -1,12 +1,14 @@
 package conveyer
 
-func (c *DefaultConveyer) obtainChannel(name string) {
-	if _, exists := c.channels[name]; exists {
-		return
+func (c *DefaultConveyer) obtainChannel(name string) chan string{
+	if channel, exists := c.channels[name]; exists {
+		return channel
 	}
 
 	channel := make(chan string, c.bufferSize)
 	c.channels[name] = channel
+
+	return channel
 }
 
 func (c *DefaultConveyer) getChannel(name string) (chan string, error) {
