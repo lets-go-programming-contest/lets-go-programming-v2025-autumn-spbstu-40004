@@ -18,6 +18,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	scanner.Scan()
+
 	numOfDepartments, err := strconv.Atoi(scanner.Text())
 	if err != nil {
 		fmt.Println(-1)
@@ -26,6 +27,7 @@ func main() {
 
 	for i := 0; i < numOfDepartments; i++ {
 		scanner.Scan()
+
 		numOfStaff, err := strconv.Atoi(scanner.Text())
 		if err != nil {
 			fmt.Println(-1)
@@ -45,6 +47,7 @@ func main() {
 			}
 
 			sign := parts[0]
+
 			temp, err := strconv.Atoi(parts[1])
 			if err != nil {
 				fmt.Println(-1)
