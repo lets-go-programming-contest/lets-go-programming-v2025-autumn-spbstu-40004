@@ -178,9 +178,13 @@ func (c *conveyer) Recv(output string) (string, error) {
 		return "", err
 	}
 
-	data, ok := <-channel
-	if !ok {
-		return "undefined", nil
+	select {
+	case data, ok := <-channel:
+		if !ok {
+			return "undefined", nil
+		}
+		return data, nil
+	case <-time.After(timeoutTime):
+		return "", ErrTimeout
 	}
-	return data, nil
 }
