@@ -6,68 +6,62 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/lolnyok/task-2-1/temperature"
 )
 
 const (
-	minTemp          = 15
-	maxTemp          = 30
-	minPartsLength   = 2
-	greaterEqualSign = ">="
-	lessEqualSign    = "<="
+	minPartsLength = 2
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	scanner.Scan()
-	numOfDepartments, _ := strconv.Atoi(scanner.Text())
+	numOfDepartments, err := strconv.Atoi(scanner.Text())
+	if err != nil {
+		fmt.Println(-1)
+		return
+	}
 
-	for range numOfDepartments {
+	for i := 0; i < numOfDepartments; i++ {
 		scanner.Scan()
-		numOfStaff, _ := strconv.Atoi(scanner.Text())
+		numOfStaff, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			fmt.Println(-1)
+			continue
+		}
 
-		start := minTemp
-		end := maxTemp
+		tempRange := temperature.NewTemperatureRange()
 
-		for range numOfStaff {
+		for j := 0; j < numOfStaff; j++ {
 			scanner.Scan()
 			preference := scanner.Text()
 
 			parts := strings.Fields(preference)
 			if len(parts) < minPartsLength {
 				fmt.Println(-1)
-
 				continue
 			}
 
 			sign := parts[0]
-
-			temperature, err := strconv.Atoi(parts[1])
+			temp, err := strconv.Atoi(parts[1])
 			if err != nil {
 				fmt.Println(-1)
-
 				continue
 			}
 
-			switch sign {
-			case greaterEqualSign:
-				if temperature > start {
-					start = temperature
-				}
-			case lessEqualSign:
-				if temperature < end {
-					end = temperature
-				}
-			default:
+			err = tempRange.Update(sign, temp)
+			if err != nil {
 				fmt.Println(-1)
-
 				continue
 			}
 
-			if start > end {
+			comfortTemp, err := tempRange.GetComfortableTemp()
+			if err != nil {
 				fmt.Println(-1)
 			} else {
-				fmt.Println(start)
+				fmt.Println(comfortTemp)
 			}
 		}
 	}
