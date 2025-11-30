@@ -7,112 +7,94 @@ import (
 	"sync"
 )
 
-func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
-	const prefix = "decorated: "
-	const errorSubstring = "no decorator"
-	const errorMessage = "can't be decorated"
+var ErrNoDecorator = errors.New("can't be decorated")
 
+func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	for {
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
 		case data, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			if strings.Contains(data, errorSubstring) {
-				return errors.New(errorMessage)
+			if strings.Contains(data, "no decorator") {
+				return ErrNoDecorator
 			}
 
-			var result string
-			if strings.HasPrefix(data, prefix) {
-				result = data
-			} else {
-				result = prefix + data
+			if !strings.HasPrefix(data, "decorated: ") {
+				data = "decorated: " + data
 			}
 
 			select {
+			case output <- data:
 			case <-ctx.Done():
-				return ctx.Err()
-			case output <- result:
+				return nil
 			}
+		case <-ctx.Done():
+			return nil
 		}
 	}
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
+	if len(outputs) == 0 {
+		return nil
+	}
+
+	var index int
+
 	for {
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
 		case data, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			outputIndex := len(data) % len(outputs)
-
 			select {
+			case outputs[index] <- data:
+				index = (index + 1) % len(outputs)
 			case <-ctx.Done():
-				return ctx.Err()
-			case outputs[outputIndex] <- data:
+				return nil
 			}
+		case <-ctx.Done():
+			return nil
 		}
 	}
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	const filterSubstring = "no multiplexer"
-
-	mergedInput := make(chan string)
+	if len(inputs) == 0 {
+		return nil
+	}
 
 	var wg sync.WaitGroup
-	for _, input := range inputs {
-		wg.Add(1)
-		go func(in chan string) {
+	wg.Add(len(inputs))
+
+	for i := range inputs {
+		go func(idx int) {
 			defer wg.Done()
+
 			for {
 				select {
-				case <-ctx.Done():
-					return
-				case data, ok := <-in:
+				case data, ok := <-inputs[idx]:
 					if !ok {
 						return
 					}
-					select {
-					case <-ctx.Done():
-						return
-					case mergedInput <- data:
+
+					if !strings.Contains(data, "no multiplexer") {
+						select {
+						case output <- data:
+						case <-ctx.Done():
+							return
+						}
 					}
+				case <-ctx.Done():
+					return
 				}
 			}
-		}(input)
+		}(i)
 	}
 
-	go func() {
-		wg.Wait()
-		close(mergedInput)
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case data, ok := <-mergedInput:
-			if !ok {
-				return nil
-			}
-
-			if strings.Contains(data, filterSubstring) {
-				continue
-			}
-
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case output <- data:
-			}
-		}
-	}
+	wg.Wait()
+	return nil
 }
