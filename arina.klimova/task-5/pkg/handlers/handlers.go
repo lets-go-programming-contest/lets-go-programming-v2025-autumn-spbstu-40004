@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"strings"
-	"sync"
 )
 
 var ErrNoDecorator = errors.New("can't be decorated")
@@ -67,13 +66,8 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(len(inputs))
-
 	for i := range inputs {
 		go func(idx int) {
-			defer wg.Done()
-
 			for {
 				select {
 				case data, ok := <-inputs[idx]:
@@ -95,6 +89,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(i)
 	}
 
-	wg.Wait()
+	<-ctx.Done()
 	return nil
 }
