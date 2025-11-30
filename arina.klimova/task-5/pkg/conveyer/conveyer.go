@@ -2,9 +2,12 @@ package conveyer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 )
+
+var ErrChanNotFound = errors.New("chan not found")
 
 type conveyer struct {
 	mu          sync.RWMutex
@@ -41,6 +44,14 @@ func (c *conveyer) getOrCreateChannel(name string) chan string {
 	ch := make(chan string, c.size)
 	c.channels[name] = ch
 	return ch
+}
+
+func (c *conveyer) getChannel(name string) (chan string, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	ch, exists := c.channels[name]
+	return ch, exists
 }
 
 func (c *conveyer) RegisterDecorator(
@@ -185,4 +196,35 @@ func (c *conveyer) cleanup() {
 	c.handlers = make([]handlerFunc, 0)
 	c.isRunning = false
 	c.cancelFuncs = make([]context.CancelFunc, 0)
+}
+
+func (c *conveyer) Send(input string, data string) error {
+	ch, exists := c.getChannel(input)
+	if !exists {
+		return ErrChanNotFound
+	}
+
+	select {
+	case ch <- data:
+		return nil
+	default:
+		return errors.New("channel is full")
+	}
+}
+
+func (c *conveyer) Recv(output string) (string, error) {
+	ch, exists := c.getChannel(output)
+	if !exists {
+		return "", ErrChanNotFound
+	}
+
+	select {
+	case data, ok := <-ch:
+		if !ok {
+			return "undefined", nil
+		}
+		return data, nil
+	default:
+		return "", errors.New("no data available")
+	}
 }
