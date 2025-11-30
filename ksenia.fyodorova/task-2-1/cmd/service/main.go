@@ -10,6 +10,7 @@ import (
 	"github.com/lolnyok/task-2-1/temperature"
 )
 
+// мяууу
 const (
 	minPartsLength = 2
 )
