@@ -7,33 +7,38 @@ var (
 	ErrNoSolution   = errors.New("no temperature satisfies all constraints")
 )
 
+const (
+	DefaultMinTemp = 15
+	DefaultMaxTemp = 30
+)
+
 type TemperatureRange struct {
-	Min int
-	Max int
+	min int
+	max int
 }
 
 func NewTemperatureRange() *TemperatureRange {
 	return &TemperatureRange{
-		Min: 15,
-		Max: 30,
+		min: DefaultMinTemp,
+		max: DefaultMaxTemp,
 	}
 }
 
 func (tr *TemperatureRange) Update(sign string, temperature int) error {
 	switch sign {
 	case ">=":
-		if temperature > tr.Min {
-			tr.Min = temperature
+		if temperature > tr.min {
+			tr.min = temperature
 		}
 	case "<=":
-		if temperature < tr.Max {
-			tr.Max = temperature
+		if temperature < tr.max {
+			tr.max = temperature
 		}
 	default:
 		return ErrInvalidRange
 	}
 
-	if tr.Min > tr.Max {
+	if tr.min > tr.max {
 		return ErrNoSolution
 	}
 
@@ -41,8 +46,17 @@ func (tr *TemperatureRange) Update(sign string, temperature int) error {
 }
 
 func (tr *TemperatureRange) GetComfortableTemp() (int, error) {
-	if tr.Min > tr.Max {
+	if tr.min > tr.max {
 		return -1, ErrNoSolution
 	}
-	return tr.Min, nil
+
+	return tr.min, nil
+}
+
+func (tr *TemperatureRange) GetMin() int {
+	return tr.min
+}
+
+func (tr *TemperatureRange) GetMax() int {
+	return tr.max
 }

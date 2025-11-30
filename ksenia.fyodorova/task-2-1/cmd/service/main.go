@@ -10,7 +10,6 @@ import (
 	"github.com/lolnyok/task-2-1/temperature"
 )
 
-// мяууу
 const (
 	minPartsLength = 2
 )
@@ -22,26 +21,29 @@ func main() {
 	numOfDepartments, err := strconv.Atoi(scanner.Text())
 	if err != nil {
 		fmt.Println(-1)
+
 		return
 	}
 
-	for i := 0; i < numOfDepartments; i++ {
+	for range numOfDepartments {
 		scanner.Scan()
 		numOfStaff, err := strconv.Atoi(scanner.Text())
 		if err != nil {
 			fmt.Println(-1)
+
 			continue
 		}
 
 		tempRange := temperature.NewTemperatureRange()
 
-		for j := 0; j < numOfStaff; j++ {
+		for range numOfStaff {
 			scanner.Scan()
 			preference := scanner.Text()
 
 			parts := strings.Fields(preference)
 			if len(parts) < minPartsLength {
 				fmt.Println(-1)
+
 				continue
 			}
 
@@ -49,12 +51,14 @@ func main() {
 			temp, err := strconv.Atoi(parts[1])
 			if err != nil {
 				fmt.Println(-1)
+
 				continue
 			}
 
 			err = tempRange.Update(sign, temp)
 			if err != nil {
 				fmt.Println(-1)
+
 				continue
 			}
 
