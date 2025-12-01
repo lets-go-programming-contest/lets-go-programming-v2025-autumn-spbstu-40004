@@ -1,4 +1,4 @@
-package handlers
+package handlers_test
 
 import (
 	"context"
@@ -6,9 +6,14 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/15446-rus75/task-5/pkg/handlers"
 )
 
 func TestPrefixDecoratorFunc_Basic(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -19,7 +24,7 @@ func TestPrefixDecoratorFunc_Basic(t *testing.T) {
 	close(input)
 
 	go func() {
-		err := PrefixDecoratorFunc(ctx, input, output)
+		err := handlers.PrefixDecoratorFunc(ctx, input, output)
 		assert.NoError(t, err)
 	}()
 
@@ -28,6 +33,8 @@ func TestPrefixDecoratorFunc_Basic(t *testing.T) {
 }
 
 func TestPrefixDecoratorFunc_AlreadyDecorated(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -37,13 +44,18 @@ func TestPrefixDecoratorFunc_AlreadyDecorated(t *testing.T) {
 	input <- "decorated: already"
 	close(input)
 
-	go PrefixDecoratorFunc(ctx, input, output)
+	go func() {
+		err := handlers.PrefixDecoratorFunc(ctx, input, output)
+		require.NoError(t, err)
+	}()
 
 	result := <-output
 	assert.Equal(t, "decorated: already", result)
 }
 
 func TestPrefixDecoratorFunc_Error(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -53,11 +65,13 @@ func TestPrefixDecoratorFunc_Error(t *testing.T) {
 	input <- "text with no decorator"
 	close(input)
 
-	err := PrefixDecoratorFunc(ctx, input, output)
-	assert.ErrorIs(t, err, ErrNoDecorator)
+	err := handlers.PrefixDecoratorFunc(ctx, input, output)
+	assert.ErrorIs(t, err, handlers.ErrNoDecorator)
 }
 
 func TestPrefixDecoratorFunc_ContextCancel(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	input := make(chan string)
@@ -68,11 +82,13 @@ func TestPrefixDecoratorFunc_ContextCancel(t *testing.T) {
 		cancel()
 	}()
 
-	err := PrefixDecoratorFunc(ctx, input, output)
+	err := handlers.PrefixDecoratorFunc(ctx, input, output)
 	assert.NoError(t, err)
 }
 
 func TestSeparatorFunc_RoundRobin(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -87,7 +103,10 @@ func TestSeparatorFunc_RoundRobin(t *testing.T) {
 	input <- "c"
 	close(input)
 
-	go SeparatorFunc(ctx, input, outputs)
+	go func() {
+		err := handlers.SeparatorFunc(ctx, input, outputs)
+		require.NoError(t, err)
+	}()
 
 	assert.Equal(t, "a", <-outputs[0])
 	assert.Equal(t, "b", <-outputs[1])
@@ -95,6 +114,8 @@ func TestSeparatorFunc_RoundRobin(t *testing.T) {
 }
 
 func TestSeparatorFunc_NoOutputs(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -102,11 +123,13 @@ func TestSeparatorFunc_NoOutputs(t *testing.T) {
 	input <- "test"
 	close(input)
 
-	err := SeparatorFunc(ctx, input, []chan string{})
+	err := handlers.SeparatorFunc(ctx, input, []chan string{})
 	assert.NoError(t, err)
 }
 
 func TestSeparatorFunc_SingleOutput(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -117,13 +140,18 @@ func TestSeparatorFunc_SingleOutput(t *testing.T) {
 	input <- "second"
 	close(input)
 
-	go SeparatorFunc(ctx, input, []chan string{output})
+	go func() {
+		err := handlers.SeparatorFunc(ctx, input, []chan string{output})
+		require.NoError(t, err)
+	}()
 
 	assert.Equal(t, "first", <-output)
 	assert.Equal(t, "second", <-output)
 }
 
 func TestMultiplexerFunc_Basic(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -139,7 +167,7 @@ func TestMultiplexerFunc_Basic(t *testing.T) {
 	close(inputs[1])
 
 	go func() {
-		err := MultiplexerFunc(ctx, inputs, output)
+		err := handlers.MultiplexerFunc(ctx, inputs, output)
 		assert.NoError(t, err)
 	}()
 
@@ -148,6 +176,8 @@ func TestMultiplexerFunc_Basic(t *testing.T) {
 }
 
 func TestMultiplexerFunc_Filter(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -158,7 +188,10 @@ func TestMultiplexerFunc_Filter(t *testing.T) {
 	inputs[0] <- "no multiplexer here"
 	close(inputs[0])
 
-	go MultiplexerFunc(ctx, inputs, output)
+	go func() {
+		err := handlers.MultiplexerFunc(ctx, inputs, output)
+		require.NoError(t, err)
+	}()
 
 	result := <-output
 	assert.Equal(t, "normal", result)
@@ -171,11 +204,13 @@ func TestMultiplexerFunc_Filter(t *testing.T) {
 }
 
 func TestMultiplexerFunc_NoInputs(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	output := make(chan string)
 
-	err := MultiplexerFunc(ctx, []chan string{}, output)
+	err := handlers.MultiplexerFunc(ctx, []chan string{}, output)
 	assert.NoError(t, err)
 }
