@@ -44,12 +44,13 @@ func TestPrefixDecoratorFunc_AlreadyDecorated(t *testing.T) {
 	input <- "decorated: already"
 	close(input)
 
+	var err error
 	go func() {
-		err := handlers.PrefixDecoratorFunc(ctx, input, output)
-		require.NoError(t, err)
+		err = handlers.PrefixDecoratorFunc(ctx, input, output)
 	}()
 
 	result := <-output
+	require.NoError(t, err)
 	assert.Equal(t, "decorated: already", result)
 }
 
@@ -103,14 +104,15 @@ func TestSeparatorFunc_RoundRobin(t *testing.T) {
 	input <- "c"
 	close(input)
 
+	var err error
 	go func() {
-		err := handlers.SeparatorFunc(ctx, input, outputs)
-		require.NoError(t, err)
+		err = handlers.SeparatorFunc(ctx, input, outputs)
 	}()
 
 	assert.Equal(t, "a", <-outputs[0])
 	assert.Equal(t, "b", <-outputs[1])
 	assert.Equal(t, "c", <-outputs[0])
+	require.NoError(t, err)
 }
 
 func TestSeparatorFunc_NoOutputs(t *testing.T) {
@@ -140,13 +142,14 @@ func TestSeparatorFunc_SingleOutput(t *testing.T) {
 	input <- "second"
 	close(input)
 
+	var err error
 	go func() {
-		err := handlers.SeparatorFunc(ctx, input, []chan string{output})
-		require.NoError(t, err)
+		err = handlers.SeparatorFunc(ctx, input, []chan string{output})
 	}()
 
 	assert.Equal(t, "first", <-output)
 	assert.Equal(t, "second", <-output)
+	require.NoError(t, err)
 }
 
 func TestMultiplexerFunc_Basic(t *testing.T) {
@@ -188,9 +191,9 @@ func TestMultiplexerFunc_Filter(t *testing.T) {
 	inputs[0] <- "no multiplexer here"
 	close(inputs[0])
 
+	var err error
 	go func() {
-		err := handlers.MultiplexerFunc(ctx, inputs, output)
-		require.NoError(t, err)
+		err = handlers.MultiplexerFunc(ctx, inputs, output)
 	}()
 
 	result := <-output
@@ -201,6 +204,7 @@ func TestMultiplexerFunc_Filter(t *testing.T) {
 		t.Fatal("should not receive filtered message")
 	case <-time.After(10 * time.Millisecond):
 	}
+	require.NoError(t, err)
 }
 
 func TestMultiplexerFunc_NoInputs(t *testing.T) {
