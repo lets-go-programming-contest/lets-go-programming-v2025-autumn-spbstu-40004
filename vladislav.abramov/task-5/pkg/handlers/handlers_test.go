@@ -50,6 +50,7 @@ func TestPrefixDecoratorFunc_AlreadyDecorated(t *testing.T) {
 	}()
 
 	result := <-output
+
 	require.NoError(t, err)
 	assert.Equal(t, "decorated: already", result)
 }
