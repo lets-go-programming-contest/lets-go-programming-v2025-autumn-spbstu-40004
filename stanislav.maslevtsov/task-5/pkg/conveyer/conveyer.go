@@ -1,6 +1,8 @@
 package conveyer
 
-import "context"
+import (
+	"context"
+)
 
 type Conveyer struct {
 	chans        map[string]chan string
@@ -50,7 +52,7 @@ func New(size int) *Conveyer {
 	}
 }
 
-func (conveyer *Conveyer) RegisterDecorator(
+func (c *Conveyer) RegisterDecorator(
 	fn func(
 		ctx context.Context,
 		input chan string,
@@ -59,6 +61,21 @@ func (conveyer *Conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	if _, ok := c.chans[input]; !ok {
+		channel := make(chan string, c.size)
+		c.chans[input] = channel
+	}
+
+	if _, ok := c.chans[output]; !ok {
+		channel := make(chan string, c.size)
+		c.chans[output] = channel
+	}
+
+	c.decorators = append(c.decorators, decorator{
+		fn:     fn,
+		input:  input,
+		output: output,
+	})
 }
 
 func (conveyer *Conveyer) RegisterMultiplexer(
