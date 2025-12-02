@@ -78,7 +78,7 @@ func (c *Conveyer) RegisterDecorator(
 	})
 }
 
-func (conveyer *Conveyer) RegisterMultiplexer(
+func (c *Conveyer) RegisterMultiplexer(
 	fn func(
 		ctx context.Context,
 		inputs []chan string,
@@ -87,9 +87,26 @@ func (conveyer *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	for _, input := range inputs {
+		if _, ok := c.chans[input]; !ok {
+			channel := make(chan string, c.size)
+			c.chans[input] = channel
+		}
+	}
+
+	if _, ok := c.chans[output]; !ok {
+		channel := make(chan string, c.size)
+		c.chans[output] = channel
+	}
+
+	c.multiplexers = append(c.multiplexers, multiplexer{
+		fn:     fn,
+		inputs: inputs,
+		output: output,
+	})
 }
 
-func (conveyer *Conveyer) RegisterSeparator(
+func (c *Conveyer) RegisterSeparator(
 	fn func(
 		ctx context.Context,
 		input chan string,
@@ -98,16 +115,33 @@ func (conveyer *Conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	if _, ok := c.chans[input]; !ok {
+		channel := make(chan string, c.size)
+		c.chans[input] = channel
+	}
+
+	for _, output := range outputs {
+		if _, ok := c.chans[output]; !ok {
+			channel := make(chan string, c.size)
+			c.chans[output] = channel
+		}
+	}
+
+	c.separators = append(c.separators, separator{
+		fn:      fn,
+		input:   input,
+		outputs: outputs,
+	})
 }
 
-func (conveyer *Conveyer) Run(ctx context.Context) error {
+func (c *Conveyer) Run(ctx context.Context) error {
 	return nil
 }
 
-func (conveyer *Conveyer) Send(input string, data string) error {
+func (c *Conveyer) Send(input string, data string) error {
 	return nil
 }
 
-func (conveyer *Conveyer) Recv(output string) (string, error) {
+func (c *Conveyer) Recv(output string) (string, error) {
 	return "", nil
 }
