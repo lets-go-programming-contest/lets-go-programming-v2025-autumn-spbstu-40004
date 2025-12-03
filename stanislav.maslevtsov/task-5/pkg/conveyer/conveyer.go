@@ -2,54 +2,34 @@ package conveyer
 
 import (
 	"context"
+	"fmt"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type Conveyer struct {
-	chans        map[string]chan string
-	size         int
-	decorators   []decorator
-	multiplexers []multiplexer
-	separators   []separator
+	chans    map[string]chan string
+	chanSize int
+	handlers []func(ctx context.Context) error
 }
 
-type decorator struct {
-	fn func(
-		ctx context.Context,
-		input chan string,
-		output chan string,
-	) error
-	input  string
-	output string
-}
-
-type multiplexer struct {
-	fn func(
-		ctx context.Context,
-		inputs []chan string,
-		output chan string,
-	) error
-	inputs []string
-	output string
-}
-
-type separator struct {
-	fn func(
-		ctx context.Context,
-		input chan string,
-		outputs []chan string,
-	) error
-	input   string
-	outputs []string
-}
-
-func New(size int) *Conveyer {
-	return &Conveyer{
-		chans:        make(map[string]chan string),
-		size:         size,
-		decorators:   make([]decorator, 0),
-		multiplexers: make([]multiplexer, 0),
-		separators:   make([]separator, 0),
+func New(size int) Conveyer {
+	return Conveyer{
+		chans:    make(map[string]chan string, 0),
+		chanSize: size,
+		handlers: make([]func(ctx context.Context) error, 0),
 	}
+}
+
+func (c *Conveyer) createChan(name string) chan string {
+	if ch, ok := c.chans[name]; ok {
+		return ch
+	}
+
+	ch := make(chan string, c.chanSize)
+	c.chans[name] = ch
+
+	return ch
 }
 
 func (c *Conveyer) RegisterDecorator(
@@ -61,20 +41,8 @@ func (c *Conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	if _, ok := c.chans[input]; !ok {
-		channel := make(chan string, c.size)
-		c.chans[input] = channel
-	}
-
-	if _, ok := c.chans[output]; !ok {
-		channel := make(chan string, c.size)
-		c.chans[output] = channel
-	}
-
-	c.decorators = append(c.decorators, decorator{
-		fn:     fn,
-		input:  input,
-		output: output,
+	c.handlers = append(c.handlers, func(ctx context.Context) error {
+		return fn(ctx, c.createChan(input), c.createChan(output))
 	})
 }
 
@@ -87,22 +55,13 @@ func (c *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	var ichans []chan string
 	for _, input := range inputs {
-		if _, ok := c.chans[input]; !ok {
-			channel := make(chan string, c.size)
-			c.chans[input] = channel
-		}
+		ichans = append(ichans, c.createChan(input))
 	}
 
-	if _, ok := c.chans[output]; !ok {
-		channel := make(chan string, c.size)
-		c.chans[output] = channel
-	}
-
-	c.multiplexers = append(c.multiplexers, multiplexer{
-		fn:     fn,
-		inputs: inputs,
-		output: output,
+	c.handlers = append(c.handlers, func(ctx context.Context) error {
+		return fn(ctx, ichans, c.createChan(output))
 	})
 }
 
@@ -115,26 +74,34 @@ func (c *Conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	if _, ok := c.chans[input]; !ok {
-		channel := make(chan string, c.size)
-		c.chans[input] = channel
-	}
-
+	var ochans []chan string
 	for _, output := range outputs {
-		if _, ok := c.chans[output]; !ok {
-			channel := make(chan string, c.size)
-			c.chans[output] = channel
-		}
+		ochans = append(ochans, c.createChan(output))
 	}
 
-	c.separators = append(c.separators, separator{
-		fn:      fn,
-		input:   input,
-		outputs: outputs,
+	c.handlers = append(c.handlers, func(ctx context.Context) error {
+		return fn(ctx, c.createChan(input), ochans)
 	})
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
+	defer func() {
+		for _, ch := range c.chans {
+			close(ch)
+		}
+	}()
+
+	errGr, ctx := errgroup.WithContext(ctx)
+	for _, fn := range c.handlers {
+		errGr.Go(func() error {
+			return fn(ctx)
+		})
+	}
+
+	if err := errGr.Wait(); err != nil {
+		return fmt.Errorf("handler error received: %w", err)
+	}
+
 	return nil
 }
 
