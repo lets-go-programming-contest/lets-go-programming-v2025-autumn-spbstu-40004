@@ -2,10 +2,15 @@ package conveyer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"golang.org/x/sync/errgroup"
 )
+
+var ErrChanNotFound = errors.New("chan not found")
+
+const ClosedChan string = "undefined"
 
 type Conveyer struct {
 	chans    map[string]chan string
@@ -106,9 +111,26 @@ func (c *Conveyer) Run(ctx context.Context) error {
 }
 
 func (c *Conveyer) Send(input string, data string) error {
+	ch, ok := c.chans[input]
+	if !ok {
+		return ErrChanNotFound
+	}
+
+	ch <- data
+
 	return nil
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
-	return "", nil
+	ch, ok := c.chans[output]
+	if !ok {
+		return "", ErrChanNotFound
+	}
+
+	data, ok := <-ch
+	if !ok {
+		return ClosedChan, nil
+	}
+
+	return data, nil
 }
