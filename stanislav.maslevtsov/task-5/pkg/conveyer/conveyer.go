@@ -27,7 +27,7 @@ func New(size int) Conveyer {
 }
 
 func (c *Conveyer) createChan(name string) chan string {
-	if ch, ok := c.chans[name]; ok {
+	if ch, exists := c.chans[name]; exists {
 		return ch
 	}
 
@@ -38,7 +38,7 @@ func (c *Conveyer) createChan(name string) chan string {
 }
 
 func (c *Conveyer) RegisterDecorator(
-	fn func(
+	handler func(
 		ctx context.Context,
 		input chan string,
 		output chan string,
@@ -47,12 +47,12 @@ func (c *Conveyer) RegisterDecorator(
 	output string,
 ) {
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, c.createChan(input), c.createChan(output))
+		return handler(ctx, c.createChan(input), c.createChan(output))
 	})
 }
 
 func (c *Conveyer) RegisterMultiplexer(
-	fn func(
+	handler func(
 		ctx context.Context,
 		inputs []chan string,
 		output chan string,
@@ -60,18 +60,18 @@ func (c *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	var ichans []chan string
+	ichans := make([]chan string, 0)
 	for _, input := range inputs {
 		ichans = append(ichans, c.createChan(input))
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, ichans, c.createChan(output))
+		return handler(ctx, ichans, c.createChan(output))
 	})
 }
 
 func (c *Conveyer) RegisterSeparator(
-	fn func(
+	handler func(
 		ctx context.Context,
 		input chan string,
 		outputs []chan string,
@@ -79,13 +79,13 @@ func (c *Conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	var ochans []chan string
+	ochans := make([]chan string, 0)
 	for _, output := range outputs {
 		ochans = append(ochans, c.createChan(output))
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, c.createChan(input), ochans)
+		return handler(ctx, c.createChan(input), ochans)
 	})
 }
 
@@ -122,8 +122,8 @@ func (c *Conveyer) Send(input string, data string) error {
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
-	ch, ok := c.chans[output]
-	if !ok {
+	ch, exists := c.chans[output]
+	if !exists {
 		return "", ErrChanNotFound
 	}
 
