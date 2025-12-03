@@ -40,11 +40,9 @@ func (c *Conveyer) createChan(name string) chan string {
 func (c *Conveyer) RegisterDecorator(
 	handler func(
 		ctx context.Context,
-		input chan string,
-		output chan string,
+		input, output chan string,
 	) error,
-	input string,
-	output string,
+	input, output string,
 ) {
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		return handler(ctx, c.createChan(input), c.createChan(output))
