@@ -15,7 +15,9 @@ func SeparatorFunc(
 	if len(outputs) == 0 {
 		return ErrNoOutputChannels
 	}
+
 	currentOutput := 0
+
 	for {
 		select {
 		case <-cntxt.Done():
@@ -24,6 +26,7 @@ func SeparatorFunc(
 			if !ok {
 				return nil
 			}
+
 			out := outputs[currentOutput%len(outputs)]
 			out <- val
 			currentOutput++

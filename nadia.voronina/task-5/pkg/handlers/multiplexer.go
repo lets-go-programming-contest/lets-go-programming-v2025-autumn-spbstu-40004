@@ -12,12 +12,15 @@ func MultiplexerFunc(
 	output chan string,
 ) error {
 	var waitGroup sync.WaitGroup
+
 	totalInputs := len(inputs)
 
 	waitGroup.Add(totalInputs)
+
 	for _, input := range inputs {
 		go func(channel chan string) {
 			defer waitGroup.Done()
+
 			for {
 				select {
 				case <-cntxt.Done():
@@ -26,6 +29,7 @@ func MultiplexerFunc(
 					if !ok {
 						return
 					}
+
 					if strings.Contains(msg, "no multiplexer") {
 						continue
 					}

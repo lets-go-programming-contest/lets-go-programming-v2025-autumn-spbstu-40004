@@ -115,6 +115,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	for _, worker := range c.workers {
 		w := worker
+
 		errorgroup.Go(func() error {
 			return w(ctx)
 		})
