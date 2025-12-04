@@ -153,13 +153,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 		})
 	}
 
-	err := group.Wait()
-
-	for _, ch := range c.channels {
-		close(ch)
-	}
-
-	return err
+	return group.Wait()
 }
 
 func (c *conveyer) Send(input string, data string) error {

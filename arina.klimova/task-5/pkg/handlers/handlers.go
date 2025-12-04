@@ -38,11 +38,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-	done := make(chan struct{})
-
 	defer func() {
-		close(done)
-		<-ctx.Done()
 		for _, out := range outputs {
 			close(out)
 		}
@@ -66,13 +62,9 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				index = (index + 1) % len(outputs)
 			case <-ctx.Done():
 				return ctx.Err()
-			case <-done:
-				return nil
 			}
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-done:
-			return nil
 		}
 	}
 }
