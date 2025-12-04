@@ -33,6 +33,14 @@ func (c *Conveyer) addChannel(channelName string) {
 	}
 }
 
+func (c *Conveyer) getChannel(channelName string) (chan string, error) {
+	if channel, ok := c.channels[channelName]; ok {
+		return channel, nil
+	}
+
+	return nil, errChannelNotFound
+}
+
 func (c *Conveyer) closeAllChannels() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -61,7 +69,11 @@ func (c *Conveyer) RegisterDecorator(
 		c.mutex.RLock()
 		defer c.mutex.RUnlock()
 
-		return fn(ctx, c.channels[input], c.channels[output])
+		inputChannel, _ := c.getChannel(input)
+
+		outputChannel, _ := c.getChannel(output)
+
+		return fn(ctx, inputChannel, outputChannel)
 	})
 }
 
@@ -85,10 +97,12 @@ func (c *Conveyer) RegisterMultiplexer(
 
 		inputChannels := make([]chan string, len(inputs))
 		for i := 0; i < len(inputs); i++ {
-			inputChannels[i] = c.channels[inputs[i]]
+			currentChannel, _ := c.getChannel(inputs[i])
+
+			inputChannels[i] = currentChannel
 		}
 
-		outputChannel := c.channels[output]
+		outputChannel, _ := c.getChannel(output)
 
 		return fn(ctx, inputChannels, outputChannel)
 	})
@@ -112,11 +126,12 @@ func (c *Conveyer) RegisterSeparator(
 		c.mutex.RLock()
 		defer c.mutex.RUnlock()
 
-		inputChannel := c.channels[input]
+		inputChannel, _ := c.getChannel(input)
 
 		outputChannels := make([]chan string, len(outputs))
 		for i := 0; i < len(outputs); i++ {
-			outputChannels[i] = c.channels[outputs[i]]
+			outputChannel, _ := c.getChannel(outputs[i])
+			outputChannels[i] = outputChannel
 		}
 
 		return fn(ctx, inputChannel, outputChannels)
