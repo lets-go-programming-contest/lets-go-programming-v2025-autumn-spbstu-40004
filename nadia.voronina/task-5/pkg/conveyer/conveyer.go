@@ -125,7 +125,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	default:
 	}
 
-	return ctx.Err()
+	return nil
 }
 
 func (c *Conveyer) Send(input string, data string) error {

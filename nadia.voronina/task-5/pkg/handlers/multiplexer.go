@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"strings"
+	"sync"
 )
 
 func MultiplexerFunc(
@@ -10,25 +11,20 @@ func MultiplexerFunc(
 	inputs []chan string,
 	output chan string,
 ) error {
-	closedCount := 0
+	var wg sync.WaitGroup
 	totalInputs := len(inputs)
-	closed := make([]bool, totalInputs)
 
-	for {
-		select {
-		case <-tx.Done():
-			return tx.Err()
-		default:
-			for i, in := range inputs {
-				if closed[i] {
-					continue
-				}
+	wg.Add(totalInputs)
+	for _, in := range inputs {
+		go func(ch chan string) {
+			defer wg.Done()
+			for {
 				select {
-				case msg, ok := <-in:
+				case <-tx.Done():
+					return
+				case msg, ok := <-ch:
 					if !ok {
-						closed[i] = true
-						closedCount++
-						continue
+						return
 					}
 					if strings.Contains(msg, "no multiplexer") {
 						continue
@@ -36,14 +32,13 @@ func MultiplexerFunc(
 					select {
 					case output <- msg:
 					case <-tx.Done():
-						return tx.Err()
+						return
 					}
-				default:
 				}
 			}
-			if closedCount == totalInputs {
-				return nil
-			}
-		}
+		}(in)
 	}
+
+	wg.Wait()
+	return nil
 }
