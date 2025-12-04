@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/faxryzen/task-6/internal/wifi"
-	"github.com/faxryzen/task-6/internal/wifi/mocks"
+	"github.com/faxryzen/task-6/internal/wifi/_mocks"
 
 	wifilib "github.com/mdlayher/wifi"
 )
