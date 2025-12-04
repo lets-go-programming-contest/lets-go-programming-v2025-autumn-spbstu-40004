@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 )
 
 var (
@@ -73,4 +74,44 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			return nil
 		}
 	}
+}
+
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	var waitGroup sync.WaitGroup
+
+	inputLength := len(inputs)
+	if inputLength == 0 {
+		return errInputsEmpty
+	}
+
+	waitGroup.Add(inputLength)
+
+	for index := 0; index < len(inputs); index++ {
+		go func() {
+			defer waitGroup.Done()
+
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case data, ok := <-inputs[index]:
+					if !ok {
+						return
+					}
+
+					if !strings.Contains(data, noMultiplexerSub) {
+						select {
+						case <-ctx.Done():
+							return
+						case output <- data:
+						}
+					}
+				}
+			}
+		}()
+	}
+
+	waitGroup.Wait()
+
+	return nil
 }
