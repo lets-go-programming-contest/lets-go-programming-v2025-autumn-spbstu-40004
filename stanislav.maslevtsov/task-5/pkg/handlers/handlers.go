@@ -7,7 +7,10 @@ import (
 	"sync"
 )
 
-var ErrNoDecorator = errors.New("can't be decorated")
+var (
+	ErrNoDecorator = errors.New("can't be decorated")
+	ErrNoChans     = errors.New("no channels received")
+)
 
 func PrefixDecoratorFunc(
 	ctx context.Context,
@@ -43,6 +46,10 @@ func MultiplexerFunc(ctx context.Context,
 	inputs []chan string,
 	output chan string,
 ) error {
+	if len(inputs) == 0 {
+		return ErrNoChans
+	}
+
 	var waitGr sync.WaitGroup
 
 	waitGr.Add(len(inputs))
@@ -82,6 +89,10 @@ func SeparatorFunc(
 	input chan string,
 	outputs []chan string,
 ) error {
+	if len(outputs) == 0 {
+		return ErrNoChans
+	}
+
 	var ochanIdx int
 
 	for {
