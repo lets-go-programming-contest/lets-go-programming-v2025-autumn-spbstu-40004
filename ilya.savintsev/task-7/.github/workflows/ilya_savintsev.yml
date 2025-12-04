@@ -2,7 +2,7 @@ name: ilya_savintsev
 
 on:
   push:
-    branches: [ "ilya/savintsev/7" ]
+    branches: ["ilya/savintsev/7"]
 
 jobs:
   build-test-lint:
