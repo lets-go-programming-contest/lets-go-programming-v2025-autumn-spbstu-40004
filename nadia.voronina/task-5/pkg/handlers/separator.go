@@ -28,7 +28,9 @@ func SeparatorFunc(
 			}
 
 			out := outputs[currentOutput%len(outputs)]
+
 			out <- val
+
 			currentOutput++
 		}
 	}
