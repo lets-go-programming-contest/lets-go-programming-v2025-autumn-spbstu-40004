@@ -7,9 +7,7 @@ import (
 	"sync"
 )
 
-var (
-	ErrNoDecorator = errors.New("can't be decorated")
-)
+var ErrNoDecorator = errors.New("can't be decorated")
 
 func PrefixDecoratorFunc(
 	ctx context.Context,
@@ -28,8 +26,8 @@ func PrefixDecoratorFunc(
 				return ErrNoDecorator
 			}
 
-			if !strings.HasPrefix(str, "decorated:") {
-				str = "decorated:" + str
+			if !strings.HasPrefix(str, "decorated: ") {
+				str = "decorated: " + str
 			}
 
 			select {
@@ -46,6 +44,7 @@ func MultiplexerFunc(ctx context.Context,
 	output chan string,
 ) error {
 	var waitGr sync.WaitGroup
+
 	waitGr.Add(len(inputs))
 
 	for ichanIdx := range inputs {
@@ -84,6 +83,7 @@ func SeparatorFunc(
 	outputs []chan string,
 ) error {
 	var ochanIdx int
+
 	for {
 		select {
 		case <-ctx.Done():
