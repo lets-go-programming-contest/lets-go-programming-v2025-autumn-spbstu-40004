@@ -58,7 +58,7 @@ func TestGetNames_ScanError(t *testing.T) {
 	service := db.New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
-		AddRow(nil) // вызывает Scan error
+		AddRow(nil)
 
 	mock.ExpectQuery("SELECT name FROM users").
 		WillReturnRows(rows)
