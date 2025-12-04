@@ -93,6 +93,7 @@ func (c *conveyer) RegisterMultiplexer(
 	for _, inputName := range inputs {
 		c.obtainChannel(inputName)
 	}
+
 	c.obtainChannel(output)
 
 	c.multiplexers = append(c.multiplexers, multiplexerSpec{
@@ -139,9 +140,11 @@ func (c *conveyer) Run(ctx context.Context) error {
 
 		group.Go(func() error {
 			inputs := make([]chan string, len(mux.inputs))
+
 			for i, name := range mux.inputs {
 				inputs[i], _ = c.getChannel(name)
 			}
+
 			output, _ := c.getChannel(mux.output)
 
 			return mux.fn(groupCtx, inputs, output)
@@ -154,6 +157,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 		group.Go(func() error {
 			input, _ := c.getChannel(sep.input)
 			outputs := make([]chan string, len(sep.outputs))
+
 			for i, name := range sep.outputs {
 				outputs[i], _ = c.getChannel(name)
 			}
