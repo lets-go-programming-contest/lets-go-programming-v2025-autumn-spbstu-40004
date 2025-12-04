@@ -153,7 +153,13 @@ func (c *conveyer) Run(ctx context.Context) error {
 		})
 	}
 
-	return group.Wait()
+	err := group.Wait()
+
+	for _, ch := range c.channels {
+		close(ch)
+	}
+
+	return err
 }
 
 func (c *conveyer) Send(input string, data string) error {
@@ -178,13 +184,9 @@ func (c *conveyer) Recv(output string) (string, error) {
 		return "", err
 	}
 
-	select {
-	case data, ok := <-channel:
-		if !ok {
-			return "undefined", nil
-		}
-		return data, nil
-	case <-time.After(timeoutTime):
-		return "", ErrTimeout
+	data, ok := <-channel
+	if !ok {
+		return "undefined", nil
 	}
+	return data, nil
 }
