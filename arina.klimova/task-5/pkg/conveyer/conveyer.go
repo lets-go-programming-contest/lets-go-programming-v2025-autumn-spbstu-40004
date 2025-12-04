@@ -58,6 +58,7 @@ func (c *conveyer) obtainChannel(name string) {
 	if _, exists := c.channels[name]; exists {
 		return
 	}
+
 	c.channels[name] = make(chan string, c.bufferSize)
 }
 
@@ -65,11 +66,12 @@ func (c *conveyer) getChannel(name string) (chan string, error) {
 	if channel, exists := c.channels[name]; exists {
 		return channel, nil
 	}
+
 	return nil, ErrChanNotFound
 }
 
 func (c *conveyer) RegisterDecorator(
-	fn func(ctx context.Context, input chan string, output chan string) error,
+	decoratorFunc func(ctx context.Context, input chan string, output chan string) error,
 	input string,
 	output string,
 ) {
@@ -77,14 +79,14 @@ func (c *conveyer) RegisterDecorator(
 	c.obtainChannel(output)
 
 	c.decorators = append(c.decorators, decoratorSpec{
-		fn:     fn,
+		fn:     decoratorFunc,
 		input:  input,
 		output: output,
 	})
 }
 
 func (c *conveyer) RegisterMultiplexer(
-	fn func(ctx context.Context, inputs []chan string, output chan string) error,
+	multiplexerFunc func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -94,24 +96,25 @@ func (c *conveyer) RegisterMultiplexer(
 	c.obtainChannel(output)
 
 	c.multiplexers = append(c.multiplexers, multiplexerSpec{
-		fn:     fn,
+		fn:     multiplexerFunc,
 		inputs: inputs,
 		output: output,
 	})
 }
 
 func (c *conveyer) RegisterSeparator(
-	fn func(ctx context.Context, input chan string, outputs []chan string) error,
+	separatorFunc func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
 	c.obtainChannel(input)
+
 	for _, outputName := range outputs {
 		c.obtainChannel(outputName)
 	}
 
 	c.separators = append(c.separators, separatorSpec{
-		fn:      fn,
+		fn:      separatorFunc,
 		input:   input,
 		outputs: outputs,
 	})
@@ -122,33 +125,39 @@ func (c *conveyer) Run(ctx context.Context) error {
 
 	for _, decorator := range c.decorators {
 		dec := decorator
+
 		group.Go(func() error {
 			input, _ := c.getChannel(dec.input)
 			output, _ := c.getChannel(dec.output)
+
 			return dec.fn(groupCtx, input, output)
 		})
 	}
 
 	for _, multiplexer := range c.multiplexers {
 		mux := multiplexer
+
 		group.Go(func() error {
 			inputs := make([]chan string, len(mux.inputs))
 			for i, name := range mux.inputs {
 				inputs[i], _ = c.getChannel(name)
 			}
 			output, _ := c.getChannel(mux.output)
+
 			return mux.fn(groupCtx, inputs, output)
 		})
 	}
 
 	for _, separator := range c.separators {
 		sep := separator
+
 		group.Go(func() error {
 			input, _ := c.getChannel(sep.input)
 			outputs := make([]chan string, len(sep.outputs))
 			for i, name := range sep.outputs {
 				outputs[i], _ = c.getChannel(name)
 			}
+
 			return sep.fn(groupCtx, input, outputs)
 		})
 	}
@@ -188,5 +197,6 @@ func (c *conveyer) Recv(output string) (string, error) {
 	if !ok {
 		return "undefined", nil
 	}
+
 	return data, nil
 }
