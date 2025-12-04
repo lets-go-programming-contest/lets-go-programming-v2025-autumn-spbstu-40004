@@ -3,10 +3,15 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var errChannelNotFound = errors.New("chan not found")
+
+const undefined = "undefined"
 
 type Conveyer struct {
 	channels    map[string]chan string
@@ -136,4 +141,58 @@ func (c *Conveyer) RegisterSeparator(
 
 		return fn(ctx, inputChannel, outputChannels)
 	})
+}
+
+func (c *Conveyer) Run(ctx context.Context) error {
+	defer c.closeAllChannels()
+
+	errGroup, curCtx := errgroup.WithContext(ctx)
+
+	c.mutex.RLock()
+
+	for i := 0; i < len(c.handlers); i++ {
+		errGroup.Go(func() error {
+			return c.handlers[i](curCtx)
+		})
+	}
+
+	c.mutex.RUnlock()
+
+	if err := errGroup.Wait(); err != nil {
+		return fmt.Errorf("run function failed: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Conveyer) Send(input string, data string) error {
+	c.mutex.RLock()
+
+	inputChannel, err := c.getChannel(input)
+	if err != nil {
+		return err
+	}
+
+	c.mutex.RUnlock()
+
+	inputChannel <- data
+
+	return nil
+}
+
+func (c *Conveyer) Recv(output string) (string, error) {
+	c.mutex.RLock()
+
+	outputChannel, err := c.getChannel(output)
+	if err != nil {
+		return "", err
+	}
+
+	c.mutex.Unlock()
+
+	if data, ok := <-outputChannel; ok {
+		return data, nil
+	} else {
+		return undefined, nil
+	}
 }
