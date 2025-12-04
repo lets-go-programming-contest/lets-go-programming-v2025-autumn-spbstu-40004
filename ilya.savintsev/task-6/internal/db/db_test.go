@@ -162,4 +162,3 @@ func TestGetUniqueNames_RowsError(t *testing.T) {
 		t.Fatalf("expected rows error, got nil")
 	}
 }
-

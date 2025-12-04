@@ -80,4 +80,3 @@ func TestGetNames_Error(t *testing.T) {
 		t.Fatalf("expected error, got nil")
 	}
 }
-
