@@ -109,8 +109,8 @@ func (c *Conveyer) Run(ctx context.Context) error {
 }
 
 func (c *Conveyer) Send(input string, data string) error {
-	ch, ok := c.chans[input]
-	if !ok {
+	ch, exists := c.chans[input]
+	if !exists {
 		return ErrChanNotFound
 	}
 
