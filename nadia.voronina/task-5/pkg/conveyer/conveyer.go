@@ -39,6 +39,7 @@ type conveyer interface {
 }
 
 type Conveyer struct {
+	size     int
 	channels map[string]chan string
 	workers  []func(ctx context.Context) error
 }
@@ -163,7 +164,7 @@ func (c *Conveyer) Recv(output string) (string, error) {
 
 func (c *Conveyer) getOrCreateChannel(name string) chan string {
 	if c.channels == nil {
-		c.channels = make(map[string]chan string)
+		c.channels = make(map[string]chan string, c.size)
 	}
 	ch, exists := c.channels[name]
 	if !exists {
@@ -171,4 +172,12 @@ func (c *Conveyer) getOrCreateChannel(name string) chan string {
 		c.channels[name] = ch
 	}
 	return ch
+}
+
+func New(size int) Conveyer {
+	return Conveyer{
+		size:     size,
+		channels: make(map[string]chan string),
+		workers:  []func(ctx context.Context) error{},
+	}
 }
