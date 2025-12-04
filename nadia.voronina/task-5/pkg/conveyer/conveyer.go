@@ -3,7 +3,8 @@ package conveyer
 import (
 	"context"
 	"fmt"
-	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type conveyer interface {
@@ -43,7 +44,6 @@ type Conveyer struct {
 	size     int
 	channels map[string]chan string
 	workers  []func(ctx context.Context) error
-	mu       sync.RWMutex
 }
 
 func (c *Conveyer) RegisterDecorator(
@@ -51,8 +51,6 @@ func (c *Conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	inCh := c.getOrCreateChannel(input)
 	outCh := c.getOrCreateChannel(output)
 	worker := func(ctx context.Context) error {
@@ -66,8 +64,6 @@ func (c *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	inChans := make([]chan string, len(inputs))
 	for i, name := range inputs {
 		inChans[i] = c.getOrCreateChannel(name)
@@ -84,8 +80,6 @@ func (c *Conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	inCh := c.getOrCreateChannel(input)
 	outChans := make([]chan string, len(outputs))
 	for i, name := range outputs {
@@ -98,55 +92,37 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
-	c.mu.RLock()
 	workers := make([]func(context.Context) error, len(c.workers))
 	copy(workers, c.workers)
-	c.mu.RUnlock()
 
 	if len(workers) == 0 {
 		return nil
 	}
 
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	defer func() {
+		for _, ch := range c.channels {
+			close(ch)
+		}
+	}()
 
-	errCh := make(chan error, len(workers))
-
-	var wg sync.WaitGroup
-	wg.Add(len(workers))
+	var eg errgroup.Group
 
 	for _, worker := range workers {
-		go func(w func(context.Context) error) {
-			defer wg.Done()
-			err := w(ctx)
-			errCh <- err
-			cancel()
-		}(worker)
+		w := worker
+		eg.Go(func() error {
+			return w(ctx)
+		})
 	}
 
-	wg.Wait()
-
-	c.mu.Lock()
-	for _, ch := range c.channels {
-		close(ch)
-	}
-	c.mu.Unlock()
-
-	select {
-	case err := <-errCh:
-		if err != nil {
-			return err
-		}
-	default:
+	if err := eg.Wait(); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (c *Conveyer) Send(input string, data string) error {
-	c.mu.RLock()
 	ch, exists := c.channels[input]
-	c.mu.RUnlock()
 	if !exists {
 		return fmt.Errorf("chan not found")
 	}
@@ -155,9 +131,7 @@ func (c *Conveyer) Send(input string, data string) error {
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
-	c.mu.RLock()
 	ch, exists := c.channels[output]
-	c.mu.RUnlock()
 	if !exists {
 		return "", fmt.Errorf("chan not found")
 	}
@@ -185,6 +159,5 @@ func New(size int) Conveyer {
 		size:     size,
 		channels: make(map[string]chan string),
 		workers:  []func(ctx context.Context) error{},
-		mu:       sync.RWMutex{},
 	}
 }
