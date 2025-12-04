@@ -141,11 +141,11 @@ func (c *Conveyer) Recv(output string) (string, error) {
 
 func (c *Conveyer) getOrCreateChannel(name string) chan string {
 	if c.channels == nil {
-		c.channels = make(map[string]chan string, c.size)
+		c.channels = make(map[string]chan string)
 	}
 	ch, exists := c.channels[name]
 	if !exists {
-		ch = make(chan string)
+		ch = make(chan string, c.size)
 		c.channels[name] = ch
 	}
 	return ch
