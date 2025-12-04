@@ -99,8 +99,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	defer cancel()
 
 	errCh := make(chan error, len(c.workers))
-	done := make(chan struct{})
-	workerDone := make(chan struct{}, len(c.workers))
 
 	var wg sync.WaitGroup
 	wg.Add(len(c.workers))
@@ -113,22 +111,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		}(worker)
 	}
 
-	go func() {
-		for i := 0; i < len(c.workers); i++ {
-			<-workerDone
-		}
-		close(done)
-	}()
-
-	go func() {
-		wg.Wait()
-		close(done)
-	}()
-
-	select {
-	case <-ctx.Done():
-	case <-done:
-	}
+	wg.Wait()
 
 	for _, ch := range c.channels {
 		close(ch)
