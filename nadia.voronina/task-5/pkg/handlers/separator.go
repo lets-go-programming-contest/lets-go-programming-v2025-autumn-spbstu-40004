@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 )
 
 func SeparatorFunc(
@@ -9,6 +10,9 @@ func SeparatorFunc(
 	input chan string,
 	outputs []chan string,
 ) error {
+	if len(outputs) == 0 {
+		return fmt.Errorf("no output channels provided")
+	}
 	i := 0
 	for {
 		select {
@@ -17,9 +21,6 @@ func SeparatorFunc(
 		case val, ok := <-input:
 			if !ok {
 				return nil
-			}
-			if len(outputs) == 0 {
-				continue
 			}
 			out := outputs[i%len(outputs)]
 			out <- val

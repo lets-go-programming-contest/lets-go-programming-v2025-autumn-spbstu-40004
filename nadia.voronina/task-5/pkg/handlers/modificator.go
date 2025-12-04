@@ -19,17 +19,21 @@ func PrefixDecoratorFunc(
 			if !ok {
 				return nil
 			}
-			if s == "" {
-				continue
-			}
+
 			if strings.Contains(s, "no decorator") {
 				return fmt.Errorf("can't be decorated: %s", s)
 			}
+
 			prefix := "decorated: "
-			if strings.HasPrefix(s, prefix) {
-				output <- s
-			} else {
-				output <- prefix + s
+			select {
+			case <-tx.Done():
+				return nil
+			case output <- func() string {
+				if strings.HasPrefix(s, prefix) {
+					return s
+				}
+				return prefix + s
+			}():
 			}
 		}
 	}
