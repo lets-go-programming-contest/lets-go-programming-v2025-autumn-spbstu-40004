@@ -92,10 +92,7 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
-	workers := make([]func(context.Context) error, len(c.workers))
-	copy(workers, c.workers)
-
-	if len(workers) == 0 {
+	if len(c.workers) == 0 {
 		return nil
 	}
 
@@ -105,9 +102,9 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		}
 	}()
 
-	var eg errgroup.Group
+	eg, ctx := errgroup.WithContext(ctx)
 
-	for _, worker := range workers {
+	for _, worker := range c.workers {
 		w := worker
 		eg.Go(func() error {
 			return w(ctx)
@@ -115,7 +112,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	}
 
 	if err := eg.Wait(); err != nil {
-		return err
+		return fmt.Errorf("handler error received: %w", err)
 	}
 
 	return nil
