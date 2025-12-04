@@ -60,7 +60,7 @@ func (c *Conveyer) addHandler(function func(ctx context.Context) error) {
 }
 
 func (c *Conveyer) RegisterDecorator(
-	fn func(
+	function func(
 		ctx context.Context,
 		input chan string,
 		output chan string,
@@ -78,20 +78,20 @@ func (c *Conveyer) RegisterDecorator(
 
 		outputChannel, _ := c.getChannel(output)
 
-		return fn(ctx, inputChannel, outputChannel)
+		return function(ctx, inputChannel, outputChannel)
 	})
 }
 
 func (c *Conveyer) RegisterMultiplexer(
-	fn func(
+	function func(
 		ctx context.Context,
 		inputs []chan string,
 		output chan string,
 	) error,
 	inputs []string, output string,
 ) {
-	for i := 0; i < len(inputs); i++ {
-		c.addChannel(inputs[i])
+	for _, input := range inputs {
+		c.addChannel(input)
 	}
 
 	c.addChannel(output)
@@ -101,20 +101,21 @@ func (c *Conveyer) RegisterMultiplexer(
 		defer c.mutex.RUnlock()
 
 		inputChannels := make([]chan string, len(inputs))
-		for i := 0; i < len(inputs); i++ {
-			currentChannel, _ := c.getChannel(inputs[i])
 
-			inputChannels[i] = currentChannel
+		for index, input := range inputs {
+			currentChannel, _ := c.getChannel(input)
+
+			inputChannels[index] = currentChannel
 		}
 
 		outputChannel, _ := c.getChannel(output)
 
-		return fn(ctx, inputChannels, outputChannel)
+		return function(ctx, inputChannels, outputChannel)
 	})
 }
 
 func (c *Conveyer) RegisterSeparator(
-	fn func(
+	function func(
 		ctx context.Context,
 		input chan string,
 		outputs []chan string,
@@ -123,8 +124,8 @@ func (c *Conveyer) RegisterSeparator(
 ) {
 	c.addChannel(input)
 
-	for i := 0; i < len(outputs); i++ {
-		c.addChannel(outputs[i])
+	for _, output := range outputs {
+		c.addChannel(output)
 	}
 
 	c.addHandler(func(ctx context.Context) error {
@@ -134,12 +135,13 @@ func (c *Conveyer) RegisterSeparator(
 		inputChannel, _ := c.getChannel(input)
 
 		outputChannels := make([]chan string, len(outputs))
-		for i := 0; i < len(outputs); i++ {
-			outputChannel, _ := c.getChannel(outputs[i])
-			outputChannels[i] = outputChannel
+
+		for index, output := range outputs {
+			outputChannel, _ := c.getChannel(output)
+			outputChannels[index] = outputChannel
 		}
 
-		return fn(ctx, inputChannel, outputChannels)
+		return function(ctx, inputChannel, outputChannels)
 	})
 }
 
@@ -150,9 +152,9 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	c.mutex.RLock()
 
-	for i := 0; i < len(c.handlers); i++ {
+	for _, handler := range c.handlers {
 		errGroup.Go(func() error {
-			return c.handlers[i](curCtx)
+			return handler(curCtx)
 		})
 	}
 
@@ -188,7 +190,7 @@ func (c *Conveyer) Recv(output string) (string, error) {
 		return "", err
 	}
 
-	c.mutex.Unlock()
+	c.mutex.RUnlock()
 
 	if data, ok := <-outputChannel; ok {
 		return data, nil
