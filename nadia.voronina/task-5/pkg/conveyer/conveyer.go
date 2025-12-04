@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"fmt"
+	"sync"
 )
 
 type conveyer interface {
@@ -99,25 +100,28 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	errCh := make(chan error, len(c.workers))
 	done := make(chan struct{})
+	workerDone := make(chan struct{}, len(c.workers))
+
+	var wg sync.WaitGroup
+	wg.Add(len(c.workers))
 
 	for _, worker := range c.workers {
 		go func(w func(context.Context) error) {
+			defer wg.Done()
 			err := w(ctx)
-			if err != nil {
-				errCh <- err
-			} else {
-				errCh <- nil
-			}
+			errCh <- err
 		}(worker)
 	}
 
 	go func() {
 		for i := 0; i < len(c.workers); i++ {
-			if err := <-errCh; err != nil {
-				cancel()
-				break
-			}
+			<-workerDone
 		}
+		close(done)
+	}()
+
+	go func() {
+		wg.Wait()
 		close(done)
 	}()
 
