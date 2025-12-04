@@ -11,7 +11,7 @@ import (
 	wifilib "github.com/mdlayher/wifi"
 )
 
-var	errFail = errors.New("fail")
+var errFail = errors.New("fail")
 
 func TestGetAddresses(t *testing.T) {
 	t.Parallel()
