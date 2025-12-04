@@ -36,12 +36,6 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-	defer func() {
-		for _, out := range outputs {
-			close(out)
-		}
-	}()
-
 	if len(outputs) == 0 {
 		return nil
 	}
@@ -59,25 +53,30 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			case outputs[index] <- data:
 				index = (index + 1) % len(outputs)
 			case <-ctx.Done():
-				return ctx.Err()
+				return nil
 			}
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		}
 	}
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	defer close(output)
-
 	if len(inputs) == 0 {
 		return nil
 	}
 
-	errCh := make(chan error, len(inputs))
+	type result struct {
+		done bool
+	}
+	doneCh := make(chan result, len(inputs))
 
 	for i := range inputs {
 		go func(idx int) {
+			defer func() {
+				doneCh <- result{done: true}
+			}()
+
 			for {
 				select {
 				case data, ok := <-inputs[idx]:
@@ -89,26 +88,21 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						select {
 						case output <- data:
 						case <-ctx.Done():
-							errCh <- ctx.Err()
 							return
 						}
 					}
 				case <-ctx.Done():
-					errCh <- ctx.Err()
 					return
 				}
 			}
 		}(i)
 	}
 
-	for range inputs {
+	for i := 0; i < len(inputs); i++ {
 		select {
-		case err := <-errCh:
-			if err != nil {
-				return err
-			}
+		case <-doneCh:
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		}
 	}
 
