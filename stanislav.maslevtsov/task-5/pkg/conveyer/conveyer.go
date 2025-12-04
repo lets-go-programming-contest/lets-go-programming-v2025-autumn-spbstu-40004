@@ -25,6 +25,7 @@ func New(size int) Conveyer {
 		chans:    make(map[string]chan string, 0),
 		chanSize: size,
 		handlers: make([]func(ctx context.Context) error, 0),
+		rwMtx:    sync.RWMutex{},
 	}
 }
 
@@ -135,28 +136,28 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 func (c *Conveyer) Send(input string, data string) error {
 	c.rwMtx.RLock()
-	ch, exists := c.chans[input]
+	ichan, exists := c.chans[input]
 	c.rwMtx.RUnlock()
 
 	if !exists {
 		return ErrChanNotFound
 	}
 
-	ch <- data
+	ichan <- data
 
 	return nil
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
 	c.rwMtx.RLock()
-	ch, exists := c.chans[output]
+	ochan, exists := c.chans[output]
 	c.rwMtx.RUnlock()
 
 	if !exists {
 		return "", ErrChanNotFound
 	}
 
-	data, ok := <-ch
+	data, ok := <-ochan
 	if !ok {
 		return ClosedChan, nil
 	}
