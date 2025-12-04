@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -16,6 +17,7 @@ type Conveyer struct {
 	chans    map[string]chan string
 	chanSize int
 	handlers []func(ctx context.Context) error
+	rwMtx    sync.RWMutex
 }
 
 func New(size int) Conveyer {
@@ -44,6 +46,9 @@ func (c *Conveyer) RegisterDecorator(
 	) error,
 	input, output string,
 ) {
+	c.rwMtx.Lock()
+	defer c.rwMtx.Unlock()
+
 	ichan := c.createChan(input)
 	ochan := c.createChan(output)
 
@@ -61,6 +66,9 @@ func (c *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	c.rwMtx.Lock()
+	defer c.rwMtx.Unlock()
+
 	ichans := make([]chan string, 0)
 	for _, input := range inputs {
 		ichans = append(ichans, c.createChan(input))
@@ -82,6 +90,9 @@ func (c *Conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	c.rwMtx.Lock()
+	defer c.rwMtx.Unlock()
+
 	ichan := c.createChan(input)
 
 	ochans := make([]chan string, 0)
@@ -96,10 +107,15 @@ func (c *Conveyer) RegisterSeparator(
 
 func (c *Conveyer) Run(ctx context.Context) error {
 	defer func() {
+		c.rwMtx.RLock()
+		defer c.rwMtx.RUnlock()
+
 		for _, ch := range c.chans {
 			close(ch)
 		}
 	}()
+
+	c.rwMtx.RLock()
 
 	errGr, ctx := errgroup.WithContext(ctx)
 	for _, fn := range c.handlers {
@@ -107,6 +123,8 @@ func (c *Conveyer) Run(ctx context.Context) error {
 			return fn(ctx)
 		})
 	}
+
+	c.rwMtx.RUnlock()
 
 	if err := errGr.Wait(); err != nil {
 		return fmt.Errorf("handler error received: %w", err)
@@ -116,7 +134,10 @@ func (c *Conveyer) Run(ctx context.Context) error {
 }
 
 func (c *Conveyer) Send(input string, data string) error {
+	c.rwMtx.RLock()
 	ch, exists := c.chans[input]
+	c.rwMtx.RUnlock()
+
 	if !exists {
 		return ErrChanNotFound
 	}
@@ -127,7 +148,10 @@ func (c *Conveyer) Send(input string, data string) error {
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
+	c.rwMtx.RLock()
 	ch, exists := c.chans[output]
+	c.rwMtx.RUnlock()
+
 	if !exists {
 		return "", ErrChanNotFound
 	}
