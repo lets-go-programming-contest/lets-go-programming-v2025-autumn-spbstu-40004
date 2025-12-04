@@ -26,13 +26,13 @@ func New(size int) Conveyer {
 	}
 }
 
-func (c *Conveyer) createChan(name string) chan string {
-	if ch, exists := c.chans[name]; exists {
+func (c *Conveyer) createChan(chName string) chan string {
+	if ch, exists := c.chans[chName]; exists {
 		return ch
 	}
 
 	ch := make(chan string, c.chanSize)
-	c.chans[name] = ch
+	c.chans[chName] = ch
 
 	return ch
 }
@@ -44,8 +44,11 @@ func (c *Conveyer) RegisterDecorator(
 	) error,
 	input, output string,
 ) {
+	ichan := c.createChan(input)
+	ochan := c.createChan(output)
+
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return handler(ctx, c.createChan(input), c.createChan(output))
+		return handler(ctx, ichan, ochan)
 	})
 }
 
@@ -63,8 +66,10 @@ func (c *Conveyer) RegisterMultiplexer(
 		ichans = append(ichans, c.createChan(input))
 	}
 
+	ochan := c.createChan(output)
+
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return handler(ctx, ichans, c.createChan(output))
+		return handler(ctx, ichans, ochan)
 	})
 }
 
@@ -77,13 +82,15 @@ func (c *Conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	ichan := c.createChan(input)
+
 	ochans := make([]chan string, 0)
 	for _, output := range outputs {
 		ochans = append(ochans, c.createChan(output))
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return handler(ctx, c.createChan(input), ochans)
+		return handler(ctx, ichan, ochans)
 	})
 }
 
