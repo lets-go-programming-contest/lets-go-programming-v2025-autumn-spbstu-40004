@@ -2,12 +2,15 @@ package conveyer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"golang.org/x/sync/errgroup"
 )
 
-type conveyer interface {
+var ErrNoChannels = errors.New("chan not found")
+
+type IConveyer interface {
 	RegisterDecorator(
 		fn func(
 			ctx context.Context,
@@ -56,6 +59,7 @@ func (c *Conveyer) RegisterDecorator(
 	worker := func(ctx context.Context) error {
 		return fn(ctx, inCh, outCh)
 	}
+
 	c.workers = append(c.workers, worker)
 }
 
@@ -68,10 +72,12 @@ func (c *Conveyer) RegisterMultiplexer(
 	for i, name := range inputs {
 		inChans[i] = c.getOrCreateChannel(name)
 	}
+
 	outCh := c.getOrCreateChannel(output)
 	worker := func(ctx context.Context) error {
 		return fn(ctx, inChans, outCh)
 	}
+
 	c.workers = append(c.workers, worker)
 }
 
@@ -82,12 +88,15 @@ func (c *Conveyer) RegisterSeparator(
 ) {
 	inCh := c.getOrCreateChannel(input)
 	outChans := make([]chan string, len(outputs))
+
 	for i, name := range outputs {
 		outChans[i] = c.getOrCreateChannel(name)
 	}
+
 	worker := func(ctx context.Context) error {
 		return fn(ctx, inCh, outChans)
 	}
+
 	c.workers = append(c.workers, worker)
 }
 
@@ -121,21 +130,23 @@ func (c *Conveyer) Run(ctx context.Context) error {
 func (c *Conveyer) Send(input string, data string) error {
 	ch, exists := c.channels[input]
 	if !exists {
-		return fmt.Errorf("chan not found")
+		return ErrNoChannels
 	}
 	ch <- data
+
 	return nil
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
 	ch, exists := c.channels[output]
 	if !exists {
-		return "", fmt.Errorf("chan not found")
+		return "", ErrNoChannels
 	}
 	val, ok := <-ch
 	if !ok {
 		return "undefined", nil
 	}
+
 	return val, nil
 }
 
@@ -148,6 +159,7 @@ func (c *Conveyer) getOrCreateChannel(name string) chan string {
 		ch = make(chan string, c.size)
 		c.channels[name] = ch
 	}
+
 	return ch
 }
 

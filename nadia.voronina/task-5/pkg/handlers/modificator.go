@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+type DecoratorError struct {
+	Msg string
+}
+
+func (e *DecoratorError) Error() string {
+	return fmt.Sprintf("can't be decorated: %s", e.Msg)
+}
+
 func PrefixDecoratorFunc(
 	tx context.Context,
 	input chan string,
@@ -21,7 +29,7 @@ func PrefixDecoratorFunc(
 			}
 
 			if strings.Contains(s, "no decorator") {
-				return fmt.Errorf("can't be decorated: %s", s)
+				return &DecoratorError{Msg: s}
 			}
 
 			prefix := "decorated: "

@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
+
+var ErrNoOutputChannels = errors.New("no output channels provided")
 
 func SeparatorFunc(
 	tx context.Context,
