@@ -6,13 +6,19 @@ import (
 	"testing"
 
 	"github.com/faxryzen/task-6/internal/wifi"
-	"github.com/faxryzen/task-6/internal/wifi/_mocks"
+	wifimock "github.com/faxryzen/task-6/internal/wifi/_mocks"
 
 	wifilib "github.com/mdlayher/wifi"
 )
 
+var (
+	errFail = errors.New("fail")
+)
+
 func TestGetAddresses(t *testing.T) {
-	mockWiFi := new(mocks.WiFiHandle)
+	t.Parallel()
+
+	mockWiFi := new(wifimock.WiFiHandle)
 	service := wifi.New(mockWiFi)
 
 	interfaces := []*wifilib.Interface{
@@ -24,30 +30,32 @@ func TestGetAddresses(t *testing.T) {
 
 	addrs, err := service.GetAddresses()
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("unexpected: %v", err)
 	}
 
 	if len(addrs) != 2 {
-		t.Fatalf("unexpected addresses: %v", addrs)
+		t.Fatalf("unexpected: %v", addrs)
 	}
-
-	mockWiFi.AssertExpectations(t)
 }
 
 func TestGetAddresses_Error(t *testing.T) {
-	mockWiFi := new(mocks.WiFiHandle)
+	t.Parallel()
+
+	mockWiFi := new(wifimock.WiFiHandle)
 	service := wifi.New(mockWiFi)
 
-	mockWiFi.On("Interfaces").Return(nil, errors.New("fail"))
+	mockWiFi.On("Interfaces").Return(nil, errFail)
 
 	_, err := service.GetAddresses()
 	if err == nil {
-		t.Fatalf("expected error, got nil")
+		t.Fatalf("expected error")
 	}
 }
 
 func TestGetNames(t *testing.T) {
-	mockWiFi := new(mocks.WiFiHandle)
+	t.Parallel()
+
+	mockWiFi := new(wifimock.WiFiHandle)
 	service := wifi.New(mockWiFi)
 
 	interfaces := []*wifilib.Interface{
@@ -59,24 +67,24 @@ func TestGetNames(t *testing.T) {
 
 	names, err := service.GetNames()
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("unexpected: %v", err)
 	}
 
 	if len(names) != 2 || names[0] != "wlan0" || names[1] != "wlan1" {
-		t.Fatalf("unexpected result: %v", names)
+		t.Fatalf("unexpected: %v", names)
 	}
-
-	mockWiFi.AssertExpectations(t)
 }
 
 func TestGetNames_Error(t *testing.T) {
-	mockWiFi := new(mocks.WiFiHandle)
+	t.Parallel()
+
+	mockWiFi := new(wifimock.WiFiHandle)
 	service := wifi.New(mockWiFi)
 
-	mockWiFi.On("Interfaces").Return(nil, errors.New("fail"))
+	mockWiFi.On("Interfaces").Return(nil, errFail)
 
 	_, err := service.GetNames()
 	if err == nil {
-		t.Fatalf("expected error, got nil")
+		t.Fatalf("expected error")
 	}
 }

@@ -1,12 +1,16 @@
 package db_test
 
 import (
-	//"database/sql"
 	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/faxryzen/task-6/internal/db"
+)
+
+var (
+	errQuery = errors.New("query failed")
+	errRows  = errors.New("rows error")
 )
 
 func TestGetNames(t *testing.T) {
@@ -43,7 +47,7 @@ func TestGetNames_QueryError(t *testing.T) {
 	service := db.New(mockDB)
 
 	mock.ExpectQuery("SELECT name FROM users").
-		WillReturnError(errors.New("query failed"))
+		WillReturnError(errQuery)
 
 	_, err := service.GetNames()
 	if err == nil {
@@ -99,7 +103,7 @@ func TestGetUniqueNames_QueryError(t *testing.T) {
 	service := db.New(mockDB)
 
 	mock.ExpectQuery("SELECT DISTINCT name FROM users").
-		WillReturnError(errors.New("query failed"))
+		WillReturnError(errQuery)
 
 	_, err := service.GetUniqueNames()
 	if err == nil {
@@ -132,7 +136,7 @@ func TestGetNames_RowsError(t *testing.T) {
 	service := db.New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
-		RowError(0, errors.New("rows error")).
+		RowError(0, errRows).
 		AddRow("ignored")
 
 	mock.ExpectQuery("SELECT name FROM users").
@@ -151,7 +155,7 @@ func TestGetUniqueNames_RowsError(t *testing.T) {
 	service := db.New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
-		RowError(0, errors.New("rows error")).
+		RowError(0, errRows).
 		AddRow("ignored")
 
 	mock.ExpectQuery("SELECT DISTINCT name FROM users").
