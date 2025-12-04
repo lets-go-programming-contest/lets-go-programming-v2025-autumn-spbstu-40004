@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"strings"
 )
 
@@ -11,36 +10,37 @@ type DecoratorError struct {
 }
 
 func (e *DecoratorError) Error() string {
-	return fmt.Sprintf("can't be decorated: %s", e.Msg)
+	return "can't be decorated " + e.Msg
 }
 
 func PrefixDecoratorFunc(
-	tx context.Context,
+	cntxt context.Context,
 	input chan string,
 	output chan string,
 ) error {
 	for {
 		select {
-		case <-tx.Done():
+		case <-cntxt.Done():
 			return nil
-		case s, ok := <-input:
+		case incomingStr, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			if strings.Contains(s, "no decorator") {
-				return &DecoratorError{Msg: s}
+			if strings.Contains(incomingStr, "no decorator") {
+				return &DecoratorError{Msg: incomingStr}
 			}
 
 			prefix := "decorated: "
 			select {
-			case <-tx.Done():
+			case <-cntxt.Done():
 				return nil
 			case output <- func() string {
-				if strings.HasPrefix(s, prefix) {
-					return s
+				if strings.HasPrefix(incomingStr, prefix) {
+					return incomingStr
 				}
-				return prefix + s
+
+				return prefix + incomingStr
 			}():
 			}
 		}

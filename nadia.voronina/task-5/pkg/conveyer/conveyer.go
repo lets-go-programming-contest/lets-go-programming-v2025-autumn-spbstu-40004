@@ -50,21 +50,21 @@ type Conveyer struct {
 }
 
 func (c *Conveyer) RegisterDecorator(
-	fn func(ctx context.Context, input chan string, output chan string) error,
+	decoratorFunction func(ctx context.Context, input chan string, output chan string) error,
 	input string,
 	output string,
 ) {
 	inCh := c.getOrCreateChannel(input)
 	outCh := c.getOrCreateChannel(output)
 	worker := func(ctx context.Context) error {
-		return fn(ctx, inCh, outCh)
+		return decoratorFunction(ctx, inCh, outCh)
 	}
 
 	c.workers = append(c.workers, worker)
 }
 
 func (c *Conveyer) RegisterMultiplexer(
-	fn func(ctx context.Context, inputs []chan string, output chan string) error,
+	multiplexerFunction func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -75,14 +75,14 @@ func (c *Conveyer) RegisterMultiplexer(
 
 	outCh := c.getOrCreateChannel(output)
 	worker := func(ctx context.Context) error {
-		return fn(ctx, inChans, outCh)
+		return multiplexerFunction(ctx, inChans, outCh)
 	}
 
 	c.workers = append(c.workers, worker)
 }
 
 func (c *Conveyer) RegisterSeparator(
-	fn func(ctx context.Context, input chan string, outputs []chan string) error,
+	separatorFunction func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -94,7 +94,7 @@ func (c *Conveyer) RegisterSeparator(
 	}
 
 	worker := func(ctx context.Context) error {
-		return fn(ctx, inCh, outChans)
+		return separatorFunction(ctx, inCh, outChans)
 	}
 
 	c.workers = append(c.workers, worker)
@@ -111,16 +111,16 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		}
 	}()
 
-	eg, ctx := errgroup.WithContext(ctx)
+	errorgroup, ctx := errgroup.WithContext(ctx)
 
 	for _, worker := range c.workers {
 		w := worker
-		eg.Go(func() error {
+		errorgroup.Go(func() error {
 			return w(ctx)
 		})
 	}
 
-	if err := eg.Wait(); err != nil {
+	if err := errorgroup.Wait(); err != nil {
 		return fmt.Errorf("handler error received: %w", err)
 	}
 
@@ -142,6 +142,7 @@ func (c *Conveyer) Recv(output string) (string, error) {
 	if !exists {
 		return "", ErrNoChannels
 	}
+
 	val, ok := <-ch
 	if !ok {
 		return "undefined", nil
@@ -154,13 +155,14 @@ func (c *Conveyer) getOrCreateChannel(name string) chan string {
 	if c.channels == nil {
 		c.channels = make(map[string]chan string)
 	}
-	ch, exists := c.channels[name]
+
+	workerChannel, exists := c.channels[name]
 	if !exists {
-		ch = make(chan string, c.size)
-		c.channels[name] = ch
+		workerChannel = make(chan string, c.size)
+		c.channels[name] = workerChannel
 	}
 
-	return ch
+	return workerChannel
 }
 
 func New(size int) Conveyer {

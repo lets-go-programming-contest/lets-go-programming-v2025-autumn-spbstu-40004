@@ -3,31 +3,30 @@ package handlers
 import (
 	"context"
 	"errors"
-	"fmt"
 )
 
 var ErrNoOutputChannels = errors.New("no output channels provided")
 
 func SeparatorFunc(
-	tx context.Context,
+	cntxt context.Context,
 	input chan string,
 	outputs []chan string,
 ) error {
 	if len(outputs) == 0 {
-		return fmt.Errorf("no output channels provided")
+		return ErrNoOutputChannels
 	}
-	i := 0
+	currentOutput := 0
 	for {
 		select {
-		case <-tx.Done():
+		case <-cntxt.Done():
 			return nil
 		case val, ok := <-input:
 			if !ok {
 				return nil
 			}
-			out := outputs[i%len(outputs)]
+			out := outputs[currentOutput%len(outputs)]
 			out <- val
-			i++
+			currentOutput++
 		}
 	}
 }
