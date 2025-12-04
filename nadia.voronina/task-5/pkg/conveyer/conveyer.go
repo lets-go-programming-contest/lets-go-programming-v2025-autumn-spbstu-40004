@@ -169,8 +169,6 @@ func (c *Conveyer) Recv(output string) (string, error) {
 }
 
 func (c *Conveyer) getOrCreateChannel(name string) chan string {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	if c.channels == nil {
 		c.channels = make(map[string]chan string, c.size)
 	}
