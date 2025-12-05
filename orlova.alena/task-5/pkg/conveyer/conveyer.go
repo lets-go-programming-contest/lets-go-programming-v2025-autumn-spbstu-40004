@@ -100,7 +100,6 @@ func (conv *ConveyerImpl) RegisterSeparator(
 }
 
 func (conv *ConveyerImpl) Run(ctx context.Context) error {
-	errCh := make(chan error, 1)
 
 	for _, dec := range conv.decorators {
 		conv.createChannel(dec.input)
@@ -121,17 +120,6 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 		for _, out := range sep.outputs {
 			conv.createChannel(out)
 		}
-	}
-
-	for _, dec := range conv.decorators {
-		go func(spec decoratorSpec) {
-			inCh, _ := conv.getChannel(spec.input)
-			outCh, _ := conv.getChannel(spec.output)
-
-			if err := spec.fn(ctx, inCh, outCh); err != nil {
-				errCh <- fmt.Errorf("decorator handler error")
-			}
-		}(dec)
 	}
 
 	group, groupCtx := errgroup.WithContext(ctx)
