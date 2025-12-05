@@ -68,6 +68,9 @@ func (conv *ConveyerImpl) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	conv.createChannel(input)
+	conv.createChannel(output)
+
 	conv.decorators = append(conv.decorators, decoratorSpec{
 		fn:     fn,
 		input:  input,
@@ -80,6 +83,12 @@ func (conv *ConveyerImpl) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	for _, inp := range inputs {
+		conv.createChannel(inp)
+	}
+
+	conv.createChannel(output)
+
 	conv.multiplexers = append(conv.multiplexers, multiplexerSpec{
 		fn:     fn,
 		inputs: inputs,
@@ -92,6 +101,11 @@ func (conv *ConveyerImpl) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	conv.createChannel(input)
+
+	for _, out := range outputs {
+		conv.createChannel(out)
+	}
 	conv.separators = append(conv.separators, separatorSpec{
 		fn:      fn,
 		input:   input,
@@ -100,28 +114,6 @@ func (conv *ConveyerImpl) RegisterSeparator(
 }
 
 func (conv *ConveyerImpl) Run(ctx context.Context) error {
-
-	for _, dec := range conv.decorators {
-		conv.createChannel(dec.input)
-		conv.createChannel(dec.output)
-	}
-
-	for _, mul := range conv.multiplexers {
-		for _, in := range mul.inputs {
-			conv.createChannel(in)
-		}
-
-		conv.createChannel(mul.output)
-	}
-
-	for _, sep := range conv.separators {
-		conv.createChannel(sep.input)
-
-		for _, out := range sep.outputs {
-			conv.createChannel(out)
-		}
-	}
-
 	group, groupCtx := errgroup.WithContext(ctx)
 
 	for _, decorator := range conv.decorators {
