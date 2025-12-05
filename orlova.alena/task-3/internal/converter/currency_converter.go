@@ -18,9 +18,7 @@ func ConvertToCurrencies(valCurs *models.ValCurs) []models.Currency {
 		}
 
 		currencies = append(currencies, models.Currency{
-			NumCode:  valute.NumCode,
-			CharCode: valute.CharCode,
-			Value:    value,
+			Value: value,
 		})
 	}
 

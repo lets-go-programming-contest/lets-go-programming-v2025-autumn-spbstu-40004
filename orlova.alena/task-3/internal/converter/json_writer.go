@@ -27,7 +27,7 @@ func WriteJSON(currencies []models.Currency, filePath string) error {
 	defer func() {
 		closeErr := file.Close()
 		if closeErr != nil {
-			_ = closeErr
+			panic(err)
 		}
 	}()
 
