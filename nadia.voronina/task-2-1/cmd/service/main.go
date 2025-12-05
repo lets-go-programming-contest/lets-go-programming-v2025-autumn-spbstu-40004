@@ -1,57 +1,76 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
-func processLessEq(maxDegree *int, minDegree *int, degree int) {
-	switch {
-	case (*maxDegree >= degree) && (*minDegree <= degree):
-		*maxDegree = degree
+const (
+	MaxDegreeDefault = 30
+	MinDegreeDefault = 15
+)
 
-		fmt.Println(*minDegree)
-	case (*maxDegree <= degree) && (*minDegree <= degree):
-		fmt.Println(*minDegree)
-	default:
-		*maxDegree = 0
-		*minDegree = 0
+var (
+	ErrInvalidDepartments = errors.New("invalid number of departments")
+	ErrInvalidEmployees   = errors.New("invalid number of employees")
+	ErrInvalidSign        = errors.New("invalid sign")
+	ErrInvalidDegree      = errors.New("invalid degree")
+	ErrWrongSign          = errors.New("wrong sign has been added")
+	ErrOutOfRange         = errors.New("degree out of range")
+)
 
-		fmt.Println(-1)
+type DegreeRange struct {
+	Max int
+	Min int
+}
+
+func NewDegreeRange() *DegreeRange {
+	return &DegreeRange{
+		Max: MaxDegreeDefault,
+		Min: MinDegreeDefault,
 	}
 }
 
-func processGreaterEq(maxDegree *int, minDegree *int, degree int) {
-	switch {
-	case ((*minDegree <= degree) && (*maxDegree >= degree)):
-		*minDegree = degree
-
-		fmt.Println(*minDegree)
-	case ((*minDegree >= degree) && (*maxDegree >= degree)):
-		fmt.Println(*minDegree)
-	default:
-		*maxDegree = 0
-		*minDegree = 0
-
-		fmt.Println(-1)
-	}
-}
-
-func processCondition(maxDegree *int, minDegree *int, degree int, sign string) {
-	if *minDegree == 0 && *maxDegree == 0 {
-		fmt.Println(-1)
-
-		return
+func (dr *DegreeRange) ProcessCondition(degree int, sign string) (int, error) {
+	if dr.Min == 0 && dr.Max == 0 {
+		return -1, ErrOutOfRange
 	}
 
 	switch sign {
 	case "<=":
-		processLessEq(maxDegree, minDegree, degree)
+		return dr.processLessEq(degree)
 	case ">=":
-		processGreaterEq(maxDegree, minDegree, degree)
+		return dr.processGreaterEq(degree)
 	default:
-		fmt.Println("Wrong sign has been added")
+		return -1, ErrWrongSign
+	}
+}
 
-		return
+func (dr *DegreeRange) processLessEq(degree int) (int, error) {
+	switch {
+	case dr.Max >= degree && dr.Min <= degree:
+		dr.Max = degree
+		return dr.Min, nil
+	case dr.Max <= degree && dr.Min <= degree:
+		return dr.Min, nil
+	default:
+		dr.Max = 0
+		dr.Min = 0
+		return -1, ErrOutOfRange
+	}
+}
+
+func (dr *DegreeRange) processGreaterEq(degree int) (int, error) {
+	switch {
+	case dr.Min <= degree && dr.Max >= degree:
+		dr.Min = degree
+		return dr.Min, nil
+	case dr.Min >= degree && dr.Max >= degree:
+		return dr.Min, nil
+	default:
+		dr.Max = 0
+		dr.Min = 0
+		return -1, ErrOutOfRange
 	}
 }
 
@@ -60,42 +79,41 @@ func main() {
 
 	_, errN := fmt.Scanln(&numberOfDepartments)
 	if errN != nil {
-		fmt.Println("Invalid number of departments")
-
+		fmt.Println(ErrInvalidDepartments)
 		return
 	}
 
 	for range numberOfDepartments {
 		_, errK := fmt.Scanln(&numberOfEmployees)
 		if errK != nil {
-			fmt.Println("Invalid number of employees")
-
+			fmt.Println(ErrInvalidEmployees)
 			return
 		}
 
-		maxDegree := 30
-		minDegree := 15
+		dr := NewDegreeRange()
 
 		for range numberOfEmployees {
 			var sign string
-
 			var degree int
 
 			_, err1 := fmt.Scan(&sign)
 			if err1 != nil {
-				fmt.Println("Invalid sign")
-
+				fmt.Println(ErrInvalidSign)
 				return
 			}
 
 			_, err2 := fmt.Scanln(&degree)
 			if err2 != nil {
-				fmt.Println("Invalid degree")
-
+				fmt.Println(ErrInvalidDegree)
 				return
 			}
 
-			processCondition(&maxDegree, &minDegree, degree, sign)
+			min, err := dr.ProcessCondition(degree, sign)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println(min)
 		}
 	}
 }
