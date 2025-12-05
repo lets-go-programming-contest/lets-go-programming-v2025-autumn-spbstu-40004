@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	errInvalidSign = errors.New(msgWrongSign)
+	errInvalidSign = errors.New("wrong sign has been added")
 	errNoSolution  = errors.New("no solution")
 )
 
@@ -58,12 +58,14 @@ func (t *TemperatureRange) processLessEq(degree int) (int, error) {
 	switch {
 	case t.maxDegree >= degree && t.minDegree <= degree:
 		t.maxDegree = degree
+
 		return t.minDegree, nil
 	case t.maxDegree <= degree && t.minDegree <= degree:
 		return t.minDegree, nil
 	default:
 		t.maxDegree = invalidState
 		t.minDegree = invalidState
+
 		return noSolution, errNoSolution
 	}
 }
@@ -72,6 +74,7 @@ func (t *TemperatureRange) processGreaterEq(degree int) (int, error) {
 	switch {
 	case t.minDegree <= degree && t.maxDegree >= degree:
 		t.minDegree = degree
+
 		return t.minDegree, nil
 	case t.minDegree >= degree && t.maxDegree >= degree:
 		return t.minDegree, nil
