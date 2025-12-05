@@ -10,9 +10,7 @@ import (
 
 var ErrNoChannels = errors.New("chan not found")
 
-const errUndefined = "undefined"
-
-type conveyer interface {
+type IConveyer interface {
 	RegisterDecorator(
 		fn func(
 			ctx context.Context,
@@ -25,7 +23,7 @@ type conveyer interface {
 	RegisterMultiplexer(
 		fn func(
 			ctx context.Context,
-			intputs []chan string,
+			inputs []chan string,
 			output chan string,
 		) error,
 		inputs []string,

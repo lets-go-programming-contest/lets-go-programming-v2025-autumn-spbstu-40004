@@ -2,4 +2,4 @@ module github.com/Ksenia-rgb/task-5
 
 go 1.22.7
 
-require golang.org/x/sync v0.11.0 // indirect
+require golang.org/x/sync v0.11.0
