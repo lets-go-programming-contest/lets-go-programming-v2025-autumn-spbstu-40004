@@ -27,10 +27,12 @@ func PrefixDecoratorFunc(cntx context.Context, inChannelP chan string, outChanne
 				continue
 			}
 
+			prefixStr := "decorated: " + wStr
+
 			select {
 			case <-cntx.Done():
 				return nil
-			case outChannelP <- wStr:
+			case outChannelP <- prefixStr:
 			}
 		}
 	}
