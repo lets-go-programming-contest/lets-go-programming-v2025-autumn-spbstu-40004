@@ -108,6 +108,8 @@ func (conv *ConveyerImpl) RegisterSeparator(
 }
 
 func (conv *ConveyerImpl) Run(ctx context.Context) error {
+	errCh := make(chan error, 1)
+
 	for _, d := range conv.decorators {
 		conv.createChannel(d.input)
 		conv.createChannel(d.output)
@@ -131,7 +133,9 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 		go func(spec decoratorSpec) {
 			inCh, _ := conv.getChannel(spec.input)
 			outCh, _ := conv.getChannel(spec.output)
-			spec.fn(ctx, inCh, outCh)
+			if err := spec.fn(ctx, inCh, outCh); err != nil {
+				errCh <- fmt.Errorf("decorator handler error: %v", err)
+			}
 		}(d)
 	}
 
@@ -143,7 +147,9 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 				inputs[i] = ch
 			}
 			outCh, _ := conv.getChannel(spec.output)
-			spec.fn(ctx, inputs, outCh)
+			if err := spec.fn(ctx, inputs, outCh); err != nil {
+				errCh <- fmt.Errorf("multiplexer handler error: %v", err)
+			}
 		}(m)
 	}
 
@@ -155,7 +161,9 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 				ch, _ := conv.getChannel(id)
 				outputs[i] = ch
 			}
-			spec.fn(ctx, inCh, outputs)
+			if err := spec.fn(ctx, inCh, outputs); err != nil {
+				errCh <- fmt.Errorf("separator handler error: %v", err)
+			}
 		}(s)
 	}
 
