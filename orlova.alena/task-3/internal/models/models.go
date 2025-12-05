@@ -1,19 +1,17 @@
 package models
 
-import "encoding/xml"
-
 type ValCurs struct {
-	XMLName xml.Name `xml:"ValCurs"`
-	Date    string   `xml:"Date,attr"`
 	Valutes []Valute `xml:"Valute"`
 }
 
 type Valute struct {
-	XMLName xml.Name `json:"-"         xml:"Valute"`
-	Name    string   `json:"-"         xml:"Name"`
-	Value   string   `json:"value"     xml:"Value"`
+	NumCode  int    `json:"num_code"  xml:"NumCode"`
+	CharCode string `json:"char_code" xml:"CharCode"`
+	Value    string `json:"value" xml:"Value"`
 }
 
 type Currency struct {
-	Value float64 `json:"value"`
+	NumCode  int     `json:"num_code"`
+	CharCode string  `json:"char_code"`
+	Value    float64 `json:"value"`
 }
