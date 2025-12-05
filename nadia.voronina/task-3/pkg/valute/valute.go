@@ -125,7 +125,7 @@ func ParseValuteXML(path string) (ValCurs, error) {
 }
 
 func ConvertValutesToJSONBytes(valutes []Valute) ([]byte, error) {
-	var result []map[string]any
+	result := make([]map[string]any, 0, len(valutes))
 
 	for _, valute := range valutes {
 		value, err := ParseValue(valute.Value)
@@ -142,9 +142,7 @@ func ConvertValutesToJSONBytes(valutes []Valute) ([]byte, error) {
 		numCodeInt := int64(0)
 
 		if valute.NumCode != "" {
-			var err error
 			numCodeInt, err = strconv.ParseInt(valute.NumCode, 10, 64)
-
 			if err != nil {
 				return nil, InvalidNumCodeError{NumCode: valute.NumCode, Valute: valute}
 			}
