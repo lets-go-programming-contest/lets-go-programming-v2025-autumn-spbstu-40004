@@ -2,7 +2,12 @@ package conveyer
 
 import (
 	"context"
+	"errors"
 	"fmt"
+)
+
+var (
+	ErrChan = errors.New("chan not found")
 )
 
 type conveyer interface {
@@ -66,7 +71,7 @@ func (conv *ConveyerImpl) createChannel(id string) {
 func (conv *ConveyerImpl) getChannel(id string) (chan string, error) {
 	ch, exists := conv.channels[id]
 	if !exists {
-		return nil, fmt.Errorf("chan not found")
+		return nil, ErrChan
 	}
 	return ch, nil
 }
