@@ -46,6 +46,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			}
 
 			outputs[iter%len(outputs)] <- data
+
 			iter++
 		}
 	}

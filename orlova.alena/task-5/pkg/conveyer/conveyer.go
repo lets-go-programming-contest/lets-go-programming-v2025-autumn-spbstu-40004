@@ -4,32 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var (
 	ErrChan = errors.New("chan not found")
 )
-
-type conveyer interface {
-	RegisterDecorator(
-		fn func(ctx context.Context, input chan string, output chan string) error,
-		input string,
-		output string,
-	)
-	RegisterMultiplexer(
-		fn func(ctx context.Context, inputs []chan string, output chan string) error,
-		inputs []string,
-		output string,
-	)
-	RegisterSeparator(
-		fn func(ctx context.Context, input chan string, outputs []chan string) error,
-		input string,
-		outputs []string,
-	)
-	Run(ctx context.Context) error
-	Send(input string, data string) error
-	Recv(output string) (string, error)
-}
 
 type ConveyerImpl struct {
 	size         int
@@ -148,48 +129,66 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 			outCh, _ := conv.getChannel(spec.output)
 
 			if err := spec.fn(ctx, inCh, outCh); err != nil {
-				errCh <- fmt.Errorf("decorator handler error: %v", err)
+				errCh <- fmt.Errorf("decorator handler error")
 			}
 		}(dec)
 	}
 
-	for _, mul := range conv.multiplexers {
-		go func(spec multiplexerSpec) {
-			inputs := make([]chan string, len(spec.inputs))
+	group, groupCtx := errgroup.WithContext(ctx)
 
-			for i, id := range spec.inputs {
-				ch, _ := conv.getChannel(id)
-				inputs[i] = ch
-			}
+	for _, decorator := range conv.decorators {
+		dec := decorator
 
-			outCh, _ := conv.getChannel(spec.output)
-			if err := spec.fn(ctx, inputs, outCh); err != nil {
-				errCh <- fmt.Errorf("multiplexer handler error: %v", err)
-			}
-		}(mul)
+		group.Go(func() error {
+			input, _ := conv.getChannel(dec.input)
+			output, _ := conv.getChannel(dec.output)
+
+			return dec.fn(groupCtx, input, output)
+		})
 	}
 
-	for _, sep := range conv.separators {
-		go func(spec separatorSpec) {
-			inCh, _ := conv.getChannel(spec.input)
-			outputs := make([]chan string, len(spec.outputs))
-			for i, id := range spec.outputs {
-				ch, _ := conv.getChannel(id)
-				outputs[i] = ch
+	for _, multiplexer := range conv.multiplexers {
+		mul := multiplexer
+
+		group.Go(func() error {
+			inputs := make([]chan string, len(mul.inputs))
+
+			for i, name := range mul.inputs {
+				inputs[i], _ = conv.getChannel(name)
 			}
-			if err := spec.fn(ctx, inCh, outputs); err != nil {
-				errCh <- fmt.Errorf("separator handler error: %v", err)
-			}
-		}(sep)
+
+			output, _ := conv.getChannel(mul.output)
+
+			return mul.fn(groupCtx, inputs, output)
+		})
 	}
 
-	<-ctx.Done()
+	for _, separator := range conv.separators {
+		sep := separator
+
+		group.Go(func() error {
+			input, _ := conv.getChannel(sep.input)
+			outputs := make([]chan string, len(sep.outputs))
+
+			for i, name := range sep.outputs {
+				outputs[i], _ = conv.getChannel(name)
+			}
+
+			return sep.fn(groupCtx, input, outputs)
+		})
+	}
+
+	err := group.Wait()
 
 	for _, ch := range conv.channels {
 		close(ch)
 	}
 
-	return errors.New(ctx.Err().Error())
+	if err != nil {
+		return fmt.Errorf("conveyer error: %w", err)
+	}
+
+	return nil
 }
 
 func (conv *ConveyerImpl) Send(input string, data string) error {
