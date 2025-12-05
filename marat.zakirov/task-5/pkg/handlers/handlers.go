@@ -36,20 +36,20 @@ func PrefixDecoratorFunc(cntx context.Context, inChannelP chan string, outChanne
 	}
 }
 
-func SeparatorFunc(cntx context.Context, inChannelP chan string, outChannelsP []chan string) {
+func SeparatorFunc(cntx context.Context, inChannelP chan string, outChannelsP []chan string) error {
 	ChannelID := 0
 
 	if len(outChannelsP) == 0 {
-		return
+		return nil
 	}
 
 	for {
 		select {
 		case <-cntx.Done():
-			return
+			return nil
 		case wStr, ok := <-inChannelP:
 			if !ok {
-				return
+				return nil
 			}
 			select {
 			case outChannelsP[ChannelID] <- wStr:
@@ -61,7 +61,7 @@ func SeparatorFunc(cntx context.Context, inChannelP chan string, outChannelsP []
 	}
 }
 
-func MultiplexerFunc(cntx context.Context, inChannelsP []chan string, outChannelP chan string) {
+func MultiplexerFunc(cntx context.Context, inChannelsP []chan string, outChannelP chan string) error {
 	var wGroup sync.WaitGroup
 
 	multiplex := func(inputChan chan string) {
@@ -96,4 +96,6 @@ func MultiplexerFunc(cntx context.Context, inChannelsP []chan string, outChannel
 	}
 
 	wGroup.Wait()
+
+	return nil
 }
