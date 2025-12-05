@@ -34,7 +34,8 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-	i := 0
+	iter := 0
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -44,8 +45,8 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			outputs[i%len(outputs)] <- data
-			i++
+			outputs[iter%len(outputs)] <- data
+			iter++
 		}
 	}
 }
@@ -53,7 +54,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	merged := make(chan string)
 
-	for _, in := range inputs {
+	for _, inp := range inputs {
 		go func(ch chan string) {
 			for {
 				select {
@@ -67,7 +68,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					merged <- data
 				}
 			}
-		}(in)
+		}(inp)
 	}
 
 	for {

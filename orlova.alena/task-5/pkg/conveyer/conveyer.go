@@ -78,6 +78,7 @@ func (conv *ConveyerImpl) getChannel(id string) (chan string, error) {
 	if !exists {
 		return nil, ErrChan
 	}
+
 	return ch, nil
 }
 
@@ -120,50 +121,55 @@ func (conv *ConveyerImpl) RegisterSeparator(
 func (conv *ConveyerImpl) Run(ctx context.Context) error {
 	errCh := make(chan error, 1)
 
-	for _, d := range conv.decorators {
-		conv.createChannel(d.input)
-		conv.createChannel(d.output)
+	for _, dec := range conv.decorators {
+		conv.createChannel(dec.input)
+		conv.createChannel(dec.output)
 	}
 
-	for _, m := range conv.multiplexers {
-		for _, in := range m.inputs {
+	for _, mul := range conv.multiplexers {
+		for _, in := range mul.inputs {
 			conv.createChannel(in)
 		}
-		conv.createChannel(m.output)
+
+		conv.createChannel(mul.output)
 	}
 
-	for _, s := range conv.separators {
-		conv.createChannel(s.input)
-		for _, out := range s.outputs {
+	for _, sep := range conv.separators {
+		conv.createChannel(sep.input)
+
+		for _, out := range sep.outputs {
 			conv.createChannel(out)
 		}
 	}
 
-	for _, d := range conv.decorators {
+	for _, dec := range conv.decorators {
 		go func(spec decoratorSpec) {
 			inCh, _ := conv.getChannel(spec.input)
 			outCh, _ := conv.getChannel(spec.output)
+
 			if err := spec.fn(ctx, inCh, outCh); err != nil {
 				errCh <- fmt.Errorf("decorator handler error: %v", err)
 			}
-		}(d)
+		}(dec)
 	}
 
-	for _, m := range conv.multiplexers {
+	for _, mul := range conv.multiplexers {
 		go func(spec multiplexerSpec) {
 			inputs := make([]chan string, len(spec.inputs))
+
 			for i, id := range spec.inputs {
 				ch, _ := conv.getChannel(id)
 				inputs[i] = ch
 			}
+
 			outCh, _ := conv.getChannel(spec.output)
 			if err := spec.fn(ctx, inputs, outCh); err != nil {
 				errCh <- fmt.Errorf("multiplexer handler error: %v", err)
 			}
-		}(m)
+		}(mul)
 	}
 
-	for _, s := range conv.separators {
+	for _, sep := range conv.separators {
 		go func(spec separatorSpec) {
 			inCh, _ := conv.getChannel(spec.input)
 			outputs := make([]chan string, len(spec.outputs))
@@ -174,7 +180,7 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 			if err := spec.fn(ctx, inCh, outputs); err != nil {
 				errCh <- fmt.Errorf("separator handler error: %v", err)
 			}
-		}(s)
+		}(sep)
 	}
 
 	<-ctx.Done()
@@ -183,26 +189,30 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 		close(ch)
 	}
 
-	return ctx.Err()
+	return errors.New(ctx.Err().Error())
 }
 
-func (c *ConveyerImpl) Send(input string, data string) error {
-	ch, err := c.getChannel(input)
+func (conv *ConveyerImpl) Send(input string, data string) error {
+	ch, err := conv.getChannel(input)
 	if err != nil {
 		return err
 	}
+
 	ch <- data
+
 	return nil
 }
 
-func (c *ConveyerImpl) Recv(output string) (string, error) {
-	ch, err := c.getChannel(output)
+func (conv *ConveyerImpl) Recv(output string) (string, error) {
+	ch, err := conv.getChannel(output)
 	if err != nil {
 		return "", err
 	}
+
 	data, ok := <-ch
 	if !ok {
 		return "undefined", nil
 	}
+
 	return data, nil
 }
