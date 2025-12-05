@@ -5,25 +5,28 @@ import (
 )
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-	counter := 0
+	if len(outputs) == 0 {
+		return nil
+	}
+
+	var index int
 
 	for {
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
 		case data, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			idx := counter % len(outputs)
-
 			select {
-			case outputs[idx] <- data:
-				counter++
+			case outputs[index] <- data:
 			case <-ctx.Done():
-				return ctx.Err()
+				return nil
 			}
+
+			index = (index + 1) % len(outputs)
+		case <-ctx.Done():
+			return nil
 		}
 	}
 }
