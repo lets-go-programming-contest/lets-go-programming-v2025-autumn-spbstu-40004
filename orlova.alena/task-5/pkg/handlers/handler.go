@@ -45,3 +45,41 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		}
 	}
 }
+
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	merged := make(chan string)
+
+	for _, in := range inputs {
+		go func(ch chan string) {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case data, ok := <-ch:
+					if !ok {
+						return
+					}
+
+					merged <- data
+				}
+			}
+		}(in)
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case data, ok := <-merged:
+			if !ok {
+				return nil
+			}
+
+			if strings.Contains(data, "no multiplexer") {
+				continue
+			}
+
+			output <- data
+		}
+	}
+}
