@@ -1,31 +1,52 @@
 package conveyer
 
 import (
-	"fmt"
+	"context"
 )
 
-type Conveyer struct {
-	channels map[string]chan string
-	stop     chan struct{}
+type conveyer interface {
+	RegisterDecorator(
+		fn func(ctx context.Context, input chan string, output chan string) error,
+		input string,
+		output string,
+	)
+	RegisterMultiplexer(
+		fn func(ctx context.Context, inputs []chan string, output chan string) error,
+		inputs []string,
+		output string,
+	)
+	RegisterSeparator(
+		fn func(ctx context.Context, input chan string, outputs []chan string) error,
+		input string,
+		outputs []string,
+	)
+	Run(ctx context.Context) error
+	Send(input string, data string) error
+	Recv(output string) (string, error)
 }
 
-func New(size int) *Conveyer {
-	return &Conveyer{
-		channels: make(map[string]chan string),
-		stop:     make(chan struct{}),
-	}
+type ConveyerImpl struct {
+	channels     map[string]chan string
+	decorators   []decoratorSpec
+	multiplexers []multiplexerSpec
+	separators   []separatorSpec
+	stop         chan struct{}
 }
 
-func (conv *Conveyer) createChannel(id string) {
-	if _, exists := conv.channels[id]; !exists {
-		conv.channels[id] = make(chan string, 10)
-	}
+type decoratorSpec struct {
+	fn     func(ctx context.Context, input chan string, output chan string) error
+	input  string
+	output string
 }
 
-func (conv *Conveyer) getChannel(id string) (chan string, error) {
-	ch, exists := conv.channels[id]
-	if !exists {
-		return nil, fmt.Errorf("chan not found")
-	}
-	return ch, nil
+type separatorSpec struct {
+	fn      func(ctx context.Context, input chan string, outputs []chan string) error
+	input   string
+	outputs []string
+}
+
+type multiplexerSpec struct {
+	fn     func(ctx context.Context, inputs []chan string, output chan string) error
+	inputs []string
+	output string
 }
