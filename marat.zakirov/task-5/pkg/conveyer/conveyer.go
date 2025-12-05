@@ -44,7 +44,7 @@ func (c *Conveyer) closeChannels() {
 }
 
 func (c *Conveyer) RegisterDecorator(
-	fn func(cntx context.Context, inChannelP chan string, outChannelP chan string) error,
+	function func(cntx context.Context, inChannelP chan string, outChannelP chan string) error,
 	inChannelP string,
 	outChannelP string,
 ) {
@@ -52,12 +52,12 @@ func (c *Conveyer) RegisterDecorator(
 	outChannel := c.createChannel(outChannelP)
 
 	c.handlers = append(c.handlers, func(cntx context.Context) error {
-		return fn(cntx, inChannel, outChannel)
+		return function(cntx, inChannel, outChannel)
 	})
 }
 
 func (c *Conveyer) RegisterMultiplexer(
-	fn func(ctx context.Context, inChannelsP []chan string, outChannelP chan string) error,
+	function func(ctx context.Context, inChannelsP []chan string, outChannelP chan string) error,
 	inChannelsP []string,
 	outChannelP string,
 ) {
@@ -69,23 +69,24 @@ func (c *Conveyer) RegisterMultiplexer(
 	outChannel := c.createChannel(outChannelP)
 
 	c.handlers = append(c.handlers, func(cntx context.Context) error {
-		return fn(cntx, inChannels, outChannel)
+		return function(cntx, inChannels, outChannel)
 	})
 }
 
 func (c *Conveyer) RegisterSeparator(
-	fn func(ctx context.Context, inChannelP chan string, outChannelsP []chan string) error,
+	function func(ctx context.Context, inChannelP chan string, outChannelsP []chan string) error,
 	inChannelP string,
 	outChannelsP []string,
 ) {
 	inChannel := c.createChannel(inChannelP)
 	outChannels := make([]chan string, len(outChannelsP))
+
 	for i, name := range outChannelsP {
 		outChannels[i] = c.createChannel(name)
 	}
 
 	c.handlers = append(c.handlers, func(cntx context.Context) error {
-		return fn(cntx, inChannel, outChannels)
+		return function(cntx, inChannel, outChannels)
 	})
 }
 
@@ -130,5 +131,4 @@ func (c *Conveyer) Recv(outChannelP string) (string, error) {
 	}
 
 	return str, nil
-
 }
