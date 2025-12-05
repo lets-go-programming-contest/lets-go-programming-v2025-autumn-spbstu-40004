@@ -107,6 +107,67 @@ func (conv *ConveyerImpl) RegisterSeparator(
 	})
 }
 
+func (conv *ConveyerImpl) Run(ctx context.Context) error {
+	for _, d := range conv.decorators {
+		conv.createChannel(d.input)
+		conv.createChannel(d.output)
+	}
+
+	for _, m := range conv.multiplexers {
+		for _, in := range m.inputs {
+			conv.createChannel(in)
+		}
+		conv.createChannel(m.output)
+	}
+
+	for _, s := range conv.separators {
+		conv.createChannel(s.input)
+		for _, out := range s.outputs {
+			conv.createChannel(out)
+		}
+	}
+
+	for _, d := range conv.decorators {
+		go func(spec decoratorSpec) {
+			inCh, _ := conv.getChannel(spec.input)
+			outCh, _ := conv.getChannel(spec.output)
+			spec.fn(ctx, inCh, outCh)
+		}(d)
+	}
+
+	for _, m := range conv.multiplexers {
+		go func(spec multiplexerSpec) {
+			inputs := make([]chan string, len(spec.inputs))
+			for i, id := range spec.inputs {
+				ch, _ := conv.getChannel(id)
+				inputs[i] = ch
+			}
+			outCh, _ := conv.getChannel(spec.output)
+			spec.fn(ctx, inputs, outCh)
+		}(m)
+	}
+
+	for _, s := range conv.separators {
+		go func(spec separatorSpec) {
+			inCh, _ := conv.getChannel(spec.input)
+			outputs := make([]chan string, len(spec.outputs))
+			for i, id := range spec.outputs {
+				ch, _ := conv.getChannel(id)
+				outputs[i] = ch
+			}
+			spec.fn(ctx, inCh, outputs)
+		}(s)
+	}
+
+	<-ctx.Done()
+
+	for _, ch := range conv.channels {
+		close(ch)
+	}
+
+	return ctx.Err()
+}
+
 func (c *ConveyerImpl) Send(input string, data string) error {
 	ch, err := c.getChannel(input)
 	if err != nil {
