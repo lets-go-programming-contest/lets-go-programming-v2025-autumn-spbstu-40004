@@ -63,6 +63,7 @@ func SeparatorFunc(cntx context.Context, inChannelP chan string, outChannelsP []
 
 func MultiplexerFunc(cntx context.Context, inChannelsP []chan string, outChannelP chan string) {
 	var wGroup sync.WaitGroup
+
 	multiplex := func(inputChan chan string) {
 		defer wGroup.Done()
 
