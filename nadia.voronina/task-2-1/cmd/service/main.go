@@ -81,6 +81,7 @@ func (t *TemperatureRange) processGreaterEq(degree int) (int, error) {
 	default:
 		t.maxDegree = invalidState
 		t.minDegree = invalidState
+
 		return noSolution, errNoSolution
 	}
 }
