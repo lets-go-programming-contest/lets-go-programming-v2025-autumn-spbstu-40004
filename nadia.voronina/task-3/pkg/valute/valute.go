@@ -1,4 +1,4 @@
-package main
+package valute
 
 import (
 	"encoding/json"
@@ -21,19 +21,9 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	ID        string `xml:"ID,attr"`
-	NumCode   string `xml:"NumCode"`
-	CharCode  string `xml:"CharCode"`
-	Nominal   string `xml:"Nominal"`
-	Name      string `xml:"Name"`
-	Value     string `xml:"Value"`
-	VunitRate string `xml:"VunitRate"`
-}
-
-type ValuteJSON struct {
-	NumCode  int64   `json:"num_code"`
-	CharCode string  `json:"char_code"`
-	Value    float64 `json:"value"`
+	NumCode  string `xml:"NumCode"`
+	CharCode string `xml:"CharCode"`
+	Value    string `xml:"Value"`
 }
 
 type InvalidNumCodeError struct {
@@ -134,46 +124,51 @@ func ParseValuteXML(path string) (ValCurs, error) {
 	return valCurs, nil
 }
 
-func ConvertValutesToJSON(valutes []Valute) ([]ValuteJSON, error) {
-	valutesJSON := make([]ValuteJSON, 0, len(valutes))
+func ConvertValutesToJSONBytes(valutes []Valute) ([]byte, error) {
+	var result []map[string]any
 
-	for _, valute := range valutes {
-		value, err := parseValue(valute.Value)
+	for _, v := range valutes {
+		value, err := ParseValue(v.Value)
 		if err != nil {
 			return nil, err
 		}
 
-		fmt.Printf("Parsing %+v\n", valute)
-
-		var numCode int64
-		if valute.NumCode == "" {
-			numCode = 0
-		} else {
-			var err error
-
-			numCode, err = strconv.ParseInt(valute.NumCode, 10, 64)
-			if err != nil {
-				return nil, InvalidNumCodeError{NumCode: valute.NumCode, Valute: valute}
+		if v.NumCode != "" {
+			if _, err := strconv.ParseInt(v.NumCode, 10, 64); err != nil {
+				return nil, InvalidNumCodeError{NumCode: v.NumCode, Valute: v}
 			}
 		}
 
-		valutesJSON = append(valutesJSON, ValuteJSON{
-			NumCode:  numCode,
-			CharCode: valute.CharCode,
-			Value:    value,
-		})
+		numCodeInt := int64(0)
+		if v.NumCode != "" {
+			var err error
+			numCodeInt, err = strconv.ParseInt(v.NumCode, 10, 64)
+			if err != nil {
+				return nil, InvalidNumCodeError{NumCode: v.NumCode, Valute: v}
+			}
+		}
+
+		valuteMap := map[string]any{
+			"num_code":  numCodeInt,
+			"char_code": v.CharCode,
+			"value":     value,
+		}
+
+		result = append(result, valuteMap)
 	}
 
-	return valutesJSON, nil
+	jsonBytes, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return nil, FailedEncodeError{FilePath: ""}
+	}
+
+	return jsonBytes, nil
 }
 
-func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
-	var err error
-
+func SaveJSONBytes(jsonBytes []byte, outputPath string) error {
 	const dirPerm = 0o755
 
-	err = os.MkdirAll(filepath.Dir(outputPath), dirPerm)
-	if err != nil {
+	if err := os.MkdirAll(filepath.Dir(outputPath), dirPerm); err != nil {
 		return FailedCreateDirsError{DirPath: filepath.Dir(outputPath)}
 	}
 
@@ -188,21 +183,16 @@ func SaveToJSON(valutesJSON []ValuteJSON, outputPath string) error {
 		}
 	}()
 
-	encoder := json.NewEncoder(jsonFile)
-
-	encoder.SetIndent("", "  ")
-
-	if err := encoder.Encode(valutesJSON); err != nil {
+	if _, err := jsonFile.Write(jsonBytes); err != nil {
 		return FailedEncodeError{FilePath: outputPath}
 	}
 
 	return nil
 }
 
-func parseValue(toConvert string) (float64, error) {
+func ParseValue(toConvert string) (float64, error) {
 	toConvert = strings.Replace(toConvert, ",", ".", 1)
 
-	// InvalidNumCodeError
 	val, err := strconv.ParseFloat(toConvert, 64)
 	if err != nil {
 		return 0, ConversionError{Value: toConvert, Err: err}
