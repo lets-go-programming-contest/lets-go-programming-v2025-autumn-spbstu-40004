@@ -1,4 +1,4 @@
-module github.com/ZakirovMS/task-2-2
+module github.com/ZakirovMS/task-5
 
 go 1.24.0
 
