@@ -19,15 +19,15 @@ func PrefixDecoratorFunc(cntx context.Context, inChannelP chan string, outChanne
 				return nil
 			}
 
-			if strings.Contains(wStr, "no multiplexer") {
+			if strings.Contains(wStr, "no decorator") {
 				return ErrDecorator
 			}
 
-			if strings.HasPrefix(wStr, "decorated: ") {
-				continue
-			}
+			prefixStr := wStr
 
-			prefixStr := "decorated: " + wStr
+			if !strings.HasPrefix(wStr, "decorated: ") {
+				prefixStr = "decorated: " + wStr
+			}
 
 			select {
 			case <-cntx.Done():
