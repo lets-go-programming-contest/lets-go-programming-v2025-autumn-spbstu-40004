@@ -62,7 +62,7 @@ func (conv *ConveyerImpl) getChannel(id string) (chan string, error) {
 }
 
 func (conv *ConveyerImpl) RegisterDecorator(
-	DecFn func(ctx context.Context, input chan string, output chan string) error,
+	decFn func(ctx context.Context, input chan string, output chan string) error,
 	input string,
 	output string,
 ) {
@@ -70,14 +70,14 @@ func (conv *ConveyerImpl) RegisterDecorator(
 	conv.createChannel(output)
 
 	conv.decorators = append(conv.decorators, decoratorSpec{
-		fn:     DecFn,
+		fn:     decFn,
 		input:  input,
 		output: output,
 	})
 }
 
 func (conv *ConveyerImpl) RegisterMultiplexer(
-	MulFn func(ctx context.Context, inputs []chan string, output chan string) error,
+	mulFn func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -88,14 +88,14 @@ func (conv *ConveyerImpl) RegisterMultiplexer(
 	conv.createChannel(output)
 
 	conv.multiplexers = append(conv.multiplexers, multiplexerSpec{
-		fn:     MulFn,
+		fn:     mulFn,
 		inputs: inputs,
 		output: output,
 	})
 }
 
 func (conv *ConveyerImpl) RegisterSeparator(
-	RegFn func(ctx context.Context, input chan string, outputs []chan string) error,
+	regFn func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -106,7 +106,7 @@ func (conv *ConveyerImpl) RegisterSeparator(
 	}
 
 	conv.separators = append(conv.separators, separatorSpec{
-		fn:      RegFn,
+		fn:      regFn,
 		input:   input,
 		outputs: outputs,
 	})
