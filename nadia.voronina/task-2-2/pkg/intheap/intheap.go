@@ -10,7 +10,6 @@ func (h *IntHeap) Push(x any) {
 	value, err := x.(int)
 	if !err {
 		panic("Invalid type")
-
 	} else {
 		*h = append(*h, value)
 	}
@@ -19,9 +18,11 @@ func (h *IntHeap) Push(x any) {
 func (h *IntHeap) Pop() any {
 	old := *h
 	n := len(old)
+
 	if n == 0 {
 		panic("Pop from empty heap")
 	}
+
 	x := old[n-1]
 	*h = old[0 : n-1]
 
