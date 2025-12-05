@@ -17,14 +17,14 @@ func (h *IntHeap) Push(x any) {
 
 func (h *IntHeap) Pop() any {
 	old := *h
-	n := len(old)
+	count := len(old)
 
-	if n == 0 {
+	if count == 0 {
 		panic("Pop from empty heap")
 	}
 
-	x := old[n-1]
-	*h = old[0 : n-1]
+	x := old[count-1]
+	*h = old[0 : count-1]
 
 	return x
 }
