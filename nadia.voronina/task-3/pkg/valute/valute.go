@@ -127,30 +127,32 @@ func ParseValuteXML(path string) (ValCurs, error) {
 func ConvertValutesToJSONBytes(valutes []Valute) ([]byte, error) {
 	var result []map[string]any
 
-	for _, v := range valutes {
-		value, err := ParseValue(v.Value)
+	for _, valute := range valutes {
+		value, err := ParseValue(valute.Value)
 		if err != nil {
 			return nil, err
 		}
 
-		if v.NumCode != "" {
-			if _, err := strconv.ParseInt(v.NumCode, 10, 64); err != nil {
-				return nil, InvalidNumCodeError{NumCode: v.NumCode, Valute: v}
+		if valute.NumCode != "" {
+			if _, err := strconv.ParseInt(valute.NumCode, 10, 64); err != nil {
+				return nil, InvalidNumCodeError{NumCode: valute.NumCode, Valute: valute}
 			}
 		}
 
 		numCodeInt := int64(0)
-		if v.NumCode != "" {
+
+		if valute.NumCode != "" {
 			var err error
-			numCodeInt, err = strconv.ParseInt(v.NumCode, 10, 64)
+			numCodeInt, err = strconv.ParseInt(valute.NumCode, 10, 64)
+
 			if err != nil {
-				return nil, InvalidNumCodeError{NumCode: v.NumCode, Valute: v}
+				return nil, InvalidNumCodeError{NumCode: valute.NumCode, Valute: valute}
 			}
 		}
 
 		valuteMap := map[string]any{
 			"num_code":  numCodeInt,
-			"char_code": v.CharCode,
+			"char_code": valute.CharCode,
 			"value":     value,
 		}
 
