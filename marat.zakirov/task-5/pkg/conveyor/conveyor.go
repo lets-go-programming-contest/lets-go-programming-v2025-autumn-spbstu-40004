@@ -18,6 +18,43 @@ func New(size int) Сonveyor {
 	}
 }
 
+func (c *Сonveyor) createChan(chName string) chan string {
+	if channel, exists := c.channels[chName]; exists {
+		return channel
+	}
+
+	newChannel := make(chan string, c.size)
+	c.channels[chName] = newChannel
+
+	return newChannel
+}
+
+func (c *Сonveyor) RegisterDecorator(
+	fn func(cntx context.Context, in chan string, out chan string) error,
+	in string,
+	out string) {
+
+}
+
+func (c *Сonveyor) RegisterMultiplexer(
+	fn func(
+		ctx context.Context,
+		inputs []chan string,
+		output chan string,
+	) error,
+	inputs []string,
+	output string,
+)
+func (c *Сonveyor) RegisterSeparator(
+	fn func(
+		ctx context.Context,
+		input chan string,
+		outputs []chan string,
+	) error,
+	input string,
+	outputs []string,
+)
+
 func Run(ctx context.Context) error {
 	return nil
 }
