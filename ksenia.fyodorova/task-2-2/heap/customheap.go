@@ -11,6 +11,7 @@ func (h *DishHeap) Push(x interface{}) {
 	if !ok {
 		panic("invalid type in Push: expected int")
 	}
+
 	*h = append(*h, value)
 }
 
@@ -18,9 +19,11 @@ func (h *DishHeap) Pop() interface{} {
 	if len(*h) == 0 {
 		panic("Pop called on empty heap")
 	}
+
 	old := *h
 	n := len(old)
 	value := old[n-1]
 	*h = old[:n-1]
+
 	return value
 }

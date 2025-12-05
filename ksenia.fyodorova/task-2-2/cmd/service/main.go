@@ -2,14 +2,15 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	customheap "github.com/lolnyok/task-2-2/heap"
 )
 
 var (
-	ErrInvalidInput       = fmt.Errorf("invalid input format")
-	ErrUnexpectedHeapType = fmt.Errorf("unexpected type from heap")
+	ErrInvalidInput       = errors.New("invalid input format")
+	ErrUnexpectedHeapType = errors.New("unexpected type from heap")
 )
 
 func main() {
@@ -17,21 +18,21 @@ func main() {
 
 	_, err := fmt.Scan(&totalDishes)
 	if err != nil {
-		panic(fmt.Errorf("%w: %v", ErrInvalidInput, err))
+		panic(fmt.Errorf("%w: %w", ErrInvalidInput, err))
 	}
 
 	dishRatings := make([]int, totalDishes)
 
-	for i := 0; i < totalDishes; i++ {
+	for i := range totalDishes {
 		_, err := fmt.Scan(&dishRatings[i])
 		if err != nil {
-			panic(fmt.Errorf("%w: %v", ErrInvalidInput, err))
+			panic(fmt.Errorf("%w: %w", ErrInvalidInput, err))
 		}
 	}
 
 	_, err = fmt.Scan(&preferenceRank)
 	if err != nil {
-		panic(fmt.Errorf("%w: %v", ErrInvalidInput, err))
+		panic(fmt.Errorf("%w: %w", ErrInvalidInput, err))
 	}
 
 	dishHeap := &customheap.DishHeap{}
