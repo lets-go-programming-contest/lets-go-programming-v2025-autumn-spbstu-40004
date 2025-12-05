@@ -22,6 +22,7 @@ type ConveyerImpl struct {
 	chanManager *ChanManager
 	size        int
 	handlers    []func(context.Context) error
+	mu          sync.Mutex
 }
 
 func New(size int) *ConveyerImpl {
@@ -32,6 +33,8 @@ func New(size int) *ConveyerImpl {
 }
 
 func (c *ConveyerImpl) RegisterDecorator(fn DecoratorFunc, input string, output string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		inChan := c.chanManager.GetOrCreate(input, c.size)
 		outChan := c.chanManager.GetOrCreate(output, c.size)
@@ -40,6 +43,8 @@ func (c *ConveyerImpl) RegisterDecorator(fn DecoratorFunc, input string, output 
 }
 
 func (c *ConveyerImpl) RegisterMultiplexer(fn MultiplexerFunc, inputs []string, output string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		inChans := make([]chan string, len(inputs))
 		for i, input := range inputs {
@@ -51,6 +56,8 @@ func (c *ConveyerImpl) RegisterMultiplexer(fn MultiplexerFunc, inputs []string, 
 }
 
 func (c *ConveyerImpl) RegisterSeparator(fn SeparatorFunc, input string, outputs []string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		inChan := c.chanManager.GetOrCreate(input, c.size)
 		outChans := make([]chan string, len(outputs))
@@ -68,7 +75,12 @@ func (c *ConveyerImpl) Run(ctx context.Context) error {
 	var wg sync.WaitGroup
 	errCh := make(chan error, len(c.handlers))
 
-	for _, handler := range c.handlers {
+	c.mu.Lock()
+	handlers := make([]func(context.Context) error, len(c.handlers))
+	copy(handlers, c.handlers)
+	c.mu.Unlock()
+
+	for _, handler := range handlers {
 		wg.Add(1)
 		go func(h func(context.Context) error) {
 			defer wg.Done()
@@ -81,17 +93,28 @@ func (c *ConveyerImpl) Run(ctx context.Context) error {
 		}(handler)
 	}
 
-	select {
-	case err := <-errCh:
-		cancel()
+	go func() {
 		wg.Wait()
-		c.chanManager.CloseAll()
-		return err
+		close(errCh)
+	}()
+
+	select {
+	case err, ok := <-errCh:
+		if ok {
+			cancel()
+			wg.Wait()
+			c.chanManager.CloseAll()
+			return err
+		}
 	case <-ctx.Done():
 		wg.Wait()
 		c.chanManager.CloseAll()
 		return ctx.Err()
 	}
+
+	wg.Wait()
+	c.chanManager.CloseAll()
+	return nil
 }
 
 func (c *ConveyerImpl) Send(input string, data string) error {

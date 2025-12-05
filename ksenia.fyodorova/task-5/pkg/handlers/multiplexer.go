@@ -8,7 +8,8 @@ import (
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	const skipPhrase = "no multiplexer"
 
-	merged := make(chan string)
+	done := make(chan struct{})
+	defer close(done)
 
 	for _, input := range inputs {
 		go func(in chan string) {
@@ -20,9 +21,14 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					if !ok {
 						return
 					}
+					if strings.Contains(data, skipPhrase) {
+						continue
+					}
 					select {
-					case merged <- data:
+					case output <- data:
 					case <-ctx.Done():
+						return
+					case <-done:
 						return
 					}
 				}
@@ -30,20 +36,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(input)
 	}
 
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case data := <-merged:
-			if strings.Contains(data, skipPhrase) {
-				continue
-			}
-
-			select {
-			case output <- data:
-			case <-ctx.Done():
-				return ctx.Err()
-			}
-		}
-	}
+	<-ctx.Done()
+	return ctx.Err()
 }
