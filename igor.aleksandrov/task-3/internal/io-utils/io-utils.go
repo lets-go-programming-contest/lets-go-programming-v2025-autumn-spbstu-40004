@@ -6,7 +6,9 @@ import (
 	"strings"
 )
 
-const filePerm = 0600
+const (
+	filePerm = 0o0600
+)
 
 func resolveFolders(filename string) error {
 	stringsSlice := strings.Split(filename, "/")

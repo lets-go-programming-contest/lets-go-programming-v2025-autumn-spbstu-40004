@@ -18,7 +18,6 @@ type Currency struct {
 	NumCode  string `xml:"NumCode"  json:"-"`
 	CharCode string `xml:"CharCode" json:"char_code"`
 	ValueStr string `xml:"Value"    json:"-"`
-
 	NumericalCode int     `xml:"-" json:"num_code"`
 	Value         float64 `xml:"-" json:"value"`
 }
@@ -47,16 +46,20 @@ func ParseXML(filePath string) ([]Currency, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse value '%s' to float: %w", currency.ValueStr, err)
 		}
+
 		currency.Value = value
 
 		numCode := 0
+
 		if currency.NumCode != "" {
 			convertedCode, err := strconv.Atoi(currency.NumCode)
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse num_code '%s' to int: %w", currency.NumCode, err)
 			}
+
 			numCode = convertedCode
 		}
+
 		currency.NumericalCode = numCode
 	}
 
