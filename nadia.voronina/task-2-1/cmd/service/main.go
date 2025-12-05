@@ -6,71 +6,79 @@ import (
 )
 
 const (
-	MaxDegreeDefault = 30
-	MinDegreeDefault = 15
+	defaultMaxDegree = 30
+	defaultMinDegree = 15
+	invalidState     = 0
+	noSolution       = -1
+	signLessEq       = "<="
+	signGreaterEq    = ">="
+)
+
+const (
+	msgInvalidDepartments = "Invalid number of departments"
+	msgInvalidEmployees   = "Invalid number of employees"
+	msgInvalidSign        = "Invalid sign"
+	msgInvalidDegree      = "Invalid degree"
+	msgWrongSign          = "Wrong sign has been added"
 )
 
 var (
-	ErrInvalidDepartments = errors.New("invalid number of departments")
-	ErrInvalidEmployees   = errors.New("invalid number of employees")
-	ErrInvalidSign        = errors.New("invalid sign")
-	ErrInvalidDegree      = errors.New("invalid degree")
-	ErrWrongSign          = errors.New("wrong sign has been added")
-	ErrOutOfRange         = errors.New("degree out of range")
+	errInvalidSign = errors.New(msgWrongSign)
+	errNoSolution  = errors.New("no solution")
 )
 
-type DegreeRange struct {
-	Max int
-	Min int
+type TemperatureRange struct {
+	maxDegree int
+	minDegree int
 }
 
-func NewDegreeRange() *DegreeRange {
-	return &DegreeRange{
-		Max: MaxDegreeDefault,
-		Min: MinDegreeDefault,
+func NewTemperatureRange() *TemperatureRange {
+	return &TemperatureRange{
+		maxDegree: defaultMaxDegree,
+		minDegree: defaultMinDegree,
 	}
 }
 
-func (dr *DegreeRange) ProcessCondition(degree int, sign string) (int, error) {
-	if dr.Min == 0 && dr.Max == 0 {
-		return -1, ErrOutOfRange
+func (t *TemperatureRange) ProcessCondition(degree int, sign string) (int, error) {
+	if t.minDegree == invalidState && t.maxDegree == invalidState {
+		return noSolution, errNoSolution
 	}
 
 	switch sign {
-	case "<=":
-		return dr.processLessEq(degree)
-	case ">=":
-		return dr.processGreaterEq(degree)
+	case signLessEq:
+		return t.processLessEq(degree)
+	case signGreaterEq:
+		return t.processGreaterEq(degree)
 	default:
-		return -1, ErrWrongSign
+		return 0, errInvalidSign
 	}
 }
 
-func (dr *DegreeRange) processLessEq(degree int) (int, error) {
+func (t *TemperatureRange) processLessEq(degree int) (int, error) {
 	switch {
-	case dr.Max >= degree && dr.Min <= degree:
-		dr.Max = degree
-		return dr.Min, nil
-	case dr.Max <= degree && dr.Min <= degree:
-		return dr.Min, nil
+	case t.maxDegree >= degree && t.minDegree <= degree:
+		t.maxDegree = degree
+		return t.minDegree, nil
+	case t.maxDegree <= degree && t.minDegree <= degree:
+		return t.minDegree, nil
 	default:
-		dr.Max = 0
-		dr.Min = 0
-		return -1, ErrOutOfRange
+		t.maxDegree = invalidState
+		t.minDegree = invalidState
+		return noSolution, errNoSolution
 	}
 }
 
-func (dr *DegreeRange) processGreaterEq(degree int) (int, error) {
+func (t *TemperatureRange) processGreaterEq(degree int) (int, error) {
 	switch {
-	case dr.Min <= degree && dr.Max >= degree:
-		dr.Min = degree
-		return dr.Min, nil
-	case dr.Min >= degree && dr.Max >= degree:
-		return dr.Min, nil
+	case t.minDegree <= degree && t.maxDegree >= degree:
+		t.minDegree = degree
+		return t.minDegree, nil
+	case t.minDegree >= degree && t.maxDegree >= degree:
+		return t.minDegree, nil
 	default:
-		dr.Max = 0
-		dr.Min = 0
-		return -1, ErrOutOfRange
+		t.maxDegree = invalidState
+		t.minDegree = invalidState
+		return noSolution, errNoSolution
 	}
 }
 
@@ -79,41 +87,50 @@ func main() {
 
 	_, errN := fmt.Scanln(&numberOfDepartments)
 	if errN != nil {
-		fmt.Println(ErrInvalidDepartments)
+		fmt.Println(msgInvalidDepartments)
+
 		return
 	}
 
 	for range numberOfDepartments {
 		_, errK := fmt.Scanln(&numberOfEmployees)
 		if errK != nil {
-			fmt.Println(ErrInvalidEmployees)
+			fmt.Println(msgInvalidEmployees)
+
 			return
 		}
 
-		dr := NewDegreeRange()
+		tempRange := NewTemperatureRange()
 
 		for range numberOfEmployees {
 			var sign string
+
 			var degree int
 
 			_, err1 := fmt.Scan(&sign)
 			if err1 != nil {
-				fmt.Println(ErrInvalidSign)
+				fmt.Println(msgInvalidSign)
+
 				return
 			}
 
 			_, err2 := fmt.Scanln(&degree)
 			if err2 != nil {
-				fmt.Println(ErrInvalidDegree)
+				fmt.Println(msgInvalidDegree)
+
 				return
 			}
 
-			min, err := dr.ProcessCondition(degree, sign)
+			result, err := tempRange.ProcessCondition(degree, sign)
 			if err != nil {
-				fmt.Println(err)
-				return
+				if errors.Is(err, errInvalidSign) {
+					fmt.Println(msgWrongSign)
+
+					return
+				}
 			}
-			fmt.Println(min)
+
+			fmt.Println(result)
 		}
 	}
 }
