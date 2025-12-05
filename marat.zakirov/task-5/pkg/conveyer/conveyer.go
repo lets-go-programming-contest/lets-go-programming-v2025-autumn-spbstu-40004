@@ -1,4 +1,4 @@
-package conveyor
+package conveyer
 
 import (
 	"context"
@@ -12,21 +12,21 @@ var ErrChannel = errors.New("chan not found")
 
 const ClosedInChannel = "undefined"
 
-type Conveyor struct {
+type Conveyer struct {
 	channels map[string]chan string
 	handlers []func(ctx context.Context) error
 	size     int
 }
 
-func New(size int) Conveyor {
-	return Conveyor{
+func New(size int) Conveyer {
+	return Conveyer{
 		channels: make(map[string]chan string),
 		handlers: make([]func(ctx context.Context) error, 0),
 		size:     size,
 	}
 }
 
-func (c *Conveyor) createChannel(chName string) chan string {
+func (c *Conveyer) createChannel(chName string) chan string {
 	if channel, exists := c.channels[chName]; exists {
 		return channel
 	}
@@ -37,49 +37,50 @@ func (c *Conveyor) createChannel(chName string) chan string {
 	return newChannel
 }
 
-func (c *Conveyor) closeChannels() {
+func (c *Conveyer) closeChannels() {
 	for _, channel := range c.channels {
 		close(channel)
 	}
 }
 
-func (c *Conveyor) RegisterDecorator(
-	fn func(cntx context.Context, in chan string, out chan string) error,
-	in string,
-	out string,
+func (c *Conveyer) RegisterDecorator(
+	fn func(cntx context.Context, inChannelP chan string, outChannelP chan string) error,
+	inChannelP string,
+	outChannelP string,
 ) {
-	inChannel := c.createChannel(in)
-	outChannel := c.createChannel(out)
+	inChannel := c.createChannel(inChannelP)
+	outChannel := c.createChannel(outChannelP)
 
 	c.handlers = append(c.handlers, func(cntx context.Context) error {
 		return fn(cntx, inChannel, outChannel)
 	})
 }
 
-func (c *Conveyor) RegisterMultiplexer(
-	fn func(ctx context.Context, ins []chan string, out chan string) error,
-	ins []string,
-	out string,
+func (c *Conveyer) RegisterMultiplexer(
+	fn func(ctx context.Context, inChannelsP []chan string, outChannelP chan string) error,
+	inChannelsP []string,
+	outChannelP string,
 ) {
-	inChannels := make([]chan string, len(ins))
-	for i, name := range ins {
+	inChannels := make([]chan string, len(inChannelsP))
+	for i, name := range inChannelsP {
 		inChannels[i] = c.createChannel(name)
 	}
-	outChannel := c.createChannel(out)
+
+	outChannel := c.createChannel(outChannelP)
 
 	c.handlers = append(c.handlers, func(cntx context.Context) error {
 		return fn(cntx, inChannels, outChannel)
 	})
 }
 
-func (c *Conveyor) RegisterSeparator(
-	fn func(ctx context.Context, in chan string, outs []chan string) error,
-	in string,
-	outs []string,
+func (c *Conveyer) RegisterSeparator(
+	fn func(ctx context.Context, inChannelP chan string, outChannelsP []chan string) error,
+	inChannelP string,
+	outChannelsP []string,
 ) {
-	inChannel := c.createChannel(in)
-	outChannels := make([]chan string, len(outs))
-	for i, name := range outs {
+	inChannel := c.createChannel(inChannelP)
+	outChannels := make([]chan string, len(outChannelsP))
+	for i, name := range outChannelsP {
 		outChannels[i] = c.createChannel(name)
 	}
 
@@ -88,7 +89,7 @@ func (c *Conveyor) RegisterSeparator(
 	})
 }
 
-func (c *Conveyor) Run(cntx context.Context) error {
+func (c *Conveyer) Run(cntx context.Context) error {
 	defer c.closeChannels()
 
 	errorGroup, cntx := errgroup.WithContext(cntx)
@@ -105,19 +106,19 @@ func (c *Conveyor) Run(cntx context.Context) error {
 	return nil
 }
 
-func (c *Conveyor) Send(in string, data string) error {
-	inChannel, exists := c.channels[in]
+func (c *Conveyer) Send(inChannelP string, stringData string) error {
+	inChannel, exists := c.channels[inChannelP]
 	if !exists {
 		return ErrChannel
 	}
 
-	inChannel <- data
+	inChannel <- stringData
 
 	return nil
 }
 
-func (c *Conveyor) Recv(out string) (string, error) {
-	outChannel, exists := c.channels[out]
+func (c *Conveyer) Recv(outChannelP string) (string, error) {
+	outChannel, exists := c.channels[outChannelP]
 
 	if !exists {
 		return "", ErrChannel

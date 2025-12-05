@@ -9,12 +9,12 @@ import (
 
 var ErrDecorator = errors.New("this string can't be decorated")
 
-func PrefixDecoratorFunc(cntx context.Context, in chan string, out chan string) error {
+func PrefixDecoratorFunc(cntx context.Context, inChannelP chan string, outChannelP chan string) error {
 	for {
 		select {
 		case <-cntx.Done():
 			return nil
-		case wStr, ok := <-in:
+		case wStr, ok := <-inChannelP:
 			if !ok {
 				return nil
 			}
@@ -30,16 +30,16 @@ func PrefixDecoratorFunc(cntx context.Context, in chan string, out chan string) 
 			select {
 			case <-cntx.Done():
 				return nil
-			case out <- wStr:
+			case outChannelP <- wStr:
 			}
 		}
 	}
 }
 
-func SeparatorFunc(cntx context.Context, in chan string, outs []chan string) {
-	id := 0
+func SeparatorFunc(cntx context.Context, inChannelP chan string, outChannelsP []chan string) {
+	ChannelID := 0
 
-	if len(outs) == 0 {
+	if len(outChannelsP) == 0 {
 		return
 	}
 
@@ -47,20 +47,21 @@ func SeparatorFunc(cntx context.Context, in chan string, outs []chan string) {
 		select {
 		case <-cntx.Done():
 			return
-		case wStr, ok := <-in:
+		case wStr, ok := <-inChannelP:
 			if !ok {
 				return
 			}
 			select {
-			case outs[id] <- wStr:
+			case outChannelsP[ChannelID] <- wStr:
 			case <-cntx.Done():
 			}
-			id = (id + 1) % len(outs)
+
+			ChannelID = (ChannelID + 1) % len(outChannelsP)
 		}
 	}
 }
 
-func MultiplexerFunc(cntx context.Context, ins []chan string, out chan string) {
+func MultiplexerFunc(cntx context.Context, inChannelsP []chan string, outChannelP chan string) {
 	var wGroup sync.WaitGroup
 	multiplex := func(in chan string) {
 		defer wGroup.Done()
@@ -78,7 +79,7 @@ func MultiplexerFunc(cntx context.Context, ins []chan string, out chan string) {
 				}
 
 				select {
-				case out <- wStr:
+				case outChannelP <- wStr:
 				case <-cntx.Done():
 					return
 				}
@@ -86,8 +87,9 @@ func MultiplexerFunc(cntx context.Context, ins []chan string, out chan string) {
 		}
 	}
 
-	for _, in := range ins {
+	for _, in := range inChannelsP {
 		wGroup.Add(1)
+
 		go multiplex(in)
 	}
 
