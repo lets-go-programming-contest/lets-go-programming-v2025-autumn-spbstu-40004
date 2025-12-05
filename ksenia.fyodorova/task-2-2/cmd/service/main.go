@@ -3,56 +3,38 @@ package main
 import (
 	"container/heap"
 	"fmt"
-	"log"
+
+	customheap "github.com/lolnyok/task-2-2/heap"
 )
 
-type DishHeap []int
-
-func (heap *DishHeap) Len() int           { return len(*heap) }
-func (heap *DishHeap) Less(i, j int) bool { return (*heap)[i] < (*heap)[j] }
-func (heap *DishHeap) Swap(i, j int)      { (*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i] }
-
-func (heap *DishHeap) Push(dish interface{}) {
-	dishValue, ok := dish.(int)
-	if !ok {
-		log.Fatal("invalid type in Push")
-	}
-
-	*heap = append(*heap, dishValue)
-}
-
-func (heap *DishHeap) Pop() interface{} {
-	oldHeap := *heap
-	lastIndex := len(oldHeap) - 1
-	dish := oldHeap[lastIndex]
-	*heap = oldHeap[:lastIndex]
-
-	return dish
-}
+var (
+	ErrInvalidInput       = fmt.Errorf("invalid input format")
+	ErrUnexpectedHeapType = fmt.Errorf("unexpected type from heap")
+)
 
 func main() {
 	var totalDishes, preferenceRank int
 
 	_, err := fmt.Scan(&totalDishes)
 	if err != nil {
-		log.Fatal(err)
+		panic(fmt.Errorf("%w: %v", ErrInvalidInput, err))
 	}
 
 	dishRatings := make([]int, totalDishes)
 
-	for i := range totalDishes {
+	for i := 0; i < totalDishes; i++ {
 		_, err := fmt.Scan(&dishRatings[i])
 		if err != nil {
-			log.Fatal(err)
+			panic(fmt.Errorf("%w: %v", ErrInvalidInput, err))
 		}
 	}
 
 	_, err = fmt.Scan(&preferenceRank)
 	if err != nil {
-		log.Fatal(err)
+		panic(fmt.Errorf("%w: %v", ErrInvalidInput, err))
 	}
 
-	dishHeap := &DishHeap{}
+	dishHeap := &customheap.DishHeap{}
 	heap.Init(dishHeap)
 
 	for _, rating := range dishRatings {
@@ -66,9 +48,8 @@ func main() {
 	result := heap.Pop(dishHeap)
 
 	kthPreference, ok := result.(int)
-
 	if !ok {
-		log.Fatal("invalid type from heap")
+		panic(ErrUnexpectedHeapType)
 	}
 
 	fmt.Println(kthPreference)
