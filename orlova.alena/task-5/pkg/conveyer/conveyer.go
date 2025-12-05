@@ -8,9 +8,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	ErrChan = errors.New("chan not found")
-)
+var ErrChan = errors.New("chan not found")
 
 type ConveyerImpl struct {
 	size         int
@@ -64,7 +62,7 @@ func (conv *ConveyerImpl) getChannel(id string) (chan string, error) {
 }
 
 func (conv *ConveyerImpl) RegisterDecorator(
-	fn func(ctx context.Context, input chan string, output chan string) error,
+	DecFn func(ctx context.Context, input chan string, output chan string) error,
 	input string,
 	output string,
 ) {
@@ -72,14 +70,14 @@ func (conv *ConveyerImpl) RegisterDecorator(
 	conv.createChannel(output)
 
 	conv.decorators = append(conv.decorators, decoratorSpec{
-		fn:     fn,
+		fn:     DecFn,
 		input:  input,
 		output: output,
 	})
 }
 
 func (conv *ConveyerImpl) RegisterMultiplexer(
-	fn func(ctx context.Context, inputs []chan string, output chan string) error,
+	MulFn func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -90,14 +88,14 @@ func (conv *ConveyerImpl) RegisterMultiplexer(
 	conv.createChannel(output)
 
 	conv.multiplexers = append(conv.multiplexers, multiplexerSpec{
-		fn:     fn,
+		fn:     MulFn,
 		inputs: inputs,
 		output: output,
 	})
 }
 
 func (conv *ConveyerImpl) RegisterSeparator(
-	fn func(ctx context.Context, input chan string, outputs []chan string) error,
+	RegFn func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -106,8 +104,9 @@ func (conv *ConveyerImpl) RegisterSeparator(
 	for _, out := range outputs {
 		conv.createChannel(out)
 	}
+
 	conv.separators = append(conv.separators, separatorSpec{
-		fn:      fn,
+		fn:      RegFn,
 		input:   input,
 		outputs: outputs,
 	})
