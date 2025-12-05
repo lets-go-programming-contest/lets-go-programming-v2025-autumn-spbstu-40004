@@ -2,7 +2,15 @@ package conveyor
 
 import (
 	"context"
+	"errors"
+	"fmt"
+
+	"golang.org/x/sync/errgroup"
 )
+
+var ErrChannel = errors.New("chan not found")
+
+const ClosedInChannel = "undefined"
 
 type Conveyor struct {
 	channels map[string]chan string
@@ -27,6 +35,12 @@ func (c *Conveyor) createChannel(chName string) chan string {
 	c.channels[chName] = newChannel
 
 	return newChannel
+}
+
+func (c *Conveyor) closeChannels() {
+	for _, channel := range c.channels {
+		close(channel)
+	}
 }
 
 func (c *Conveyor) RegisterDecorator(
@@ -74,14 +88,46 @@ func (c *Conveyor) RegisterSeparator(
 	})
 }
 
-func Run(ctx context.Context) error {
+func (c *Conveyor) Run(cntx context.Context) error {
+	defer c.closeChannels()
+
+	errorGroup, cntx := errgroup.WithContext(cntx)
+	for _, fn := range c.handlers {
+		errorGroup.Go(func() error {
+			return fn(cntx)
+		})
+	}
+
+	if err := errorGroup.Wait(); err != nil {
+		return fmt.Errorf("error handler: %w", err)
+	}
+
 	return nil
 }
 
-func Send(input string, data string) error {
+func (c *Conveyor) Send(in string, data string) error {
+	inChannel, exists := c.channels[in]
+	if !exists {
+		return ErrChannel
+	}
+
+	inChannel <- data
+
 	return nil
 }
 
-func Recv(output string) (string, error) {
-	return "nil", nil
+func (c *Conveyor) Recv(out string) (string, error) {
+	outChannel, exists := c.channels[out]
+
+	if !exists {
+		return "", ErrChannel
+	}
+
+	str, ok := <-outChannel
+	if !ok {
+		return ClosedInChannel, nil
+	}
+
+	return str, nil
+
 }
