@@ -32,6 +32,7 @@ type conveyer interface {
 }
 
 type ConveyerImpl struct {
+	size         int
 	channels     map[string]chan string
 	decorators   []decoratorSpec
 	multiplexers []multiplexerSpec
@@ -56,15 +57,19 @@ type multiplexerSpec struct {
 	output string
 }
 
-func New(size int) conveyer {
+func New(size int) *ConveyerImpl {
 	return &ConveyerImpl{
-		channels: make(map[string]chan string),
+		size:         size,
+		channels:     make(map[string]chan string),
+		decorators:   make([]decoratorSpec, 0),
+		multiplexers: make([]multiplexerSpec, 0),
+		separators:   make([]separatorSpec, 0),
 	}
 }
 
 func (conv *ConveyerImpl) createChannel(id string) {
 	if _, exists := conv.channels[id]; !exists {
-		conv.channels[id] = make(chan string, 10)
+		conv.channels[id] = make(chan string, conv.size)
 	}
 }
 
