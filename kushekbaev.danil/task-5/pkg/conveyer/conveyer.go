@@ -81,3 +81,39 @@ func (cnv *Conveyer) RegisterSeparator(
 		return handler(ctx, cnv.channels[input], outputChans)
 	})
 }
+
+func (cnv *Conveyer) Run(ctx context.Context) error {
+	errGroup, egCtx := errgroup.WithContext(ctx)
+	for _, handlerFunc := range cnv.handlers {
+		hf := handlerFunc
+
+		errGroup.Go(func() error {
+			return hf(egCtx)
+		})
+	}
+	if err := errGroup.Wait(); err != nil {
+		return fmt.Errorf("conveyer handlers: %w", err)
+	}
+	return nil
+}
+
+func (cnv *Conveyer) Send(input string, data string) error {
+	ch, ok := cnv.channels[input]
+	if !ok {
+		return ErrChanNotFound
+	}
+	ch <- data
+	return nil
+}
+
+func (cnv *Conveyer) Recv(output string) (string, error) {
+	ch, ok := cnv.channels[output]
+	if !ok {
+		return "", ErrChanNotFound
+	}
+	value, open := <-ch
+	if !open {
+		return undefined, nil
+	}
+	return value, nil
+}
