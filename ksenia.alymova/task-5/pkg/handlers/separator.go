@@ -35,5 +35,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		go doHandle(channel)
 	}
 
+	wGroup.Wait()
+
 	return nil
 }
