@@ -37,3 +37,47 @@ func (cnv *Conveyer) makeChannels(names ...string) {
 		cnv.makeChannel(n)
 	}
 }
+
+func (cnv *Conveyer) RegisterDecorator(
+	handler func(ctx context.Context, input chan string, output chan string) error,
+	input string,
+	out string,
+) {
+	cnv.makeChannels(input)
+	cnv.makeChannels(out)
+	cnv.handlers = append(cnv.handlers, func(ctx context.Context) error {
+		return handler(ctx, cnv.channels[input], cnv.channels[out])
+	})
+}
+
+func (cnv *Conveyer) RegisterMultiplexer(
+	handler func(ctx context.Context, inputs []chan string, output chan string) error,
+	inNames []string,
+	out string,
+) {
+	cnv.makeChannels(inNames...)
+	cnv.makeChannels(out)
+	cnv.handlers = append(cnv.handlers, func(ctx context.Context) error {
+		inputChans := make([]chan string, 0, len(inNames))
+		for _, name := range inNames {
+			inputChans = append(inputChans, cnv.channels[name])
+		}
+		return handler(ctx, inputChans, cnv.channels[out])
+	})
+}
+
+func (cnv *Conveyer) RegisterSeparator(
+	handler func(ctx context.Context, input chan string, outputs []chan string) error,
+	input string,
+	outNames []string,
+) {
+	cnv.makeChannels(input)
+	cnv.makeChannels(outNames...)
+	cnv.handlers = append(cnv.handlers, func(ctx context.Context) error {
+		outputChans := make([]chan string, 0, len(outNames))
+		for _, name := range outNames {
+			outputChans = append(outputChans, cnv.channels[name])
+		}
+		return handler(ctx, cnv.channels[input], outputChans)
+	})
+}
