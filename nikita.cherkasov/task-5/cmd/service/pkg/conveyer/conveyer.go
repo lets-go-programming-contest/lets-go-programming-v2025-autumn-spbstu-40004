@@ -3,7 +3,10 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -108,4 +111,53 @@ func (conveyer *conveyerImpl) RegisterSeparator(
 	conveyer.handlers = append(conveyer.handlers, func(ctx context.Context) error {
 		return separatorFunc(ctx, inputChannel, outputChannels)
 	})
+}
+
+func (conveyer *conveyerImpl) Run(ctx context.Context) error {
+	errorGroup, groupContext := errgroup.WithContext(ctx)
+
+	for _, handlerFunc := range conveyer.handlers {
+		currentHandler := handlerFunc
+
+		errorGroup.Go(func() error {
+			return currentHandler(groupContext)
+		})
+	}
+
+	if err := errorGroup.Wait(); err != nil {
+		return fmt.Errorf("conveyer run: %w", err)
+	}
+
+	return nil
+}
+
+func (conveyer *conveyerImpl) Send(inputName string, data string) error {
+	conveyer.mu.RLock()
+	defer conveyer.mu.RUnlock()
+
+	channel, exists := conveyer.channels[inputName]
+	if !exists {
+		return ErrChanNotFound
+	}
+
+	channel <- data
+
+	return nil
+}
+
+func (conveyer *conveyerImpl) Recv(outputName string) (string, error) {
+	conveyer.mu.RLock()
+	channel, exists := conveyer.channels[outputName]
+	conveyer.mu.RUnlock()
+
+	if !exists {
+		return "", ErrChanNotFound
+	}
+
+	data, isOpen := <-channel
+	if !isOpen {
+		return undefinedData, nil
+	}
+
+	return data, nil
 }
