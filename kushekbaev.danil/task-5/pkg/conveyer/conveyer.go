@@ -10,7 +10,7 @@ import (
 
 const undefined = "undefined"
 
-var ErrChannelNotFound = errors.New("channel not found")
+var ErrChannelNotFound = errors.New("chan not found")
 
 type Conveyer struct {
 	size     int
@@ -102,23 +102,23 @@ func (cnv *Conveyer) Run(ctx context.Context) error {
 }
 
 func (cnv *Conveyer) Send(input string, data string) error {
-	ch, ok := cnv.channels[input]
+	channel, ok := cnv.channels[input]
 	if !ok {
 		return ErrChannelNotFound
 	}
-	ch <- data
+	channel <- data
 
 	return nil
 }
 
 func (cnv *Conveyer) Recv(output string) (string, error) {
-	ch, ok := cnv.channels[output]
+	channel, ok := cnv.channels[output]
 
 	if !ok {
 		return "", ErrChannelNotFound
 	}
 
-	value, open := <-ch
+	value, open := <-channel
 
 	if !open {
 		return undefined, nil
