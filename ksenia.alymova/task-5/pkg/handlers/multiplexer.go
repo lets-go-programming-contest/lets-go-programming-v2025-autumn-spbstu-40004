@@ -6,44 +6,34 @@ import (
 	"sync"
 )
 
-func MultiplexerFunc(
-	cntxt context.Context,
-	inputs []chan string,
-	output chan string,
-) error {
-	var waitGroup sync.WaitGroup
+const unmultiplexered = "no multiplexer"
 
-	totalInputs := len(inputs)
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	var wGroup sync.WaitGroup
+	wGroup.Add(len(inputs))
 
-	waitGroup.Add(totalInputs)
+	doHandle := func(input chan string) {
+		defer wGroup.Done()
 
-	for _, input := range inputs {
-		go func(channel chan string) {
-			defer waitGroup.Done()
-
-			for {
-				select {
-				case <-cntxt.Done():
-					return
-				case msg, ok := <-channel:
-					if !ok {
-						return
-					}
-
-					if strings.Contains(msg, "no multiplexer") {
-						continue
-					}
-					select {
-					case output <- msg:
-					case <-cntxt.Done():
-						return
-					}
-				}
+		select {
+		case <-ctx.Done():
+			return
+		case str, ok := <-input:
+			if !ok {
+				return
 			}
-		}(input)
+
+			if !strings.Contains(str, unmultiplexered) {
+				output <- str
+			}
+		}
 	}
 
-	waitGroup.Wait()
+	for _, channel := range inputs {
+		go doHandle(channel)
+	}
+
+	wGroup.Wait()
 
 	return nil
 }
