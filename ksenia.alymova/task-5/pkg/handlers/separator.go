@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"sync"
 )
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
@@ -10,32 +9,20 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		return ErrNoChannels
 	}
 
-	var wGroup sync.WaitGroup
+	counterOuput := 0
 
-	wGroup.Add(len(outputs))
-
-	doHandle := func(output chan string) {
-		defer wGroup.Done()
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case str, ok := <-input:
-				if !ok {
-					return
-				}
-
-				output <- str
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case str, ok := <-input:
+			if !ok {
+				return nil
 			}
+
+			outputs[counterOuput%len(outputs)] <- str
+
+			counterOuput++
 		}
 	}
-
-	for _, channel := range outputs {
-		go doHandle(channel)
-	}
-
-	wGroup.Wait()
-
-	return nil
 }
