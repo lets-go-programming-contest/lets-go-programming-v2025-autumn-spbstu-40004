@@ -29,7 +29,7 @@ func New(size int) *conveyerImpl {
 	}
 }
 
-func (conveyer *conveyerImpl) getOrCreateChannel(name string) chan string {
+func (conveyer *conveyerImpl) getCreateChannel(name string) chan string {
 	if existingChannel, exists := conveyer.channels[name]; exists {
 		return existingChannel
 	}
@@ -40,9 +40,9 @@ func (conveyer *conveyerImpl) getOrCreateChannel(name string) chan string {
 	return newChannel
 }
 
-func (conveyer *conveyerImpl) getOrCreateChannels(names ...string) {
+func (conveyer *conveyerImpl) getCreateChannels(names ...string) {
 	for _, name := range names {
-		conveyer.getOrCreateChannel(name)
+		conveyer.getCreateChannel(name)
 	}
 }
 
@@ -54,12 +54,58 @@ func (conveyer *conveyerImpl) RegisterDecorator(
 	conveyer.mu.Lock()
 	defer conveyer.mu.Unlock()
 
-	conveyer.getOrCreateChannels(inputName, outputName)
+	conveyer.getCreateChannels(inputName, outputName)
 
 	inputChannel := conveyer.channels[inputName]
 	outputChannel := conveyer.channels[outputName]
 
 	conveyer.handlers = append(conveyer.handlers, func(ctx context.Context) error {
 		return decoratorFunc(ctx, inputChannel, outputChannel)
+	})
+}
+
+func (conveyer *conveyerImpl) RegisterMultiplexer(
+	multiplexerFunc func(ctx context.Context, inputs []chan string, output chan string) error,
+	inputNames []string,
+	outputName string,
+) {
+	conveyer.mu.Lock()
+	defer conveyer.mu.Unlock()
+
+	conveyer.getCreateChannels(inputNames...)
+	conveyer.getCreateChannel(outputName)
+
+	inputChannels := make([]chan string, len(inputNames))
+	for index, name := range inputNames {
+		inputChannels[index] = conveyer.channels[name]
+	}
+
+	outputChannel := conveyer.channels[outputName]
+
+	conveyer.handlers = append(conveyer.handlers, func(ctx context.Context) error {
+		return multiplexerFunc(ctx, inputChannels, outputChannel)
+	})
+}
+
+func (conveyer *conveyerImpl) RegisterSeparator(
+	separatorFunc func(ctx context.Context, input chan string, outputs []chan string) error,
+	inputName string,
+	outputNames []string,
+) {
+	conveyer.mu.Lock()
+	defer conveyer.mu.Unlock()
+
+	conveyer.getCreateChannel(inputName)
+	conveyer.getCreateChannels(outputNames...)
+
+	inputChannel := conveyer.channels[inputName]
+	outputChannels := make([]chan string, len(outputNames))
+
+	for index, name := range outputNames {
+		outputChannels[index] = conveyer.channels[name]
+	}
+
+	conveyer.handlers = append(conveyer.handlers, func(ctx context.Context) error {
+		return separatorFunc(ctx, inputChannel, outputChannels)
 	})
 }
