@@ -62,6 +62,7 @@ func (cnv *Conveyer) RegisterMultiplexer(
 		for _, name := range inNames {
 			inputChans = append(inputChans, cnv.channels[name])
 		}
+
 		return handler(ctx, inputChans, cnv.channels[out])
 	})
 }
@@ -78,6 +79,7 @@ func (cnv *Conveyer) RegisterSeparator(
 		for _, name := range outNames {
 			outputChans = append(outputChans, cnv.channels[name])
 		}
+
 		return handler(ctx, cnv.channels[input], outputChans)
 	})
 }
@@ -91,29 +93,36 @@ func (cnv *Conveyer) Run(ctx context.Context) error {
 			return hf(egCtx)
 		})
 	}
+
 	if err := errGroup.Wait(); err != nil {
 		return fmt.Errorf("conveyer handlers: %w", err)
 	}
+
 	return nil
 }
 
 func (cnv *Conveyer) Send(input string, data string) error {
 	ch, ok := cnv.channels[input]
 	if !ok {
-    return ErrChannelNotFound
+		return ErrChannelNotFound
 	}
 	ch <- data
+
 	return nil
 }
 
 func (cnv *Conveyer) Recv(output string) (string, error) {
 	ch, ok := cnv.channels[output]
+
 	if !ok {
-    return "", ErrChannelNotFound
+		return "", ErrChannelNotFound
 	}
+
 	value, open := <-ch
+
 	if !open {
 		return undefined, nil
 	}
+
 	return value, nil
 }
