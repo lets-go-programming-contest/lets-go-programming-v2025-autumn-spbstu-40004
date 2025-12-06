@@ -2,13 +2,20 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"sync"
 )
 
+var ErrNoChannels = errors.New("chans not passed")
+
 const unmultiplexered = "no multiplexer"
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	if len(inputs) == 0 {
+		return ErrNoChannels
+	}
+
 	var wGroup sync.WaitGroup
 
 	wGroup.Add(len(inputs))

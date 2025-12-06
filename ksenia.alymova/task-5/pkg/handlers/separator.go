@@ -2,36 +2,38 @@ package handlers
 
 import (
 	"context"
-	"errors"
+	"sync"
 )
 
-var ErrNoOutputChannels = errors.New("no output channels provided")
-
-func SeparatorFunc(
-	cntxt context.Context,
-	input chan string,
-	outputs []chan string,
-) error {
+func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	if len(outputs) == 0 {
-		return ErrNoOutputChannels
+		return ErrNoChannels
 	}
 
-	currentOutput := 0
+	var wGroup sync.WaitGroup
 
-	for {
-		select {
-		case <-cntxt.Done():
-			return nil
-		case val, ok := <-input:
-			if !ok {
-				return nil
+	wGroup.Add(len(outputs))
+
+	doHandle := func(output chan string) {
+		defer wGroup.Done()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case str, ok := <-input:
+				if !ok {
+					return
+				}
+
+				output <- str
 			}
-
-			out := outputs[currentOutput%len(outputs)]
-
-			out <- val
-
-			currentOutput++
 		}
 	}
+
+	for _, channel := range outputs {
+		go doHandle(channel)
+	}
+
+	return nil
 }
