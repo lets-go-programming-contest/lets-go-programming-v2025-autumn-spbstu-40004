@@ -24,12 +24,15 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			if !ok {
 				return nil
 			}
+
 			if strings.Contains(line, noDecoratorData) {
 				return ErrNoDecorator
 			}
+
 			if !strings.HasPrefix(line, textForDecoratorString) {
 				line = textForDecoratorString + line
 			}
+
 			select {
 			case <-ctx.Done():
 				return nil
@@ -41,9 +44,11 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	defer close(output)
+
 	if len(inputs) == 0 {
 		return nil
 	}
+
 	for _, inputCh := range inputs {
 		tmpCh := inputCh
 		go func(chLocal chan string) {
@@ -77,8 +82,10 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			close(outCh)
 		}
 	}()
+
 	countOut := len(outputs)
 	index := 0
+
 	for {
 		select {
 		case <-ctx.Done():
