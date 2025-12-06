@@ -151,11 +151,11 @@ func (conveyer *Conveyer) Run(ctx context.Context) error {
 
 	defer conveyer.CloseChannels()
 
-	handlerErrGroup, ctx := errgroup.WithContext(ctx)
+	handlerErrGroup, groupCtx := errgroup.WithContext(ctx)
 
 	for _, handler := range conveyer.handlers {
 		handlerErrGroup.Go(func() error {
-			return handler(ctx)
+			return handler(groupCtx)
 		})
 	}
 

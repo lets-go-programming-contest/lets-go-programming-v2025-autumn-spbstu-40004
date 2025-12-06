@@ -2,47 +2,35 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"strings"
 )
 
-type DecoratorError struct {
-	Msg string
-}
+const undecorated = "no decorator"
+const decoratedPref = "decorated: "
 
-func (e *DecoratorError) Error() string {
-	return "can't be decorated " + e.Msg
-}
+var ErrUndecorated = errors.New("can't be decorated")
 
-func PrefixDecoratorFunc(
-	cntxt context.Context,
-	input chan string,
-	output chan string,
-) error {
+func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	for {
 		select {
-		case <-cntxt.Done():
+		case <-ctx.Done():
 			return nil
-		case incomingStr, ok := <-input:
+		case str, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			if strings.Contains(incomingStr, "no decorator") {
-				return &DecoratorError{Msg: incomingStr}
+			if strings.Contains(str, undecorated) {
+				return ErrUndecorated
 			}
 
-			prefix := "decorated: "
-			select {
-			case <-cntxt.Done():
-				return nil
-			case output <- func() string {
-				if strings.HasPrefix(incomingStr, prefix) {
-					return incomingStr
-				}
-
-				return prefix + incomingStr
-			}():
+			newStr := str
+			if !strings.HasPrefix(str, decoratedPref) {
+				newStr = decoratedPref + str
 			}
+
+			output <- newStr
 		}
 	}
 }
