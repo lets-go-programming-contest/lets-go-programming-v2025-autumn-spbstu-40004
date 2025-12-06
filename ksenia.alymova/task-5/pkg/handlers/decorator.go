@@ -6,8 +6,10 @@ import (
 	"strings"
 )
 
-const undecorated = "no decorator"
-const decoratedPref = "decorated: "
+const (
+	undecorated   = "no decorator"
+	decoratedPref = "decorated: "
+)
 
 var ErrUndecorated = errors.New("can't be decorated")
 
