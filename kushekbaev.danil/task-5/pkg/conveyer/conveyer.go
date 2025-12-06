@@ -86,6 +86,7 @@ func (cnv *Conveyer) RegisterSeparator(
 
 func (cnv *Conveyer) Run(ctx context.Context) error {
 	errGroup, egCtx := errgroup.WithContext(ctx)
+
 	for _, handlerFunc := range cnv.handlers {
 		hf := handlerFunc
 
