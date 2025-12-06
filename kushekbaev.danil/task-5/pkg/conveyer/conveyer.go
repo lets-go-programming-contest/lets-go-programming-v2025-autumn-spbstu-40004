@@ -100,7 +100,7 @@ func (cnv *Conveyer) Run(ctx context.Context) error {
 func (cnv *Conveyer) Send(input string, data string) error {
 	ch, ok := cnv.channels[input]
 	if !ok {
-		return ErrChanNotFound
+    return ErrChannelNotFound
 	}
 	ch <- data
 	return nil
@@ -109,7 +109,7 @@ func (cnv *Conveyer) Send(input string, data string) error {
 func (cnv *Conveyer) Recv(output string) (string, error) {
 	ch, ok := cnv.channels[output]
 	if !ok {
-		return "", ErrChanNotFound
+    return "", ErrChannelNotFound
 	}
 	value, open := <-ch
 	if !open {
