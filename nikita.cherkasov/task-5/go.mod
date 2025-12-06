@@ -1,4 +1,4 @@
-module github.com/cherkasoov/task-5
+module github.com/cherkasoov/nikita/cherkasov/task-5
 
 go 1.22.7
 
