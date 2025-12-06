@@ -28,3 +28,38 @@ func New(size int) *conveyerImpl {
 		mu:       sync.RWMutex{},
 	}
 }
+
+func (conveyer *conveyerImpl) getOrCreateChannel(name string) chan string {
+	if existingChannel, exists := conveyer.channels[name]; exists {
+		return existingChannel
+	}
+
+	newChannel := make(chan string, conveyer.size)
+	conveyer.channels[name] = newChannel
+
+	return newChannel
+}
+
+func (conveyer *conveyerImpl) getOrCreateChannels(names ...string) {
+	for _, name := range names {
+		conveyer.getOrCreateChannel(name)
+	}
+}
+
+func (conveyer *conveyerImpl) RegisterDecorator(
+	decoratorFunc func(ctx context.Context, input chan string, output chan string) error,
+	inputName string,
+	outputName string,
+) {
+	conveyer.mu.Lock()
+	defer conveyer.mu.Unlock()
+
+	conveyer.getOrCreateChannels(inputName, outputName)
+
+	inputChannel := conveyer.channels[inputName]
+	outputChannel := conveyer.channels[outputName]
+
+	conveyer.handlers = append(conveyer.handlers, func(ctx context.Context) error {
+		return decoratorFunc(ctx, inputChannel, outputChannel)
+	})
+}
