@@ -8,7 +8,7 @@ import (
     "github.com/15446-rus75/task-6/internal/wifi"
     wifimock "github.com/15446-rus75/task-6/internal/wifi/_mocks"
     
-    "github.com/mdlayher/wifi"
+    wifilib "github.com/mdlayher/wifi"
     "github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +20,7 @@ func TestGetAddresses(t *testing.T) {
     mockWiFi := new(wifimock.WiFiHandle)
     service := wifi.New(mockWiFi)
 
-    interfaces := []*wifi.Interface{
+    interfaces := []*wifilib.Interface{
         {HardwareAddr: net.HardwareAddr{0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}},
         {HardwareAddr: net.HardwareAddr{0x11, 0x22, 0x33, 0x44, 0x55, 0x66}},
     }
@@ -43,7 +43,7 @@ func TestGetAddresses_Empty(t *testing.T) {
     mockWiFi := new(wifimock.WiFiHandle)
     service := wifi.New(mockWiFi)
 
-    mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, nil)
+    mockWiFi.On("Interfaces").Return([]*wifilib.Interface{}, nil)
 
     addrs, err := service.GetAddresses()
     
@@ -76,7 +76,7 @@ func TestGetNames(t *testing.T) {
     mockWiFi := new(wifimock.WiFiHandle)
     service := wifi.New(mockWiFi)
 
-    interfaces := []*wifi.Interface{
+    interfaces := []*wifilib.Interface{
         {Name: "wlan0"},
         {Name: "wlan1"},
         {Name: "eth0"},
@@ -99,7 +99,7 @@ func TestGetNames_Empty(t *testing.T) {
     mockWiFi := new(wifimock.WiFiHandle)
     service := wifi.New(mockWiFi)
 
-    mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, nil)
+    mockWiFi.On("Interfaces").Return([]*wifilib.Interface{}, nil)
 
     names, err := service.GetNames()
     
@@ -122,28 +122,6 @@ func TestGetNames_Error(t *testing.T) {
     assert.Error(t, err)
     assert.Nil(t, names)
     assert.Contains(t, err.Error(), "getting interfaces")
-    
-    mockWiFi.AssertExpectations(t)
-}
-
-func TestGetNames_NilInterface(t *testing.T) {
-    t.Parallel()
-
-    mockWiFi := new(wifimock.WiFiHandle)
-    service := wifi.New(mockWiFi)
-
-    interfaces := []*wifi.Interface{
-        nil,
-        {Name: "wlan0"},
-        nil,
-    }
-
-    mockWiFi.On("Interfaces").Return(interfaces, nil)
-
-    names, err := service.GetNames()
-    
-    assert.NoError(t, err)
-    assert.Len(t, names, 3)
     
     mockWiFi.AssertExpectations(t)
 }

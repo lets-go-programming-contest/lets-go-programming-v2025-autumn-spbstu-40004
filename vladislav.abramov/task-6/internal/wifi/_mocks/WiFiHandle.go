@@ -1,7 +1,7 @@
 package mocks
 
 import (
-    "github.com/mdlayher/wifi"
+    wifilib "github.com/mdlayher/wifi"
     "github.com/stretchr/testify/mock"
 )
 
@@ -9,12 +9,12 @@ type WiFiHandle struct {
     mock.Mock
 }
 
-func (_m *WiFiHandle) Interfaces() ([]*wifi.Interface, error) {
+func (_m *WiFiHandle) Interfaces() ([]*wifilib.Interface, error) {
     args := _m.Called()
     
-    var interfaces []*wifi.Interface
+    var interfaces []*wifilib.Interface
     if val := args.Get(0); val != nil {
-        interfaces = val.([]*wifi.Interface)
+        interfaces = val.([]*wifilib.Interface)
     }
     
     return interfaces, args.Error(1)
