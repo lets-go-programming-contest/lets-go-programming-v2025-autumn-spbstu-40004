@@ -10,6 +10,7 @@ import (
 
 	wifilib "github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var errFail = errors.New("fail")
@@ -29,7 +30,7 @@ func TestGetAddresses(t *testing.T) {
 
 	addrs, err := service.GetAddresses()
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, addrs, 2)
 	assert.Equal(t, interfaces[0].HardwareAddr, addrs[0])
 	assert.Equal(t, interfaces[1].HardwareAddr, addrs[1])
@@ -47,7 +48,7 @@ func TestGetAddresses_Empty(t *testing.T) {
 
 	addrs, err := service.GetAddresses()
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Empty(t, addrs)
 
 	mockWiFi.AssertExpectations(t)
@@ -63,7 +64,7 @@ func TestGetAddresses_Error(t *testing.T) {
 
 	addrs, err := service.GetAddresses()
 
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Nil(t, addrs)
 	assert.Contains(t, err.Error(), "getting interfaces")
 
@@ -86,7 +87,7 @@ func TestGetNames(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, names, 3)
 	assert.Equal(t, []string{"wlan0", "wlan1", "eth0"}, names)
 
@@ -103,7 +104,7 @@ func TestGetNames_Empty(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Empty(t, names)
 
 	mockWiFi.AssertExpectations(t)
@@ -119,7 +120,7 @@ func TestGetNames_Error(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Nil(t, names)
 	assert.Contains(t, err.Error(), "getting interfaces")
 
