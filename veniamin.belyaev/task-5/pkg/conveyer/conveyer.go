@@ -13,7 +13,7 @@ var errChannelNotFound = errors.New("chan not found")
 
 const undefined = "undefined"
 
-type conveyerInterface interface {
+type ConveyerInterface interface {
 	RegisterDecorator(
 		function func(
 			ctx context.Context,
