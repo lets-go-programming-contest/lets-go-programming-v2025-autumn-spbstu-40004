@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -49,6 +50,7 @@ type Conveyer struct {
 	size     int
 	channels map[string]chan string
 	handlers []func(ctx context.Context) error
+	mutex    sync.RWMutex
 }
 
 func New(size int) Conveyer {
@@ -56,16 +58,23 @@ func New(size int) Conveyer {
 		size:     size,
 		channels: make(map[string]chan string),
 		handlers: []func(ctx context.Context) error{},
+		mutex:    sync.RWMutex{},
 	}
 }
 
 func (conveyer *Conveyer) CloseChannels() {
+	conveyer.mutex.RLock()
+	defer conveyer.mutex.RUnlock()
+
 	for _, channel := range conveyer.channels {
 		close(channel)
 	}
 }
 
 func (conveyer *Conveyer) getOrCreateChannel(name string) chan string {
+	conveyer.mutex.Lock()
+	defer conveyer.mutex.Unlock()
+
 	if conveyer.channels == nil {
 		conveyer.channels = make(map[string]chan string)
 	}
@@ -95,7 +104,9 @@ func (conveyer *Conveyer) RegisterDecorator(
 		return decorator(ctx, inputChan, outputChan)
 	}
 
+	conveyer.mutex.Lock()
 	conveyer.handlers = append(conveyer.handlers, handler)
+	conveyer.mutex.Unlock()
 }
 
 func (conveyer *Conveyer) RegisterMultiplexer(
@@ -118,7 +129,9 @@ func (conveyer *Conveyer) RegisterMultiplexer(
 		return multiplexer(ctx, inputChans, outputChan)
 	}
 
+	conveyer.mutex.Lock()
 	conveyer.handlers = append(conveyer.handlers, handler)
+	conveyer.mutex.Unlock()
 }
 
 func (conveyer *Conveyer) RegisterSeparator(
@@ -141,7 +154,9 @@ func (conveyer *Conveyer) RegisterSeparator(
 		return separator(ctx, inputChan, outputChans)
 	}
 
+	conveyer.mutex.Lock()
 	conveyer.handlers = append(conveyer.handlers, handler)
+	conveyer.mutex.Unlock()
 }
 
 func (conveyer *Conveyer) Run(ctx context.Context) error {
@@ -167,7 +182,10 @@ func (conveyer *Conveyer) Run(ctx context.Context) error {
 }
 
 func (conveyer *Conveyer) Send(input string, data string) error {
+	conveyer.mutex.RLock()
 	channel, exist := conveyer.channels[input]
+	conveyer.mutex.RUnlock()
+
 	if !exist {
 		return ErrNoChannels
 	}
@@ -177,7 +195,10 @@ func (conveyer *Conveyer) Send(input string, data string) error {
 }
 
 func (conveyer *Conveyer) Recv(output string) (string, error) {
+	conveyer.mutex.RLock()
 	channel, exist := conveyer.channels[output]
+	conveyer.mutex.RUnlock()
+
 	if !exist {
 		return "", ErrNoChannels
 	}
