@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"sync"
 )
@@ -19,7 +18,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			}
 
 			if strings.Contains(data, "no decorator") {
-				return fmt.Errorf("%w", ErrNoDecorator)
+				return ErrNoDecorator
 			}
 
 			if !strings.HasPrefix(data, "decorated: ") {
@@ -29,10 +28,10 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			select {
 			case output <- data:
 			case <-ctx.Done():
-				return fmt.Errorf("%w", ctx.Err())
+				return nil
 			}
 		case <-ctx.Done():
-			return fmt.Errorf("%w", ctx.Err())
+			return nil
 		}
 	}
 }
@@ -51,25 +50,15 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			sent := false
-			attempts := 0
-			for !sent && attempts < len(outputs) {
-				select {
-				case outputs[index] <- data:
-					sent = true
-				case <-ctx.Done():
-					return fmt.Errorf("%w", ctx.Err())
-				default:
-					index = (index + 1) % len(outputs)
-					attempts++
-				}
+			select {
+			case outputs[index] <- data:
+			case <-ctx.Done():
+				return nil
 			}
 
-			if sent {
-				index = (index + 1) % len(outputs)
-			}
+			index = (index + 1) % len(outputs)
 		case <-ctx.Done():
-			return fmt.Errorf("%w", ctx.Err())
+			return nil
 		}
 	}
 }
@@ -79,18 +68,17 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	errCh := make(chan error, 1)
-	var waitGroup sync.WaitGroup
+	var wg sync.WaitGroup
 
-	waitGroup.Add(len(inputs))
+	wg.Add(len(inputs))
 
-	for idx := range inputs {
-		go func(inputIdx int) {
-			defer waitGroup.Done()
+	for ind := range inputs {
+		go func(idx int) {
+			defer wg.Done()
 
 			for {
 				select {
-				case data, ok := <-inputs[inputIdx]:
+				case data, ok := <-inputs[idx]:
 					if !ok {
 						return
 					}
@@ -99,30 +87,17 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						select {
 						case output <- data:
 						case <-ctx.Done():
-							select {
-							case errCh <- fmt.Errorf("%w", ctx.Err()):
-							default:
-							}
 							return
 						}
 					}
 				case <-ctx.Done():
-					select {
-					case errCh <- fmt.Errorf("%w", ctx.Err()):
-					default:
-					}
 					return
 				}
 			}
-		}(idx)
+		}(ind)
 	}
 
-	waitGroup.Wait()
+	wg.Wait()
 
-	select {
-	case err := <-errCh:
-		return err
-	default:
-		return nil
-	}
+	return nil
 }
