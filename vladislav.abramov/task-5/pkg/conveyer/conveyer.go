@@ -9,7 +9,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var ErrChanNotFound = errors.New("chan not found")
+var (
+	ErrChanNotFound   = errors.New("chan not found")
+	ErrAlreadyRunning = errors.New("conveyer is already running")
+)
 
 const errUndefined = "undefined"
 
@@ -43,11 +46,13 @@ type separatorConfig struct {
 
 func New(size int) *conveyer {
 	return &conveyer{
-		channels:     make(map[string]chan string),
-		size:         size,
-		decorators:   make([]decoratorConfig, 0),
-		multiplexers: make([]multiplexerConfig, 0),
-		separators:   make([]separatorConfig, 0),
+		mu:            sync.RWMutex{},
+		channels:      make(map[string]chan string),
+		size:          size,
+		decorators:    make([]decoratorConfig, 0),
+		multiplexers:  make([]multiplexerConfig, 0),
+		separators:    make([]separatorConfig, 0),
+		channelsReady: false,
 	}
 }
 
@@ -140,7 +145,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 	c.mu.Lock()
 	if c.channelsReady {
 		c.mu.Unlock()
-		return errors.New("conveyer is already running")
+		return ErrAlreadyRunning
 	}
 	c.channelsReady = true
 	c.mu.Unlock()
@@ -149,6 +154,26 @@ func (c *conveyer) Run(ctx context.Context) error {
 
 	errorGroup, groupCtx := errgroup.WithContext(ctx)
 
+	if err := c.runDecorators(groupCtx, errorGroup); err != nil {
+		return err
+	}
+
+	if err := c.runMultiplexers(groupCtx, errorGroup); err != nil {
+		return err
+	}
+
+	if err := c.runSeparators(groupCtx, errorGroup); err != nil {
+		return err
+	}
+
+	if err := errorGroup.Wait(); err != nil {
+		return fmt.Errorf("conveyer finished with error: %w", err)
+	}
+
+	return nil
+}
+
+func (c *conveyer) runDecorators(ctx context.Context, errorGroup *errgroup.Group) error {
 	c.mu.RLock()
 	decorators := make([]decoratorConfig, len(c.decorators))
 	copy(decorators, c.decorators)
@@ -161,10 +186,14 @@ func (c *conveyer) Run(ctx context.Context) error {
 		currentDecorator := decorator
 
 		errorGroup.Go(func() error {
-			return currentDecorator.fn(groupCtx, inputChannel, outputChannel)
+			return currentDecorator.fn(ctx, inputChannel, outputChannel)
 		})
 	}
 
+	return nil
+}
+
+func (c *conveyer) runMultiplexers(ctx context.Context, errorGroup *errgroup.Group) error {
 	c.mu.RLock()
 	multiplexers := make([]multiplexerConfig, len(c.multiplexers))
 	copy(multiplexers, c.multiplexers)
@@ -182,10 +211,14 @@ func (c *conveyer) Run(ctx context.Context) error {
 		currentMultiplexer := multiplexer
 
 		errorGroup.Go(func() error {
-			return currentMultiplexer.fn(groupCtx, inputChannels, outputChannel)
+			return currentMultiplexer.fn(ctx, inputChannels, outputChannel)
 		})
 	}
 
+	return nil
+}
+
+func (c *conveyer) runSeparators(ctx context.Context, errorGroup *errgroup.Group) error {
 	c.mu.RLock()
 	separators := make([]separatorConfig, len(c.separators))
 	copy(separators, c.separators)
@@ -202,12 +235,8 @@ func (c *conveyer) Run(ctx context.Context) error {
 		currentSeparator := separator
 
 		errorGroup.Go(func() error {
-			return currentSeparator.fn(groupCtx, inputChannel, outputChannels)
+			return currentSeparator.fn(ctx, inputChannel, outputChannels)
 		})
-	}
-
-	if err := errorGroup.Wait(); err != nil {
-		return fmt.Errorf("conveyer finished with error: %w", err)
 	}
 
 	return nil
