@@ -51,13 +51,21 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			for range outputs {
+			sent := false
+			attempts := 0
+			for !sent && attempts < len(outputs) {
 				select {
 				case outputs[index] <- data:
+					sent = true
 				case <-ctx.Done():
 					return fmt.Errorf("%w", ctx.Err())
 				default:
+					index = (index + 1) % len(outputs)
+					attempts++
 				}
+			}
+
+			if sent {
 				index = (index + 1) % len(outputs)
 			}
 		case <-ctx.Done():
@@ -71,7 +79,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	errCh := make(chan error, len(inputs))
+	errCh := make(chan error, 1)
 	var waitGroup sync.WaitGroup
 
 	waitGroup.Add(len(inputs))
@@ -91,12 +99,18 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						select {
 						case output <- data:
 						case <-ctx.Done():
-							errCh <- fmt.Errorf("%w", ctx.Err())
+							select {
+							case errCh <- fmt.Errorf("%w", ctx.Err()):
+							default:
+							}
 							return
 						}
 					}
 				case <-ctx.Done():
-					errCh <- fmt.Errorf("%w", ctx.Err())
+					select {
+					case errCh <- fmt.Errorf("%w", ctx.Err()):
+					default:
+					}
 					return
 				}
 			}

@@ -12,7 +12,6 @@ import (
 var (
 	ErrChanNotFound        = errors.New("chan not found")
 	ErrAlreadyRunning      = errors.New("conveyer is already running")
-	ErrNotRunning          = errors.New("conveyer is not running")
 	ErrChannelFullOrClosed = errors.New("channel is full or closed")
 	ErrNoDataAvailable     = errors.New("no data available")
 )
@@ -20,14 +19,14 @@ var (
 const errUndefined = "undefined"
 
 type conveyer struct {
-	mu            sync.RWMutex
-	channels      map[string]chan string
-	size          int
-	decorators    []decoratorConfig
-	multiplexers  []multiplexerConfig
-	separators    []separatorConfig
-	channelsReady bool
-	runCancel     context.CancelFunc
+	mu           sync.RWMutex
+	channels     map[string]chan string
+	size         int
+	decorators   []decoratorConfig
+	multiplexers []multiplexerConfig
+	separators   []separatorConfig
+	isRunning    bool
+	runCancel    context.CancelFunc
 }
 
 type decoratorConfig struct {
@@ -50,14 +49,14 @@ type separatorConfig struct {
 
 func New(size int) *conveyer {
 	return &conveyer{
-		mu:            sync.RWMutex{},
-		channels:      make(map[string]chan string),
-		size:          size,
-		decorators:    make([]decoratorConfig, 0),
-		multiplexers:  make([]multiplexerConfig, 0),
-		separators:    make([]separatorConfig, 0),
-		channelsReady: false,
-		runCancel:     nil,
+		mu:           sync.RWMutex{},
+		channels:     make(map[string]chan string),
+		size:         size,
+		decorators:   make([]decoratorConfig, 0),
+		multiplexers: make([]multiplexerConfig, 0),
+		separators:   make([]separatorConfig, 0),
+		isRunning:    false,
+		runCancel:    nil,
 	}
 }
 
@@ -161,41 +160,30 @@ func (c *conveyer) RegisterSeparator(
 
 func (c *conveyer) Run(ctx context.Context) error {
 	c.mu.Lock()
-	if c.channelsReady {
+	if c.isRunning {
 		c.mu.Unlock()
 		return ErrAlreadyRunning
 	}
 
 	runCtx, cancel := context.WithCancel(ctx)
 	c.runCancel = cancel
-	c.channelsReady = true
+	c.isRunning = true
 	c.mu.Unlock()
 
 	defer func() {
 		c.closeAllChannels()
 
 		c.mu.Lock()
-		c.channelsReady = false
+		c.isRunning = false
 		c.runCancel = nil
 		c.mu.Unlock()
 	}()
 
 	errorGroup, groupCtx := errgroup.WithContext(runCtx)
 
-	if err := c.runDecorators(groupCtx, errorGroup); err != nil {
-		cancel()
-		return err
-	}
-
-	if err := c.runMultiplexers(groupCtx, errorGroup); err != nil {
-		cancel()
-		return err
-	}
-
-	if err := c.runSeparators(groupCtx, errorGroup); err != nil {
-		cancel()
-		return err
-	}
+	c.runDecorators(groupCtx, errorGroup)
+	c.runMultiplexers(groupCtx, errorGroup)
+	c.runSeparators(groupCtx, errorGroup)
 
 	if err := errorGroup.Wait(); err != nil {
 		return fmt.Errorf("conveyer finished with error: %w", err)
@@ -204,22 +192,15 @@ func (c *conveyer) Run(ctx context.Context) error {
 	return nil
 }
 
-func (c *conveyer) runDecorators(ctx context.Context, errorGroup *errgroup.Group) error {
+func (c *conveyer) runDecorators(ctx context.Context, errorGroup *errgroup.Group) {
 	c.mu.RLock()
 	decorators := make([]decoratorConfig, len(c.decorators))
 	copy(decorators, c.decorators)
 	c.mu.RUnlock()
 
 	for _, decorator := range decorators {
-		inputChannel, err := c.getChannel(decorator.input)
-		if err != nil {
-			return err
-		}
-
-		outputChannel, err := c.getChannel(decorator.output)
-		if err != nil {
-			return err
-		}
+		inputChannel, _ := c.getChannel(decorator.input)
+		outputChannel, _ := c.getChannel(decorator.output)
 
 		currentDecorator := decorator
 
@@ -227,11 +208,9 @@ func (c *conveyer) runDecorators(ctx context.Context, errorGroup *errgroup.Group
 			return currentDecorator.fn(ctx, inputChannel, outputChannel)
 		})
 	}
-
-	return nil
 }
 
-func (c *conveyer) runMultiplexers(ctx context.Context, errorGroup *errgroup.Group) error {
+func (c *conveyer) runMultiplexers(ctx context.Context, errorGroup *errgroup.Group) {
 	c.mu.RLock()
 	multiplexers := make([]multiplexerConfig, len(c.multiplexers))
 	copy(multiplexers, c.multiplexers)
@@ -241,17 +220,10 @@ func (c *conveyer) runMultiplexers(ctx context.Context, errorGroup *errgroup.Gro
 		inputChannels := make([]chan string, len(multiplexer.inputs))
 
 		for index, inputName := range multiplexer.inputs {
-			channel, err := c.getChannel(inputName)
-			if err != nil {
-				return err
-			}
-			inputChannels[index] = channel
+			inputChannels[index], _ = c.getChannel(inputName)
 		}
 
-		outputChannel, err := c.getChannel(multiplexer.output)
-		if err != nil {
-			return err
-		}
+		outputChannel, _ := c.getChannel(multiplexer.output)
 
 		currentMultiplexer := multiplexer
 
@@ -259,30 +231,20 @@ func (c *conveyer) runMultiplexers(ctx context.Context, errorGroup *errgroup.Gro
 			return currentMultiplexer.fn(ctx, inputChannels, outputChannel)
 		})
 	}
-
-	return nil
 }
 
-func (c *conveyer) runSeparators(ctx context.Context, errorGroup *errgroup.Group) error {
+func (c *conveyer) runSeparators(ctx context.Context, errorGroup *errgroup.Group) {
 	c.mu.RLock()
 	separators := make([]separatorConfig, len(c.separators))
 	copy(separators, c.separators)
 	c.mu.RUnlock()
 
 	for _, separator := range separators {
-		inputChannel, err := c.getChannel(separator.input)
-		if err != nil {
-			return err
-		}
-
+		inputChannel, _ := c.getChannel(separator.input)
 		outputChannels := make([]chan string, len(separator.outputs))
 
 		for index, outputName := range separator.outputs {
-			channel, err := c.getChannel(outputName)
-			if err != nil {
-				return err
-			}
-			outputChannels[index] = channel
+			outputChannels[index], _ = c.getChannel(outputName)
 		}
 
 		currentSeparator := separator
@@ -291,21 +253,27 @@ func (c *conveyer) runSeparators(ctx context.Context, errorGroup *errgroup.Group
 			return currentSeparator.fn(ctx, inputChannel, outputChannels)
 		})
 	}
-
-	return nil
 }
 
 func (c *conveyer) closeAllChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	for name, channel := range c.channels {
+	for _, channel := range c.channels {
 		close(channel)
-		delete(c.channels, name)
 	}
+
+	c.channels = make(map[string]chan string)
 }
 
 func (c *conveyer) Send(input string, data string) error {
+	c.mu.RLock()
+	if !c.isRunning {
+		c.mu.RUnlock()
+		return errors.New("conveyer is not running")
+	}
+	c.mu.RUnlock()
+
 	channel, err := c.getChannel(input)
 	if err != nil {
 		return err
@@ -320,6 +288,13 @@ func (c *conveyer) Send(input string, data string) error {
 }
 
 func (c *conveyer) Recv(output string) (string, error) {
+	c.mu.RLock()
+	if !c.isRunning {
+		c.mu.RUnlock()
+		return "", errors.New("conveyer is not running")
+	}
+	c.mu.RUnlock()
+
 	channel, err := c.getChannel(output)
 	if err != nil {
 		return "", err
