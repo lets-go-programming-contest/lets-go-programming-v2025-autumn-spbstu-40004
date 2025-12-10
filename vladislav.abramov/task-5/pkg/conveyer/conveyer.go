@@ -24,6 +24,7 @@ type conveyer struct {
 	multiplexers  []multiplexerConfig
 	separators    []separatorConfig
 	channelsReady bool
+	runCancel     context.CancelFunc
 }
 
 type decoratorConfig struct {
@@ -53,6 +54,7 @@ func New(size int) *conveyer {
 		multiplexers:  make([]multiplexerConfig, 0),
 		separators:    make([]separatorConfig, 0),
 		channelsReady: false,
+		runCancel:     nil,
 	}
 }
 
@@ -147,22 +149,35 @@ func (c *conveyer) Run(ctx context.Context) error {
 		c.mu.Unlock()
 		return ErrAlreadyRunning
 	}
+
+	runCtx, cancel := context.WithCancel(ctx)
+	c.runCancel = cancel
 	c.channelsReady = true
 	c.mu.Unlock()
 
-	defer c.closeAllChannels()
+	defer func() {
+		c.closeAllChannels()
 
-	errorGroup, groupCtx := errgroup.WithContext(ctx)
+		c.mu.Lock()
+		c.channelsReady = false
+		c.runCancel = nil
+		c.mu.Unlock()
+	}()
+
+	errorGroup, groupCtx := errgroup.WithContext(runCtx)
 
 	if err := c.runDecorators(groupCtx, errorGroup); err != nil {
+		cancel()
 		return err
 	}
 
 	if err := c.runMultiplexers(groupCtx, errorGroup); err != nil {
+		cancel()
 		return err
 	}
 
 	if err := c.runSeparators(groupCtx, errorGroup); err != nil {
+		cancel()
 		return err
 	}
 
@@ -180,8 +195,15 @@ func (c *conveyer) runDecorators(ctx context.Context, errorGroup *errgroup.Group
 	c.mu.RUnlock()
 
 	for _, decorator := range decorators {
-		inputChannel, _ := c.getChannel(decorator.input)
-		outputChannel, _ := c.getChannel(decorator.output)
+		inputChannel, err := c.getChannel(decorator.input)
+		if err != nil {
+			return err
+		}
+
+		outputChannel, err := c.getChannel(decorator.output)
+		if err != nil {
+			return err
+		}
 
 		currentDecorator := decorator
 
@@ -203,10 +225,17 @@ func (c *conveyer) runMultiplexers(ctx context.Context, errorGroup *errgroup.Gro
 		inputChannels := make([]chan string, len(multiplexer.inputs))
 
 		for index, inputName := range multiplexer.inputs {
-			inputChannels[index], _ = c.getChannel(inputName)
+			channel, err := c.getChannel(inputName)
+			if err != nil {
+				return err
+			}
+			inputChannels[index] = channel
 		}
 
-		outputChannel, _ := c.getChannel(multiplexer.output)
+		outputChannel, err := c.getChannel(multiplexer.output)
+		if err != nil {
+			return err
+		}
 
 		currentMultiplexer := multiplexer
 
@@ -225,11 +254,19 @@ func (c *conveyer) runSeparators(ctx context.Context, errorGroup *errgroup.Group
 	c.mu.RUnlock()
 
 	for _, separator := range separators {
-		inputChannel, _ := c.getChannel(separator.input)
+		inputChannel, err := c.getChannel(separator.input)
+		if err != nil {
+			return err
+		}
+
 		outputChannels := make([]chan string, len(separator.outputs))
 
 		for index, outputName := range separator.outputs {
-			outputChannels[index], _ = c.getChannel(outputName)
+			channel, err := c.getChannel(outputName)
+			if err != nil {
+				return err
+			}
+			outputChannels[index] = channel
 		}
 
 		currentSeparator := separator
@@ -246,34 +283,57 @@ func (c *conveyer) closeAllChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	for _, channel := range c.channels {
+	for name, channel := range c.channels {
+		select {
+		case <-channel:
+		default:
+		}
 		close(channel)
+		delete(c.channels, name)
 	}
-
-	c.channelsReady = false
 }
 
 func (c *conveyer) Send(input string, data string) error {
+	c.mu.RLock()
+	if !c.channelsReady {
+		c.mu.RUnlock()
+		return errors.New("conveyer is not running")
+	}
+	c.mu.RUnlock()
+
 	channel, err := c.getChannel(input)
 	if err != nil {
 		return err
 	}
 
-	channel <- data
-
-	return nil
+	select {
+	case channel <- data:
+		return nil
+	default:
+		return errors.New("channel is full or closed")
+	}
 }
 
 func (c *conveyer) Recv(output string) (string, error) {
+	c.mu.RLock()
+	if !c.channelsReady {
+		c.mu.RUnlock()
+		return "", errors.New("conveyer is not running")
+	}
+	c.mu.RUnlock()
+
 	channel, err := c.getChannel(output)
 	if err != nil {
 		return "", err
 	}
 
-	data, ok := <-channel
-	if !ok {
-		return errUndefined, nil
+	select {
+	case data, ok := <-channel:
+		if !ok {
+			return errUndefined, nil
+		}
+		return data, nil
+	default:
+		return "", errors.New("no data available")
 	}
-
-	return data, nil
 }
