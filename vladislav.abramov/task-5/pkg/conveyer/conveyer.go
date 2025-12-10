@@ -133,6 +133,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 
 	for _, handler := range c.handlers {
 		h := handler
+
 		errorGroup.Go(func() error {
 			return h(groupCtx)
 		})
