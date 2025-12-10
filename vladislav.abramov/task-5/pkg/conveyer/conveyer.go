@@ -20,24 +20,6 @@ type conveyer struct {
 	handlers []func(ctx context.Context) error
 }
 
-type decoratorConfig struct {
-	fn     func(ctx context.Context, input chan string, output chan string) error
-	input  string
-	output string
-}
-
-type multiplexerConfig struct {
-	fn     func(ctx context.Context, inputs []chan string, output chan string) error
-	inputs []string
-	output string
-}
-
-type separatorConfig struct {
-	fn      func(ctx context.Context, input chan string, outputs []chan string) error
-	input   string
-	outputs []string
-}
-
 func New(size int) *conveyer {
 	return &conveyer{
 		channels: make(map[string]chan string),
