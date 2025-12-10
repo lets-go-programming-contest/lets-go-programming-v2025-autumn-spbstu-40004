@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"sync"
 )
@@ -18,7 +19,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			}
 
 			if strings.Contains(data, "no decorator") {
-				return ErrNoDecorator
+				return fmt.Errorf("%w", ErrNoDecorator)
 			}
 
 			if !strings.HasPrefix(data, "decorated: ") {
@@ -28,10 +29,10 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			select {
 			case output <- data:
 			case <-ctx.Done():
-				return ctx.Err()
+				return fmt.Errorf("%w", ctx.Err())
 			}
 		case <-ctx.Done():
-			return ctx.Err()
+			return fmt.Errorf("%w", ctx.Err())
 		}
 	}
 }
@@ -50,17 +51,17 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			for i := 0; i < len(outputs); i++ {
+			for range outputs {
 				select {
 				case outputs[index] <- data:
 				case <-ctx.Done():
-					return ctx.Err()
+					return fmt.Errorf("%w", ctx.Err())
 				default:
 				}
 				index = (index + 1) % len(outputs)
 			}
 		case <-ctx.Done():
-			return ctx.Err()
+			return fmt.Errorf("%w", ctx.Err())
 		}
 	}
 }
@@ -71,13 +72,13 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	}
 
 	errCh := make(chan error, len(inputs))
-	var wg sync.WaitGroup
+	var waitGroup sync.WaitGroup
 
-	wg.Add(len(inputs))
+	waitGroup.Add(len(inputs))
 
 	for idx := range inputs {
 		go func(inputIdx int) {
-			defer wg.Done()
+			defer waitGroup.Done()
 
 			for {
 				select {
@@ -90,19 +91,19 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						select {
 						case output <- data:
 						case <-ctx.Done():
-							errCh <- ctx.Err()
+							errCh <- fmt.Errorf("%w", ctx.Err())
 							return
 						}
 					}
 				case <-ctx.Done():
-					errCh <- ctx.Err()
+					errCh <- fmt.Errorf("%w", ctx.Err())
 					return
 				}
 			}
 		}(idx)
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
 
 	select {
 	case err := <-errCh:

@@ -10,8 +10,11 @@ import (
 )
 
 var (
-	ErrChanNotFound   = errors.New("chan not found")
-	ErrAlreadyRunning = errors.New("conveyer is already running")
+	ErrChanNotFound        = errors.New("chan not found")
+	ErrAlreadyRunning      = errors.New("conveyer is already running")
+	ErrNotRunning          = errors.New("conveyer is not running")
+	ErrChannelFullOrClosed = errors.New("channel is full or closed")
+	ErrNoDataAvailable     = errors.New("no data available")
 )
 
 const errUndefined = "undefined"
@@ -91,8 +94,13 @@ func (c *conveyer) RegisterDecorator(
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.getOrCreateChannel(input)
-	c.getOrCreateChannel(output)
+	if _, exists := c.channels[input]; !exists {
+		c.channels[input] = make(chan string, c.size)
+	}
+
+	if _, exists := c.channels[output]; !exists {
+		c.channels[output] = make(chan string, c.size)
+	}
 
 	c.decorators = append(c.decorators, decoratorConfig{
 		fn:     decoratorFunc,
@@ -110,10 +118,14 @@ func (c *conveyer) RegisterMultiplexer(
 	defer c.mu.Unlock()
 
 	for _, inputName := range inputs {
-		c.getOrCreateChannel(inputName)
+		if _, exists := c.channels[inputName]; !exists {
+			c.channels[inputName] = make(chan string, c.size)
+		}
 	}
 
-	c.getOrCreateChannel(output)
+	if _, exists := c.channels[output]; !exists {
+		c.channels[output] = make(chan string, c.size)
+	}
 
 	c.multiplexers = append(c.multiplexers, multiplexerConfig{
 		fn:     multiplexerFunc,
@@ -130,10 +142,14 @@ func (c *conveyer) RegisterSeparator(
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.getOrCreateChannel(input)
+	if _, exists := c.channels[input]; !exists {
+		c.channels[input] = make(chan string, c.size)
+	}
 
 	for _, outputName := range outputs {
-		c.getOrCreateChannel(outputName)
+		if _, exists := c.channels[outputName]; !exists {
+			c.channels[outputName] = make(chan string, c.size)
+		}
 	}
 
 	c.separators = append(c.separators, separatorConfig{
@@ -284,23 +300,12 @@ func (c *conveyer) closeAllChannels() {
 	defer c.mu.Unlock()
 
 	for name, channel := range c.channels {
-		select {
-		case <-channel:
-		default:
-		}
 		close(channel)
 		delete(c.channels, name)
 	}
 }
 
 func (c *conveyer) Send(input string, data string) error {
-	c.mu.RLock()
-	if !c.channelsReady {
-		c.mu.RUnlock()
-		return errors.New("conveyer is not running")
-	}
-	c.mu.RUnlock()
-
 	channel, err := c.getChannel(input)
 	if err != nil {
 		return err
@@ -310,18 +315,11 @@ func (c *conveyer) Send(input string, data string) error {
 	case channel <- data:
 		return nil
 	default:
-		return errors.New("channel is full or closed")
+		return ErrChannelFullOrClosed
 	}
 }
 
 func (c *conveyer) Recv(output string) (string, error) {
-	c.mu.RLock()
-	if !c.channelsReady {
-		c.mu.RUnlock()
-		return "", errors.New("conveyer is not running")
-	}
-	c.mu.RUnlock()
-
 	channel, err := c.getChannel(output)
 	if err != nil {
 		return "", err
@@ -334,6 +332,6 @@ func (c *conveyer) Recv(output string) (string, error) {
 		}
 		return data, nil
 	default:
-		return "", errors.New("no data available")
+		return "", ErrNoDataAvailable
 	}
 }
