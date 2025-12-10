@@ -72,7 +72,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	wGroup.Add(len(inputs))
 
-	for iIndex := range inputs {
+	for ind := range inputs {
 		go func(idx int) {
 			defer wGroup.Done()
 
@@ -94,7 +94,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					return
 				}
 			}
-		}(iIndex)
+		}(ind)
 	}
 
 	wGroup.Wait()
