@@ -1,24 +1,28 @@
 package conveyer
 
-func (c *DefaultConveyer) obtainChannel(name string) {
-	if _, exists := c.channels[name]; exists {
-		return
-	}
+func (c *DefaultConveyer) obtainChannel(name string) chan string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
-	channel := make(chan string, c.bufferSize)
-	c.channels[name] = channel
+	ch, ok := c.channels[name]
+	if !ok {
+		if c.bufferSize <= 0 {
+			ch = make(chan string)
+		} else {
+			ch = make(chan string, c.bufferSize)
+		}
+		c.channels[name] = ch
+	}
+	return ch
 }
 
 func (c *DefaultConveyer) getChannel(name string) (chan string, error) {
-	if channel, exists := c.channels[name]; exists {
-		return channel, nil
-	}
+	c.mu.RLock()
+	ch, ok := c.channels[name]
+	c.mu.RUnlock()
 
-	return nil, ErrChanNotFound
-}
-
-func (c *DefaultConveyer) closeAllChannels() {
-	for _, channel := range c.channels {
-		close(channel)
+	if !ok {
+		return nil, ErrChanNotFound
 	}
+	return ch, nil
 }
