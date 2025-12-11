@@ -1,9 +1,9 @@
 package config
 
 import (
+	_ "embed"
 	"errors"
 
-	_ "embed"
 	"gopkg.in/yaml.v3"
 )
 
