@@ -233,11 +233,11 @@ func (c *DefaultConveyer) closeAllChannels() {
 	c.closeOnce.Do(func() {
 		c.mu.Lock()
 		defer c.mu.Unlock()
-		for name, ch := range c.channels {
+
+		for _, ch := range c.channels {
 			if ch != nil {
 				close(ch)
 			}
-			delete(c.channels, name)
 		}
 	})
 }
