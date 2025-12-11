@@ -13,9 +13,6 @@ type Config struct {
 	LogLevel    string `yaml:"log_level"`
 }
 
-//go:embed dev.yaml
-var devConfig []byte
-
 //go:embed prod.yaml
 var prodConfig []byte
 
@@ -24,5 +21,6 @@ func loadConfig(data []byte) (*Config, error) {
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, ErrUnmarshal
 	}
+
 	return &cfg, nil
 }
