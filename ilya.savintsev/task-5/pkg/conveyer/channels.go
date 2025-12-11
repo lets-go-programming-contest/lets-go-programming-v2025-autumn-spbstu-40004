@@ -4,11 +4,12 @@ func (c *DefaultConveyer) obtainChannel(name string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	channel, exists := c.channels[name]
+	_, exists := c.channels[name]
 	if exists {
 		return
 	}
 
+	var channel chan string
 	if c.bufferSize > 0 {
 		channel = make(chan string, c.bufferSize)
 	} else {

@@ -62,7 +62,7 @@ func New(size int) *DefaultConveyer {
 }
 
 func (c *DefaultConveyer) RegisterDecorator(
-	fn func(context.Context, chan string, chan string) error,
+	handlerFunc func(context.Context, chan string, chan string) error,
 	input, output string,
 ) {
 	c.obtainChannel(input)
@@ -70,7 +70,7 @@ func (c *DefaultConveyer) RegisterDecorator(
 
 	c.mu.Lock()
 	c.decorators = append(c.decorators, specDecorator{
-		fn:     fn,
+		fn:     handlerFunc,
 		input:  input,
 		output: output,
 	})
@@ -78,7 +78,7 @@ func (c *DefaultConveyer) RegisterDecorator(
 }
 
 func (c *DefaultConveyer) RegisterMultiplexer(
-	fn func(context.Context, []chan string, chan string) error,
+	handlerFunc func(context.Context, []chan string, chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -90,7 +90,7 @@ func (c *DefaultConveyer) RegisterMultiplexer(
 
 	c.mu.Lock()
 	c.multiplexers = append(c.multiplexers, specMultiplexer{
-		fn:     fn,
+		fn:     handlerFunc,
 		inputs: inputs,
 		output: output,
 	})
@@ -98,7 +98,7 @@ func (c *DefaultConveyer) RegisterMultiplexer(
 }
 
 func (c *DefaultConveyer) RegisterSeparator(
-	fn func(context.Context, chan string, []chan string) error,
+	handlerFunc func(context.Context, chan string, []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -110,7 +110,7 @@ func (c *DefaultConveyer) RegisterSeparator(
 
 	c.mu.Lock()
 	c.separators = append(c.separators, specSeparator{
-		fn:      fn,
+		fn:      handlerFunc,
 		input:   input,
 		outputs: outputs,
 	})
