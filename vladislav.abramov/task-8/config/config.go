@@ -19,12 +19,6 @@ var devConfig []byte
 //go:embed prod.yaml
 var prodConfig []byte
 
-func Load() (*Config, error) {
-	configData := prodConfig
-
-	return loadConfig(configData)
-}
-
 func loadConfig(data []byte) (*Config, error) {
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
