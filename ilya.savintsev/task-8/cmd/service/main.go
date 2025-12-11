@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+
 	"github.com/faxryzen/task-8/config"
 )
 
@@ -12,5 +13,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(cfg.Environment, cfg.LogLevel)
+	fmt.Print(cfg.Environment, " ", cfg.LogLevel)
 }
