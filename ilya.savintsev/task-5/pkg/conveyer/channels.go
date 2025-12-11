@@ -1,28 +1,29 @@
 package conveyer
 
-func (c *DefaultConveyer) obtainChannel(name string) chan string {
+func (c *DefaultConveyer) obtainChannel(name string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	channel, exists := c.channels[name]
-	if !exists {
-		if c.bufferSize <= 0 {
-			channel = make(chan string)
-		} else {
-			channel = make(chan string, c.bufferSize)
-		}
-		c.channels[name] = channel
+	if exists {
+		return
 	}
 
-	return channel
+	if c.bufferSize > 0 {
+		channel = make(chan string, c.bufferSize)
+	} else {
+		channel = make(chan string)
+	}
+
+	c.channels[name] = channel
 }
 
 func (c *DefaultConveyer) getChannel(name string) (chan string, error) {
 	c.mu.RLock()
-	channel, ok := c.channels[name]
+	channel, exists := c.channels[name]
 	c.mu.RUnlock()
 
-	if !ok {
+	if !exists {
 		return nil, ErrChanNotFound
 	}
 
