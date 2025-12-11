@@ -1,8 +1,11 @@
 package config
 
 import (
+	"embed"
 	"gopkg.in/yaml.v3"
 )
+
+var configFS embed.FS
 
 type Config struct {
 	Environment string `yaml:"environment"`
@@ -10,11 +13,13 @@ type Config struct {
 }
 
 func Load() *Config {
-	return loadConfig("prod.yaml")
+	filename := "prod.yaml"
+
+	return loadConfig(filename)
 }
 
 func loadConfig(filename string) *Config {
-	data, err := prodYAML.ReadFile(filename)
+	data, err := configFS.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}
