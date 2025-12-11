@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -39,6 +40,8 @@ type specSeparator struct {
 }
 
 type DefaultConveyer struct {
+	mu           sync.RWMutex
+	closeOnce    sync.Once
 	channels     map[string]chan string
 	bufferSize   int
 	decorators   []specDecorator
@@ -64,11 +67,13 @@ func (c *DefaultConveyer) RegisterDecorator(
 	c.obtainChannel(input)
 	c.obtainChannel(output)
 
+	c.mu.Lock()
 	c.decorators = append(c.decorators, specDecorator{
 		fn:     decoratorFunc,
 		input:  input,
 		output: output,
 	})
+	c.mu.Unlock()
 }
 
 func (c *DefaultConveyer) RegisterMultiplexer(
@@ -82,11 +87,13 @@ func (c *DefaultConveyer) RegisterMultiplexer(
 
 	c.obtainChannel(output)
 
+	c.mu.Lock()
 	c.multiplexers = append(c.multiplexers, specMultiplexer{
 		fn:     multiplexerFunc,
 		inputs: inputs,
 		output: output,
 	})
+	c.mu.Unlock()
 }
 
 func (c *DefaultConveyer) RegisterSeparator(
@@ -100,11 +107,13 @@ func (c *DefaultConveyer) RegisterSeparator(
 		c.obtainChannel(outputName)
 	}
 
+	c.mu.Lock()
 	c.separators = append(c.separators, specSeparator{
 		fn:      separatorFunc,
 		input:   input,
 		outputs: outputs,
 	})
+	c.mu.Unlock()
 }
 
 func (c *DefaultConveyer) Run(ctx context.Context) error {
@@ -116,41 +125,67 @@ func (c *DefaultConveyer) Run(ctx context.Context) error {
 		errorGroup.Go(handler)
 	}
 
-	for _, decorator := range c.decorators {
+	c.mu.RLock()
+	decoratorsCopy := append([]specDecorator(nil), c.decorators...)
+	multiplexersCopy := append([]specMultiplexer(nil), c.multiplexers...)
+	separatorsCopy := append([]specSeparator(nil), c.separators...)
+	c.mu.RUnlock()
+
+	for _, decorator := range decoratorsCopy {
 		current := decorator
 
 		launchHandler(func() error {
-			input, _ := c.getChannel(current.input)
-			output, _ := c.getChannel(current.output)
+			input, err := c.getChannel(current.input)
+			if err != nil {
+				return fmt.Errorf("decorator: %w", err)
+			}
+			output, err := c.getChannel(current.output)
+			if err != nil {
+				return fmt.Errorf("decorator: %w", err)
+			}
 
 			return current.fn(groupCtx, input, output)
 		})
 	}
 
-	for _, multiplexer := range c.multiplexers {
+	for _, multiplexer := range multiplexersCopy {
 		current := multiplexer
 
 		launchHandler(func() error {
 			inputs := make([]chan string, len(current.inputs))
 			for i, name := range current.inputs {
-				inputs[i], _ = c.getChannel(name)
+				ch, err := c.getChannel(name)
+				if err != nil {
+					return fmt.Errorf("multiplexer input %q: %w", name, err)
+				}
+				inputs[i] = ch
 			}
 
-			output, _ := c.getChannel(current.output)
+			output, err := c.getChannel(current.output)
+			if err != nil {
+				return fmt.Errorf("multiplexer output %q: %w", current.output, err)
+			}
 
 			return current.fn(groupCtx, inputs, output)
 		})
 	}
 
-	for _, separator := range c.separators {
+	for _, separator := range separatorsCopy {
 		current := separator
 
 		launchHandler(func() error {
-			input, _ := c.getChannel(current.input)
+			input, err := c.getChannel(current.input)
+			if err != nil {
+				return fmt.Errorf("separator input %q: %w", current.input, err)
+			}
 
 			outputs := make([]chan string, len(current.outputs))
 			for i, name := range current.outputs {
-				outputs[i], _ = c.getChannel(name)
+				ch, err := c.getChannel(name)
+				if err != nil {
+					return fmt.Errorf("separator output %q: %w", name, err)
+				}
+				outputs[i] = ch
 			}
 
 			return current.fn(groupCtx, input, outputs)
@@ -192,4 +227,17 @@ func (c *DefaultConveyer) Recv(output string) (string, error) {
 	}
 
 	return data, nil
+}
+
+func (c *DefaultConveyer) closeAllChannels() {
+	c.closeOnce.Do(func() {
+		c.mu.Lock()
+		defer c.mu.Unlock()
+		for name, ch := range c.channels {
+			if ch != nil {
+				close(ch)
+			}
+			delete(c.channels, name)
+		}
+	})
 }
