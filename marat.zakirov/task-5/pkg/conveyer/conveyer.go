@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -16,6 +17,7 @@ type Conveyer struct {
 	channels map[string]chan string
 	handlers []func(ctx context.Context) error
 	size     int
+	mu       sync.RWMutex
 }
 
 func New(size int) Conveyer {
@@ -23,10 +25,14 @@ func New(size int) Conveyer {
 		channels: make(map[string]chan string),
 		handlers: make([]func(ctx context.Context) error, 0),
 		size:     size,
+		mu:       sync.RWMutex{},
 	}
 }
 
 func (c *Conveyer) createChannel(chName string) chan string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if channel, exists := c.channels[chName]; exists {
 		return channel
 	}
@@ -38,6 +44,9 @@ func (c *Conveyer) createChannel(chName string) chan string {
 }
 
 func (c *Conveyer) closeChannels() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	for _, channel := range c.channels {
 		close(channel)
 	}
@@ -51,9 +60,11 @@ func (c *Conveyer) RegisterDecorator(
 	inChannel := c.createChannel(inChannelP)
 	outChannel := c.createChannel(outChannelP)
 
+	c.mu.Lock()
 	c.handlers = append(c.handlers, func(cntx context.Context) error {
 		return function(cntx, inChannel, outChannel)
 	})
+	c.mu.Unlock()
 }
 
 func (c *Conveyer) RegisterMultiplexer(
@@ -68,9 +79,11 @@ func (c *Conveyer) RegisterMultiplexer(
 
 	outChannel := c.createChannel(outChannelP)
 
+	c.mu.Lock()
 	c.handlers = append(c.handlers, func(cntx context.Context) error {
 		return function(cntx, inChannels, outChannel)
 	})
+	c.mu.Unlock()
 }
 
 func (c *Conveyer) RegisterSeparator(
@@ -85,9 +98,11 @@ func (c *Conveyer) RegisterSeparator(
 		outChannels[i] = c.createChannel(name)
 	}
 
+	c.mu.Lock()
 	c.handlers = append(c.handlers, func(cntx context.Context) error {
 		return function(cntx, inChannel, outChannels)
 	})
+	c.mu.Unlock()
 }
 
 func (c *Conveyer) Run(cntx context.Context) error {
