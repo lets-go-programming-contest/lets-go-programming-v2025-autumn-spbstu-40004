@@ -59,8 +59,8 @@ func TestGetNames(t *testing.T) {
 	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 
 	dbService := db.New(mockDB)
-	getNamesResult, err := dbService.GetNames()
 
+	getNamesResult, err := dbService.GetNames()
 	if err != nil {
 		t.Fatalf("getNames error: %v", err)
 	}
