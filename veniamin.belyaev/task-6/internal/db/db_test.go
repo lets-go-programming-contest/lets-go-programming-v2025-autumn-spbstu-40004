@@ -60,6 +60,7 @@ func TestGetNames(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	getNamesResult, err := dbService.GetNames()
+
 	if err != nil {
 		t.Fatalf("getNames error: %v", err)
 	}
