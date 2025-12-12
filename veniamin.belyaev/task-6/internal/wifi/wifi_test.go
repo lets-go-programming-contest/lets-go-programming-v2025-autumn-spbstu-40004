@@ -28,7 +28,7 @@ func TestGetAddresses(t *testing.T) {
 
 	addresses, err := service.GetAddresses()
 
-	assert.NoErrorf(t, err, "get addresses failed: %v")
+	assert.NoErrorf(t, err, "get addresses failed: %s")
 	assert.Len(t, addresses, len(interfaces))
 	for index, elem := range interfaces {
 		assert.Equal(t, elem.HardwareAddr, addresses[index])
@@ -69,7 +69,7 @@ func TestGetNames(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	assert.NoErrorf(t, err, "get addresses failed: %v")
+	assert.NoErrorf(t, err, "get addresses failed: %s")
 	assert.Len(t, names, len(interfaces))
 	for index, elem := range interfaces {
 		assert.Equal(t, elem.Name, names[index])
