@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+type PathHolder struct {
+	InPath  string `yaml:"input-file"`
+	OutPath string `yaml:"output-file"`
+}
+
 type ValCurs struct {
 	XMLName xml.Name `xml:"ValCurs"`
 	Valutes []Valute `xml:"Valute"`
