@@ -19,8 +19,7 @@ var (
 func closeMock(mock sqlmock.Sqlmock, mockDB *sql.DB, t *testing.T) {
 	mock.ExpectClose()
 
-	err := mockDB.Close()
-	if err != nil {
+	if err := mockDB.Close(); err != nil {
 		t.Fatalf("mockDB.Close() resulted in an error: %v", err)
 	}
 }
@@ -87,6 +86,7 @@ func TestGetNamesQueryError(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	_, err = dbService.GetNames()
+
 	if err == nil {
 		t.Fatalf("unexpected result: expected err in query, got nil")
 	}
@@ -109,6 +109,7 @@ func TestGetNamesScanError(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	_, err = dbService.GetNames()
+
 	if err == nil {
 		t.Fatalf("unexpected result: expected err in scan, got nil")
 	}
@@ -131,6 +132,7 @@ func TestGetNamesRowsError(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	_, err = dbService.GetNames()
+
 	if err == nil {
 		t.Fatalf("unexpected result: expected err in rows, got nil")
 	}
@@ -191,6 +193,7 @@ func TestGetUniqueNamesQueryError(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	_, err = dbService.GetUniqueNames()
+
 	if err == nil {
 		t.Fatalf("unexpected result: expected err in query, got nil")
 	}
@@ -213,6 +216,7 @@ func TestGetUniqueNamesScanError(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	_, err = dbService.GetUniqueNames()
+
 	if err == nil {
 		t.Fatalf("unexpected result: expected err in scan, got nil")
 	}
@@ -235,6 +239,7 @@ func TestGetUniqueNamesRowsError(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	_, err = dbService.GetUniqueNames()
+
 	if err == nil {
 		t.Fatalf("unexpected result: expected err in rows, got nil")
 	}
