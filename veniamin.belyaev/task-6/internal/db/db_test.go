@@ -15,6 +15,8 @@ var (
 )
 
 func closeMock(t *testing.T, mock sqlmock.Sqlmock, mockDB *sql.DB) {
+	t.Helper()
+
 	mock.ExpectClose()
 
 	if err := mockDB.Close(); err != nil {
@@ -39,7 +41,7 @@ func areStringSplicesEqual(lst, rst []string) bool {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	var getNamesRows = []string{"Gena", "Lyoha", "Bobik", "Gena"}
+	getNamesRows := []string{"Gena", "Lyoha", "Bobik", "Gena"}
 
 	mockDB, mock, err := sqlmock.New()
 
@@ -58,7 +60,6 @@ func TestGetNames(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	getNamesResult, err := dbService.GetNames()
-
 	if err != nil {
 		t.Fatalf("getNames error: %v", err)
 	}
@@ -142,7 +143,7 @@ func TestGetNamesRowsError(t *testing.T) {
 func TestGetUniqueNames(t *testing.T) {
 	t.Parallel()
 
-	var uniqueGetNamesRows = []string{"Gena", "Lyoha", "Bobik"}
+	uniqueGetNamesRows := []string{"Gena", "Lyoha", "Bobik"}
 
 	mockDB, mock, err := sqlmock.New()
 

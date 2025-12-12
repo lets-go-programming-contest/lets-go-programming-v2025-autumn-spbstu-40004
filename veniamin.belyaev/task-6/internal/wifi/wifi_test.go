@@ -3,13 +3,12 @@ package wifi_test
 import (
 	"errors"
 	"net"
+	"testing"
 
 	wifiInternal "github.com/belyaevEDU/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"testing"
 )
 
 var errGettingInterfaces = errors.New("getting interfaces")
