@@ -10,13 +10,11 @@ import (
 )
 
 var (
-	getNamesRows       = []string{"Gena", "Lyoha", "Bobik", "Gena"}
-	uniqueGetNamesRows = []string{"Gena", "Lyoha", "Bobik"}
-	errQuery           = errors.New("db query")
-	errRows            = errors.New("rows error")
+	errQuery = errors.New("db query")
+	errRows  = errors.New("rows error")
 )
 
-func closeMock(mock sqlmock.Sqlmock, mockDB *sql.DB, t *testing.T) {
+func closeMock(t *testing.T, mock sqlmock.Sqlmock, mockDB *sql.DB) {
 	mock.ExpectClose()
 
 	if err := mockDB.Close(); err != nil {
@@ -41,9 +39,11 @@ func areStringSplicesEqual(lst, rst []string) bool {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
+	var getNamesRows = []string{"Gena", "Lyoha", "Bobik", "Gena"}
+
 	mockDB, mock, err := sqlmock.New()
 
-	defer closeMock(mock, mockDB, t)
+	defer closeMock(t, mock, mockDB)
 
 	if err != nil {
 		t.Fatalf("error creating db: %v", err)
@@ -58,6 +58,7 @@ func TestGetNames(t *testing.T) {
 
 	dbService := db.New(mockDB)
 	getNamesResult, err := dbService.GetNames()
+
 	if err != nil {
 		t.Fatalf("getNames error: %v", err)
 	}
@@ -76,7 +77,7 @@ func TestGetNamesQueryError(t *testing.T) {
 
 	mockDB, mock, err := sqlmock.New()
 
-	defer closeMock(mock, mockDB, t)
+	defer closeMock(t, mock, mockDB)
 
 	if err != nil {
 		t.Fatalf("error creating db: %v", err)
@@ -97,7 +98,7 @@ func TestGetNamesScanError(t *testing.T) {
 
 	mockDB, mock, err := sqlmock.New()
 
-	defer closeMock(mock, mockDB, t)
+	defer closeMock(t, mock, mockDB)
 
 	if err != nil {
 		t.Fatalf("error creating db: %v", err)
@@ -120,7 +121,7 @@ func TestGetNamesRowsError(t *testing.T) {
 
 	mockDB, mock, err := sqlmock.New()
 
-	defer closeMock(mock, mockDB, t)
+	defer closeMock(t, mock, mockDB)
 
 	if err != nil {
 		t.Fatalf("error creating db: %v", err)
@@ -141,15 +142,11 @@ func TestGetNamesRowsError(t *testing.T) {
 func TestGetUniqueNames(t *testing.T) {
 	t.Parallel()
 
+	var uniqueGetNamesRows = []string{"Gena", "Lyoha", "Bobik"}
+
 	mockDB, mock, err := sqlmock.New()
 
-	defer func() {
-		mock.ExpectClose()
-		err := mockDB.Close()
-		if err != nil {
-			t.Fatalf("mockDB.Close() resulted in an error: %v", err)
-		}
-	}()
+	defer closeMock(t, mock, mockDB)
 
 	if err != nil {
 		t.Fatalf("error creating db: %v", err)
@@ -183,7 +180,7 @@ func TestGetUniqueNamesQueryError(t *testing.T) {
 
 	mockDB, mock, err := sqlmock.New()
 
-	defer closeMock(mock, mockDB, t)
+	defer closeMock(t, mock, mockDB)
 
 	if err != nil {
 		t.Fatalf("error creating db: %v", err)
@@ -204,7 +201,7 @@ func TestGetUniqueNamesScanError(t *testing.T) {
 
 	mockDB, mock, err := sqlmock.New()
 
-	defer closeMock(mock, mockDB, t)
+	defer closeMock(t, mock, mockDB)
 
 	if err != nil {
 		t.Fatalf("error creating db: %v", err)
@@ -227,7 +224,7 @@ func TestGetUniqueNamesRowsError(t *testing.T) {
 
 	mockDB, mock, err := sqlmock.New()
 
-	defer closeMock(mock, mockDB, t)
+	defer closeMock(t, mock, mockDB)
 
 	if err != nil {
 		t.Fatalf("error creating db: %v", err)

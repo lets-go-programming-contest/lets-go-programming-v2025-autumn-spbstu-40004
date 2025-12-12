@@ -29,7 +29,7 @@ func TestGetAddresses(t *testing.T) {
 
 	addresses, err := service.GetAddresses()
 
-	require.NoErrorf(t, err, "get addresses failed: %s")
+	require.NoErrorf(t, err, "get addresses failed: %s", err.Error())
 	assert.Len(t, addresses, len(interfaces))
 
 	for index, elem := range interfaces {
@@ -71,7 +71,7 @@ func TestGetNames(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	require.NoErrorf(t, err, "get addresses failed: %s")
+	require.NoErrorf(t, err, "get addresses failed: %s", err.Error())
 	assert.Len(t, names, len(interfaces))
 
 	for index, elem := range interfaces {
