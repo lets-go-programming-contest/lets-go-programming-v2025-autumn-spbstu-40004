@@ -11,6 +11,7 @@ func SortCurrenciesByValue(valutes []currencies.Valute) []currencies.Valute {
 
 	for i, valute := range valutes {
 		output[i] = currencies.Valute{
+			XMLName:  valute.XMLName,
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
 			Value:    valute.Value,
