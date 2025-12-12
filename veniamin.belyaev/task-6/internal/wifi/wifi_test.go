@@ -14,6 +14,8 @@ import (
 var errGettingInterfaces = errors.New("getting interfaces")
 
 func TestGetAddresses(t *testing.T) {
+	t.Parallel()
+
 	mockWifi := new(WiFiHandle)
 	service := wifiInternal.New(mockWifi)
 
@@ -36,6 +38,8 @@ func TestGetAddresses(t *testing.T) {
 }
 
 func TestGetAddressesInterfacesError(t *testing.T) {
+	t.Parallel()
+
 	mockWifi := new(WiFiHandle)
 	service := wifiInternal.New(mockWifi)
 
@@ -51,6 +55,8 @@ func TestGetAddressesInterfacesError(t *testing.T) {
 }
 
 func TestGetNames(t *testing.T) {
+	t.Parallel()
+
 	mockWifi := new(WiFiHandle)
 	service := wifiInternal.New(mockWifi)
 
@@ -73,6 +79,8 @@ func TestGetNames(t *testing.T) {
 }
 
 func TestGetNamesInterfacesError(t *testing.T) {
+	t.Parallel()
+
 	mockWifi := new(WiFiHandle)
 	service := wifiInternal.New(mockWifi)
 

@@ -40,6 +40,8 @@ func areStringSplicesEqual(lst, rst []string) bool {
 }
 
 func TestGetNames(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 
 	defer closeMock(mock, mockDB, t)
@@ -71,6 +73,8 @@ func TestGetNames(t *testing.T) {
 }
 
 func TestGetNamesQueryError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 
 	defer closeMock(mock, mockDB, t)
@@ -89,6 +93,8 @@ func TestGetNamesQueryError(t *testing.T) {
 }
 
 func TestGetNamesScanError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 
 	defer closeMock(mock, mockDB, t)
@@ -109,6 +115,8 @@ func TestGetNamesScanError(t *testing.T) {
 }
 
 func TestGetNamesRowsError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 
 	defer closeMock(mock, mockDB, t)
@@ -129,6 +137,8 @@ func TestGetNamesRowsError(t *testing.T) {
 }
 
 func TestGetUniqueNames(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 
 	defer func() {
@@ -167,6 +177,8 @@ func TestGetUniqueNames(t *testing.T) {
 }
 
 func TestGetUniqueNamesQueryError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 
 	defer closeMock(mock, mockDB, t)
@@ -185,6 +197,8 @@ func TestGetUniqueNamesQueryError(t *testing.T) {
 }
 
 func TestGetUniqueNamesScanError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 
 	defer closeMock(mock, mockDB, t)
@@ -205,6 +219,8 @@ func TestGetUniqueNamesScanError(t *testing.T) {
 }
 
 func TestGetUniqueNamesRowsError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 
 	defer closeMock(mock, mockDB, t)
