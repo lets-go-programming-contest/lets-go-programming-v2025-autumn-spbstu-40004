@@ -38,6 +38,7 @@ func (val ValCurs) Less(lhs, rhs int) bool {
 
 func SortValue(val *ValCurs) {
 	var err error
+
 	for loc := range val.Valutes {
 		correctStr := strings.ReplaceAll(strings.TrimSpace(val.Valutes[loc].ValueStr), ",", ".")
 
