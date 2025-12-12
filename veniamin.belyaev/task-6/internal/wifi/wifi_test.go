@@ -16,7 +16,7 @@ var errGettingInterfaces = errors.New("getting interfaces")
 func TestGetAddresses(t *testing.T) {
 	t.Parallel()
 
-	mockWifi := new(WiFiHandle)
+	mockWifi := NewWiFiHandle(t)
 	service := wifiInternal.New(mockWifi)
 
 	interfaces := []*wifi.Interface{
@@ -28,7 +28,7 @@ func TestGetAddresses(t *testing.T) {
 
 	addresses, err := service.GetAddresses()
 
-	require.NoErrorf(t, err, "get addresses failed: %s", err.Error())
+	require.NoError(t, err)
 	assert.Len(t, addresses, len(interfaces))
 
 	for index, elem := range interfaces {
@@ -41,7 +41,7 @@ func TestGetAddresses(t *testing.T) {
 func TestGetAddressesInterfacesError(t *testing.T) {
 	t.Parallel()
 
-	mockWifi := new(WiFiHandle)
+	mockWifi := NewWiFiHandle(t)
 	service := wifiInternal.New(mockWifi)
 
 	mockWifi.On("Interfaces").Return(nil, errGettingInterfaces)
@@ -58,7 +58,7 @@ func TestGetAddressesInterfacesError(t *testing.T) {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	mockWifi := new(WiFiHandle)
+	mockWifi := NewWiFiHandle(t)
 	service := wifiInternal.New(mockWifi)
 
 	interfaces := []*wifi.Interface{
@@ -70,7 +70,7 @@ func TestGetNames(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	require.NoErrorf(t, err, "get addresses failed: %s", err.Error())
+	require.NoError(t, err)
 	assert.Len(t, names, len(interfaces))
 
 	for index, elem := range interfaces {
@@ -83,7 +83,7 @@ func TestGetNames(t *testing.T) {
 func TestGetNamesInterfacesError(t *testing.T) {
 	t.Parallel()
 
-	mockWifi := new(WiFiHandle)
+	mockWifi := NewWiFiHandle(t)
 	service := wifiInternal.New(mockWifi)
 
 	mockWifi.On("Interfaces").Return(nil, errGettingInterfaces)
