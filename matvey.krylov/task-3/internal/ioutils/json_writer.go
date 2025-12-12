@@ -13,7 +13,7 @@ const (
 	aRW = 0o755
 )
 
-func WriteJSONOutput(currencies []currencies.CurrencyOutput, outputPath string) error {
+func WriteJSONOutput(currencies []currencies.Valute, outputPath string) error {
 	outputDir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(outputDir, aRW); err != nil {
 		return fmt.Errorf("create directory: %w", err)

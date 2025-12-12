@@ -6,11 +6,11 @@ import (
 	"github.com/mkryloff/task-3/internal/currencies"
 )
 
-func SortCurrenciesByValue(valutes []currencies.Valute) []currencies.CurrencyOutput {
-	output := make([]currencies.CurrencyOutput, len(valutes))
+func SortCurrenciesByValue(valutes []currencies.Valute) []currencies.Valute {
+	output := make([]currencies.Valute, len(valutes))
 
 	for i, valute := range valutes {
-		output[i] = currencies.CurrencyOutput{
+		output[i] = currencies.Valute{
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
 			Value:    valute.Value,

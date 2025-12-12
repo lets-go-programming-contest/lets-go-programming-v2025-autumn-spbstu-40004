@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "", "Path to YAML configuration file")
+	configPath := flag.String("config", "config.yaml", "Path to YAML configuration file")
 	flag.Parse()
 
 	if *configPath == "" {
