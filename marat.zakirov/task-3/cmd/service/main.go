@@ -33,7 +33,7 @@ func main() {
 
 	inFile, err := os.Open(ioPath.InPath)
 	if err != nil {
-		panic("Some errors in reading YAML input file, lile no such file or directory")
+		panic("Some errors in reading YAML input file, like no such file or directory")
 	}
 
 	decoder := xml.NewDecoder(inFile)
@@ -48,7 +48,7 @@ func main() {
 
 	currencyprocessor.SortValue(&inData)
 
-	outData, err := json.MarshalIndent(inData, "", "  ")
+	outData, err := json.MarshalIndent(inData.Valutes, "", "  ")
 	if err != nil {
 		panic("Some errors in json encoding")
 	}

@@ -18,10 +18,10 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	NumCode  string  `xml:"NumCode" json:"num_code"`
-	CharCode string  `xml:"CharCode" json:"char_code"`
-	ValueStr string  `xml:"Value" json:"-"`
-	ValueFlt float64 `xml:"-" json:"value"`
+	NumCode  string  `json:"num_code" xml:"NumCode"`
+	CharCode string  `json:"char_code" xml:"CharCode"`
+	ValueStr string  `json:"-" xml:"Value"`
+	ValueFlt float64 `json:"value" xml:"-"`
 }
 
 func (val ValCurs) Len() int {
@@ -39,11 +39,11 @@ func (val ValCurs) Less(lhs, rhs int) bool {
 func SortValue(val *ValCurs) {
 	var err error
 	for loc := range val.Valutes {
-		val.Valutes[loc].ValueFlt, err = strconv.ParseFloat(strings.ReplaceAll(strings.TrimSpace(val.Valutes[loc].ValueStr), ",", "."), 64)
-	}
-
-	if err != nil {
-		panic(err)
+		correctStr := strings.ReplaceAll(strings.TrimSpace(val.Valutes[loc].ValueStr), ",", ".")
+		val.Valutes[loc].ValueFlt, err = strconv.ParseFloat(correctStr, 64)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	sort.Sort(sort.Reverse(val))
