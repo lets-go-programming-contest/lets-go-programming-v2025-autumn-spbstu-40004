@@ -7,14 +7,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ZakirovMS/task-3/internal/codingprocessor"
 	"github.com/ZakirovMS/task-3/internal/currencyprocessor"
 	"golang.org/x/net/html/charset"
 	"gopkg.in/yaml.v3"
 )
 
 func main() {
-	nFlag := flag.String("config", "", "Path to YAML config file")
+	nFlag := flag.String("config", "resources/config/config.yaml", "Path to YAML config file")
 
 	const dirPerm, filePerm = 0o755, 0o666
 
@@ -25,7 +24,7 @@ func main() {
 		panic("Some errors in getting config file")
 	}
 
-	var ioPath codingprocessor.PathHolder
+	var ioPath currencyprocessor.PathHolder
 
 	err = yaml.Unmarshal(configFile, &ioPath)
 	if err != nil || ioPath.InPath == "" {
@@ -48,9 +47,8 @@ func main() {
 	}
 
 	currencyprocessor.SortValue(&inData)
-	jsonData := codingprocessor.ConvertXMLToJSON(inData)
 
-	outData, err := json.MarshalIndent(jsonData, "", "  ")
+	outData, err := json.MarshalIndent(inData, "", "  ")
 	if err != nil {
 		panic("Some errors in json encoding")
 	}
