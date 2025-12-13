@@ -2,8 +2,6 @@ module github.com/Ksenia-rgb/task-6
 
 go 1.22.7
 
-toolchain go1.24.11
-
 require github.com/mdlayher/wifi v0.3.0
 
 require (
