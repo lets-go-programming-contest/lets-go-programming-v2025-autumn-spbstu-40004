@@ -26,7 +26,7 @@ func TestGetNameSuccess(t *testing.T) {
 
 	dbService := db.New(mockDB)
 
-	var testTable = [][]string{
+	testTable := [][]string{
 		{"Peter", "Ivan", "Casey"},
 		{"Jim89", "Sherlock76"},
 		{"", ""},
@@ -116,7 +116,7 @@ func TestGetUniqueNameSuccess(t *testing.T) {
 
 	dbService := db.New(mockDB)
 
-	var testTable = [][]string{
+	testTable := [][]string{
 		{"Peter", "Peter", "Peter"},
 		{"Peter", "Peter", "Casey", "Casey", "Casey1"},
 		{"", ""},
