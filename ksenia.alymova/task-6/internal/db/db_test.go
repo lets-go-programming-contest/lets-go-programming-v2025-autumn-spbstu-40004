@@ -16,14 +16,6 @@ const (
 
 var ErrExpected = errors.New("error expected")
 
-var TestTable = [][]string{
-	{"Peter", "Ivan", "Casey"},
-	{"Jim89", "Sherlock76"},
-	{"Peter", "Peter", "Peter"},
-	{"Peter", "Peter", "Casey", "Casey", "Casey1"},
-	{"", ""},
-}
-
 func TestGetNameSuccess(t *testing.T) {
 	t.Parallel()
 
@@ -34,7 +26,13 @@ func TestGetNameSuccess(t *testing.T) {
 
 	dbService := db.New(mockDB)
 
-	for _, row := range TestTable {
+	var testTable = [][]string{
+		{"Peter", "Ivan", "Casey"},
+		{"Jim89", "Sherlock76"},
+		{"", ""},
+	}
+
+	for _, row := range testTable {
 		mock.ExpectQuery(queryGetName).WillReturnRows(mockDBRows(row))
 
 		names, err := dbService.GetNames()
@@ -118,7 +116,13 @@ func TestGetUniqueNameSuccess(t *testing.T) {
 
 	dbService := db.New(mockDB)
 
-	for _, row := range TestTable {
+	var testTable = [][]string{
+		{"Peter", "Peter", "Peter"},
+		{"Peter", "Peter", "Casey", "Casey", "Casey1"},
+		{"", ""},
+	}
+
+	for _, row := range testTable {
 		uniqueRow := uniqueRows(row)
 
 		mock.ExpectQuery(queryGetUnique).WillReturnRows(mockDBRows(uniqueRow))
