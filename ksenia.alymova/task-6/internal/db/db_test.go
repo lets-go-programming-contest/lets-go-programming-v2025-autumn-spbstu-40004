@@ -16,7 +16,7 @@ const (
 
 var ErrExpected = errors.New("error expected")
 
-var testTable = [][]string{
+var TestTable = [][]string{
 	{"Peter", "Ivan", "Casey"},
 	{"Jim89", "Sherlock76"},
 	{"Peter", "Peter", "Peter"},
@@ -34,7 +34,7 @@ func TestGetNameSuccess(t *testing.T) {
 
 	dbService := db.New(mockDB)
 
-	for _, row := range testTable {
+	for _, row := range TestTable {
 		mock.ExpectQuery(queryGetName).WillReturnRows(mockDBRows(row))
 
 		names, err := dbService.GetNames()
@@ -79,6 +79,7 @@ func TestGetNameScanError(t *testing.T) {
 	rows.AddRow(nil)
 
 	mock.ExpectQuery(queryGetName).WillReturnRows(rows)
+
 	names, err := dbService.GetNames()
 
 	require.Nil(t, names)
@@ -117,7 +118,7 @@ func TestGetUniqueNameSuccess(t *testing.T) {
 
 	dbService := db.New(mockDB)
 
-	for _, row := range testTable {
+	for _, row := range TestTable {
 		uniqueRow := uniqueRows(row)
 
 		mock.ExpectQuery(queryGetUnique).WillReturnRows(mockDBRows(uniqueRow))
