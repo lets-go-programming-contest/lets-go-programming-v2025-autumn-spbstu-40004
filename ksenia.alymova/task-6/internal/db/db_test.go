@@ -1,10 +1,11 @@
-package db
+package db_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/Ksenia-rgb/task-6/internal/db"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,31 +25,39 @@ var testTable = [][]string{
 }
 
 func TestGetNameSuccess(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
 	}
-	dbService := New(mockDB)
+
+	dbService := db.New(mockDB)
 
 	for _, row := range testTable {
-		mock.ExpectQuery(queryGetName).WillReturnRows(mockDbRows(row))
+		mock.ExpectQuery(queryGetName).WillReturnRows(mockDBRows(row))
+
 		names, err := dbService.GetNames()
 
 		require.Equal(t, row, names)
-		require.Nil(t, err)
+		require.NoError(t, err)
 	}
 }
 
 func TestGetNameDbQueryError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
 	}
-	dbService := New(mockDB)
 
-	rows := mockDbRows(nil)
+	dbService := db.New(mockDB)
+
+	rows := mockDBRows(nil)
 
 	mock.ExpectQuery(queryGetName).WillReturnRows(rows).WillReturnError(ErrExpected)
+
 	names, err := dbService.GetNames()
 
 	require.Nil(t, names)
@@ -57,11 +66,14 @@ func TestGetNameDbQueryError(t *testing.T) {
 }
 
 func TestGetNameScanError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
 	}
-	dbService := New(mockDB)
+
+	dbService := db.New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"})
 	rows.AddRow(nil)
@@ -74,17 +86,21 @@ func TestGetNameScanError(t *testing.T) {
 }
 
 func TestGetNameRowsError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
 	}
-	dbService := New(mockDB)
+
+	dbService := db.New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"})
 	rows.AddRow("Peter")
 	rows.RowError(0, ErrExpected)
 
 	mock.ExpectQuery(queryGetName).WillReturnRows(rows)
+
 	names, err := dbService.GetNames()
 
 	require.Nil(t, names)
@@ -92,33 +108,41 @@ func TestGetNameRowsError(t *testing.T) {
 }
 
 func TestGetUniqueNameSuccess(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
 	}
-	dbService := New(mockDB)
+
+	dbService := db.New(mockDB)
 
 	for _, row := range testTable {
 		uniqueRow := uniqueRows(row)
 
-		mock.ExpectQuery(queryGetUnique).WillReturnRows(mockDbRows(uniqueRow))
+		mock.ExpectQuery(queryGetUnique).WillReturnRows(mockDBRows(uniqueRow))
+
 		names, err := dbService.GetUniqueNames()
 
 		require.Equal(t, uniqueRow, names)
-		require.Nil(t, err)
+		require.NoError(t, err)
 	}
 }
 
 func TestGetUniqueNameDbQueryError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
 	}
-	dbService := New(mockDB)
 
-	rows := mockDbRows(nil)
+	dbService := db.New(mockDB)
+
+	rows := mockDBRows(nil)
 
 	mock.ExpectQuery(queryGetUnique).WillReturnRows(rows).WillReturnError(ErrExpected)
+
 	names, err := dbService.GetUniqueNames()
 
 	require.Nil(t, names)
@@ -127,16 +151,20 @@ func TestGetUniqueNameDbQueryError(t *testing.T) {
 }
 
 func TestGetUniqueNameScanError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
 	}
-	dbService := New(mockDB)
+
+	dbService := db.New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"})
 	rows.AddRow(nil)
 
 	mock.ExpectQuery(queryGetUnique).WillReturnRows(rows)
+
 	names, err := dbService.GetUniqueNames()
 
 	require.Nil(t, names)
@@ -144,24 +172,28 @@ func TestGetUniqueNameScanError(t *testing.T) {
 }
 
 func TestGetUniqueNameRowsError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
 	}
-	dbService := New(mockDB)
+
+	dbService := db.New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"})
 	rows.AddRow("Peter")
 	rows.RowError(0, ErrExpected)
 
 	mock.ExpectQuery(queryGetUnique).WillReturnRows(rows)
+
 	names, err := dbService.GetUniqueNames()
 
 	require.Nil(t, names)
 	require.ErrorContains(t, err, "rows error")
 }
 
-func mockDbRows(names []string) *sqlmock.Rows {
+func mockDBRows(names []string) *sqlmock.Rows {
 	rows := sqlmock.NewRows([]string{"name"})
 	for _, name := range names {
 		rows = rows.AddRow(name)
@@ -177,6 +209,7 @@ func uniqueRows(names []string) []string {
 				return true
 			}
 		}
+
 		return false
 	}
 
