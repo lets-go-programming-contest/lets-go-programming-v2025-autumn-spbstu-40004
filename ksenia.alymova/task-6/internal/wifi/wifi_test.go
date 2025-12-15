@@ -11,65 +11,73 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-////go:generate mockery --all --testonly --quiet --outpkg wifi_test --output
+//go:generate mockery --all --testonly --quiet --outpkg wifi_test --output
 
 var ErrExpected = errors.New("error expected")
 
-type rowTestSysInfo struct {
-	addrs       []string
-	errExpected error
+var testTable = [][]string{
+	{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
+	{"00:01:02:03:04:05", "aa:ab:ac:ad:ae:af"},
 }
 
-var testTable = []rowTestSysInfo{
-	{
-		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
-	},
-	{
-		errExpected: errors.New("ExpectedError"),
-	},
-}
-var testNames = []rowTestSysInfo{
-	{
-		addrs: []string{"eth1", "eth2"},
-	},
-}
-
-func TestGetAddresses(t *testing.T) {
+func TestGetAddressesSuccess(t *testing.T) {
 	mockWifi := NewWiFiHandle(t)
 	wifiServece := mywifi.New(mockWifi)
 
 	for _, row := range testTable {
 		mockWifi.On("Interfaces").Unset()
-		mockWifi.On("Interfaces").Return(mockIfaces(row.addrs), row.errExpected)
+		mockWifi.On("Interfaces").Return(mockIfaces(row), nil)
 		actualAddrs, err := wifiServece.GetAddresses()
 
-		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected)
-			continue
-		}
-
+		require.Equal(t, parseMACs(row), actualAddrs)
 		require.NoError(t, err)
-		require.Equal(t, parseMACs(row.addrs), actualAddrs)
 	}
 }
 
-func TestGetNames(t *testing.T) {
+func TestGetAddressesError(t *testing.T) {
+	t.Parallel()
+
+	mockWifi := NewWiFiHandle(t)
+	wifiServece := mywifi.New(mockWifi)
+
+	mockWifi.On("Interfaces").Unset()
+	mockWifi.On("Interfaces").Return(nil, ErrExpected)
+	actualAddrs, err := wifiServece.GetAddresses()
+
+	require.Nil(t, actualAddrs)
+	require.ErrorIs(t, err, ErrExpected)
+	require.ErrorContains(t, err, "getting interfaces")
+}
+
+func TestGetNamesSuccess(t *testing.T) {
+	t.Parallel()
+
 	mockWifi := NewWiFiHandle(t)
 	wifiServece := mywifi.New(mockWifi)
 
 	for _, row := range testTable {
 		mockWifi.On("Interfaces").Unset()
-		mockWifi.On("Interfaces").Return(mockIfaces(row.addrs), row.errExpected)
+		mockWifi.On("Interfaces").Return(mockIfaces(row), nil)
 		actualNames, err := wifiServece.GetNames()
 
-		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected)
-			continue
-		}
-
 		require.NoError(t, err)
-		require.Equal(t, parseName(row.addrs), actualNames)
+		require.Equal(t, parseName(row), actualNames)
 	}
+}
+
+func TestGetNamesError(t *testing.T) {
+	t.Parallel()
+
+	mockWifi := NewWiFiHandle(t)
+	wifiServece := mywifi.New(mockWifi)
+
+	mockWifi.On("Interfaces").Unset()
+	mockWifi.On("Interfaces").Return(nil, ErrExpected)
+	actualNames, err := wifiServece.GetNames()
+
+	require.Nil(t, actualNames)
+	require.ErrorIs(t, err, ErrExpected)
+	require.ErrorContains(t, err, "getting interfaces")
 }
 
 func mockIfaces(addrs []string) []*wifi.Interface {
