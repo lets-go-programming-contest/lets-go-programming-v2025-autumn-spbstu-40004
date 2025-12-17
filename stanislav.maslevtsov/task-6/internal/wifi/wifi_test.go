@@ -18,12 +18,34 @@ type testTable struct {
 	addrs, names []string
 }
 
+func parseMAC(t *testing.T, macStr string) net.HardwareAddr {
+	t.Helper()
+
+	hwAddr, err := net.ParseMAC(macStr)
+	if err != nil {
+		return nil
+	}
+
+	return hwAddr
+}
+
+func parseMACs(t *testing.T, macStr []string) []net.HardwareAddr {
+	t.Helper()
+
+	addrs := make([]net.HardwareAddr, 0, len(macStr))
+	for _, addr := range macStr {
+		addrs = append(addrs, parseMAC(t, addr))
+	}
+
+	return addrs
+}
+
 func mockIfaces(t *testing.T, table testTable) []*wifi.Interface {
 	t.Helper()
 
 	require.Equal(t, len(table.addrs), len(table.names))
 
-	var interfaces []*wifi.Interface
+	interfaces := make([]*wifi.Interface, 0, len(table.addrs))
 	for addrIdx, addrStr := range table.addrs {
 		hwAddr := parseMAC(t, addrStr)
 		if hwAddr == nil {
@@ -43,28 +65,6 @@ func mockIfaces(t *testing.T, table testTable) []*wifi.Interface {
 	}
 
 	return interfaces
-}
-
-func parseMACs(t *testing.T, macStr []string) []net.HardwareAddr {
-	t.Helper()
-
-	var addrs []net.HardwareAddr
-	for _, addr := range macStr {
-		addrs = append(addrs, parseMAC(t, addr))
-	}
-
-	return addrs
-}
-
-func parseMAC(t *testing.T, macStr string) net.HardwareAddr {
-	t.Helper()
-
-	hwAddr, err := net.ParseMAC(macStr)
-	if err != nil {
-		return nil
-	}
-
-	return hwAddr
 }
 
 func TestGetAddresses(t *testing.T) {
