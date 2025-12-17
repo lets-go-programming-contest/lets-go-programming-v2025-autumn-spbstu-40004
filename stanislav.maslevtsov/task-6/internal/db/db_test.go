@@ -25,7 +25,7 @@ func getMockDbRows(t *testing.T, names []string) *sqlmock.Rows {
 func TestGetNamesSuccess(t *testing.T) {
 	t.Parallel()
 
-	var testData = [][]string{
+	testData := [][]string{
 		{"name1, name2"},
 		{"", ""},
 	}
@@ -109,7 +109,7 @@ func TestGetNamesRowsErr(t *testing.T) {
 func TestGetUniqueNamesSuccess(t *testing.T) {
 	t.Parallel()
 
-	var testData = [][]string{
+	testData := [][]string{
 		{"name1, name2"},
 		{"", ""},
 	}

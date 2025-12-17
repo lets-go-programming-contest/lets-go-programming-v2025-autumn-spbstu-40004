@@ -73,7 +73,7 @@ func TestGetAddresses(t *testing.T) {
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWiFi.New(mockWifi)
 
-	var testData = testTable{
+	testData := testTable{
 		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
 		names: []string{"eth1", "eth2"},
 	}
