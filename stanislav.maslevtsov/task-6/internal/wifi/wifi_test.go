@@ -76,6 +76,7 @@ func TestGetAddresses(t *testing.T) {
 		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
 		names: []string{"eth1", "eth2"},
 	}
+
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWiFi.New(mockWifi)
 
@@ -101,10 +102,11 @@ func TestGetAddresses(t *testing.T) {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	var testData = testTable{
+	testData := testTable{
 		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
 		names: []string{"eth1", "eth2"},
 	}
+
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWiFi.New(mockWifi)
 
