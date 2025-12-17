@@ -25,20 +25,25 @@ func getMockDbRows(t *testing.T, names []string) *sqlmock.Rows {
 func TestGetNamesSuccess(t *testing.T) {
 	t.Parallel()
 
-	var testData = []string{"name1, name2"}
+	var testData = [][]string{
+		{"name1, name2"},
+		{"", ""},
+	}
 
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("unexpected error '%s' when creating db connection", err)
 	}
 	defer mockDB.Close()
-	dbService := db.DBService{DB: mockDB}
+	dbService := db.New(mockDB)
 
-	mock.ExpectQuery("SELECT name FROM users").
-		WillReturnRows(getMockDbRows(t, testData))
-	names, err := dbService.GetNames()
-	require.NoError(t, err, "error must be nil")
-	require.Equal(t, testData, names, "expected names: %s, actual names: %s", testData, names)
+	for rowIdx, row := range testData {
+		mock.ExpectQuery("SELECT name FROM users").
+			WillReturnRows(getMockDbRows(t, row))
+		names, err := dbService.GetNames()
+		require.NoError(t, err, "row: %d, error must be nil", rowIdx)
+		require.Equal(t, row, names, "row: %d, expected names: %s, actual names: %s", rowIdx, row, names)
+	}
 }
 
 func TestGetNamesDBQueryErr(t *testing.T) {
@@ -49,7 +54,7 @@ func TestGetNamesDBQueryErr(t *testing.T) {
 		t.Fatalf("unexpected error '%s' when creating db connection", err)
 	}
 	defer mockDB.Close()
-	dbService := db.DBService{DB: mockDB}
+	dbService := db.New(mockDB)
 
 	mock.ExpectQuery("SELECT name FROM users").
 		WillReturnRows(getMockDbRows(t, nil)).
@@ -68,7 +73,7 @@ func TestGetNamesRowsScanningErr(t *testing.T) {
 		t.Fatalf("unexpected error '%s' when creating db connection", err)
 	}
 	defer mockDB.Close()
-	dbService := db.DBService{DB: mockDB}
+	dbService := db.New(mockDB)
 
 	mock.ExpectQuery("SELECT name FROM users").
 		WillReturnRows(
@@ -88,7 +93,7 @@ func TestGetNamesRowsErr(t *testing.T) {
 		t.Fatalf("unexpected error '%s' when creating db connection", err)
 	}
 	defer mockDB.Close()
-	dbService := db.DBService{DB: mockDB}
+	dbService := db.New(mockDB)
 
 	mock.ExpectQuery("SELECT name FROM users").
 		WillReturnRows(
@@ -97,6 +102,90 @@ func TestGetNamesRowsErr(t *testing.T) {
 				RowError(0, ErrExpected),
 		)
 	names, err := dbService.GetNames()
+	require.Nil(t, names, "names must be nil")
+	require.ErrorContains(t, err, "rows error")
+}
+
+func TestGetUniqueNamesSuccess(t *testing.T) {
+	t.Parallel()
+
+	var testData = [][]string{
+		{"name1, name2"},
+		{"", ""},
+	}
+
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("unexpected error '%s' when creating db connection", err)
+	}
+	defer mockDB.Close()
+	dbService := db.New(mockDB)
+
+	for rowIdx, row := range testData {
+		mock.ExpectQuery("SELECT DISTINCT name FROM users").
+			WillReturnRows(getMockDbRows(t, row))
+		names, err := dbService.GetUniqueNames()
+		require.NoError(t, err, "row: %d, error must be nil", rowIdx)
+		require.Equal(t, row, names, "row: %d, expected names: %s, actual names: %s", rowIdx, row, names)
+	}
+}
+
+func TestGetUniqueNamesDBQueryErr(t *testing.T) {
+	t.Parallel()
+
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("unexpected error '%s' when creating db connection", err)
+	}
+	defer mockDB.Close()
+	dbService := db.New(mockDB)
+
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").
+		WillReturnRows(getMockDbRows(t, nil)).
+		WillReturnError(ErrExpected)
+	names, err := dbService.GetUniqueNames()
+	require.ErrorIs(t, err, ErrExpected, "expected error: %w, actual error: %w", ErrExpected, err)
+	require.Nil(t, names, "names must be nil")
+	require.ErrorContains(t, err, "db query")
+}
+
+func TestGetUniqueNamesRowsScanningErr(t *testing.T) {
+	t.Parallel()
+
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("unexpected error '%s' when creating db connection", err)
+	}
+	defer mockDB.Close()
+	dbService := db.New(mockDB)
+
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").
+		WillReturnRows(
+			sqlmock.NewRows([]string{"name"}).
+				AddRow(nil),
+		)
+	names, err := dbService.GetUniqueNames()
+	require.Nil(t, names, "names must be nil")
+	require.ErrorContains(t, err, "rows scanning")
+}
+
+func TestGetUniqueNamesRowsErr(t *testing.T) {
+	t.Parallel()
+
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("unexpected error '%s' when creating db connection", err)
+	}
+	defer mockDB.Close()
+	dbService := db.New(mockDB)
+
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").
+		WillReturnRows(
+			sqlmock.NewRows([]string{"name"}).
+				AddRow("name").
+				RowError(0, ErrExpected),
+		)
+	names, err := dbService.GetUniqueNames()
 	require.Nil(t, names, "names must be nil")
 	require.ErrorContains(t, err, "rows error")
 }
