@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var ErrExpected = errors.New("expected error")
+var errExpected = errors.New("expected error")
 
 func getMockDbRows(t *testing.T, names []string) *sqlmock.Rows {
 	t.Helper()
@@ -58,9 +58,9 @@ func TestGetNamesDBQueryErr(t *testing.T) {
 
 	mock.ExpectQuery("SELECT name FROM users").
 		WillReturnRows(getMockDbRows(t, nil)).
-		WillReturnError(ErrExpected)
+		WillReturnError(errExpected)
 	names, err := dbService.GetNames()
-	require.ErrorIs(t, err, ErrExpected, "expected error: %w, actual error: %w", ErrExpected, err)
+	require.ErrorIs(t, err, errExpected, "expected error: %w, actual error: %w", errExpected, err)
 	require.Nil(t, names, "names must be nil")
 	require.ErrorContains(t, err, "db query")
 }
@@ -99,7 +99,7 @@ func TestGetNamesRowsErr(t *testing.T) {
 		WillReturnRows(
 			sqlmock.NewRows([]string{"name"}).
 				AddRow("name").
-				RowError(0, ErrExpected),
+				RowError(0, errExpected),
 		)
 	names, err := dbService.GetNames()
 	require.Nil(t, names, "names must be nil")
@@ -142,9 +142,9 @@ func TestGetUniqueNamesDBQueryErr(t *testing.T) {
 
 	mock.ExpectQuery("SELECT DISTINCT name FROM users").
 		WillReturnRows(getMockDbRows(t, nil)).
-		WillReturnError(ErrExpected)
+		WillReturnError(errExpected)
 	names, err := dbService.GetUniqueNames()
-	require.ErrorIs(t, err, ErrExpected, "expected error: %w, actual error: %w", ErrExpected, err)
+	require.ErrorIs(t, err, errExpected, "expected error: %w, actual error: %w", errExpected, err)
 	require.Nil(t, names, "names must be nil")
 	require.ErrorContains(t, err, "db query")
 }
@@ -183,7 +183,7 @@ func TestGetUniqueNamesRowsErr(t *testing.T) {
 		WillReturnRows(
 			sqlmock.NewRows([]string{"name"}).
 				AddRow("name").
-				RowError(0, ErrExpected),
+				RowError(0, errExpected),
 		)
 	names, err := dbService.GetUniqueNames()
 	require.Nil(t, names, "names must be nil")
