@@ -69,6 +69,15 @@ func (conv *ConveyerImpl) getChannel(id string) (chan string, error) {
 	return ch, nil
 }
 
+func (conv *ConveyerImpl) closeChannels() {
+	conv.mu.Lock()
+	defer conv.mu.Unlock()
+
+	for _, channel := range conv.channels {
+		close(channel)
+	}
+}
+
 func (conv *ConveyerImpl) RegisterDecorator(
 	decFn func(ctx context.Context, input chan string, output chan string) error,
 	input string,
@@ -130,25 +139,9 @@ func (conv *ConveyerImpl) RegisterSeparator(
 }
 
 func (conv *ConveyerImpl) Run(ctx context.Context) error {
+	defer conv.closeChannels()
+
 	group, groupCtx := errgroup.WithContext(ctx)
-
-	conv.mu.RLock()
-
-	decorators := make([]decoratorSpec, len(conv.decorators))
-	copy(decorators, conv.decorators)
-
-	multiplexers := make([]multiplexerSpec, len(conv.multiplexers))
-	copy(multiplexers, conv.multiplexers)
-
-	separators := make([]separatorSpec, len(conv.separators))
-	copy(separators, conv.separators)
-
-	channelsToClose := make(map[string]chan string, len(conv.channels))
-	for k, v := range conv.channels {
-		channelsToClose[k] = v
-	}
-
-	conv.mu.RUnlock()
 
 	for _, decorator := range conv.decorators {
 		dec := decorator
@@ -194,17 +187,9 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 
 	err := group.Wait()
 
-	conv.mu.Lock()
-	for _, ch := range conv.channels {
-		if ch != nil {
-			close(ch)
-		}
-	}
-
 	for key := range conv.channels {
 		conv.channels[key] = nil
 	}
-	conv.mu.Unlock()
 
 	if err != nil {
 		return fmt.Errorf("conveyer error: %w", err)
