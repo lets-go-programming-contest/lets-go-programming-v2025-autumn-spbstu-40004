@@ -50,6 +50,8 @@ func New(size int) *ConveyerImpl {
 }
 
 func (conv *ConveyerImpl) createChannel(id string) {
+	conv.mu.Lock()
+	defer conv.mu.Unlock()
 
 	if _, exists := conv.channels[id]; !exists {
 		conv.channels[id] = make(chan string, conv.size)
@@ -72,11 +74,8 @@ func (conv *ConveyerImpl) closeChannels() {
 	conv.mu.Lock()
 	defer conv.mu.Unlock()
 
-	for key, channel := range conv.channels {
-		if channel != nil {
-			close(channel)
-			conv.channels[key] = nil
-		}
+	for _, channel := range conv.channels {
+		close(channel)
 	}
 }
 
@@ -85,17 +84,16 @@ func (conv *ConveyerImpl) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	conv.mu.Lock()
-	defer conv.mu.Unlock()
-
 	conv.createChannel(input)
 	conv.createChannel(output)
 
+	conv.mu.Lock()
 	conv.decorators = append(conv.decorators, decoratorSpec{
 		fn:     decFn,
 		input:  input,
 		output: output,
 	})
+	conv.mu.Unlock()
 }
 
 func (conv *ConveyerImpl) RegisterMultiplexer(
@@ -103,20 +101,19 @@ func (conv *ConveyerImpl) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	conv.mu.Lock()
-	defer conv.mu.Unlock()
-
 	for _, inp := range inputs {
 		conv.createChannel(inp)
 	}
 
 	conv.createChannel(output)
 
+	conv.mu.Lock()
 	conv.multiplexers = append(conv.multiplexers, multiplexerSpec{
 		fn:     mulFn,
 		inputs: inputs,
 		output: output,
 	})
+	conv.mu.Unlock()
 }
 
 func (conv *ConveyerImpl) RegisterSeparator(
@@ -124,20 +121,19 @@ func (conv *ConveyerImpl) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	conv.mu.Lock()
-	defer conv.mu.Unlock()
-
 	conv.createChannel(input)
 
 	for _, out := range outputs {
 		conv.createChannel(out)
 	}
 
+	conv.mu.Lock()
 	conv.separators = append(conv.separators, separatorSpec{
 		fn:      regFn,
 		input:   input,
 		outputs: outputs,
 	})
+	conv.mu.Unlock()
 }
 
 func (conv *ConveyerImpl) Run(ctx context.Context) error {
