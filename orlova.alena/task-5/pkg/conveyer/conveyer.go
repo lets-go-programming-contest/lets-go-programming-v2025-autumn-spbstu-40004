@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -11,6 +12,7 @@ import (
 var ErrChan = errors.New("chan not found")
 
 type ConveyerImpl struct {
+	mu           sync.RWMutex
 	size         int
 	channels     map[string]chan string
 	decorators   []decoratorSpec
@@ -47,12 +49,18 @@ func New(size int) *ConveyerImpl {
 }
 
 func (conv *ConveyerImpl) createChannel(id string) {
+	conv.mu.Lock()
+	defer conv.mu.Unlock()
+
 	if _, exists := conv.channels[id]; !exists {
 		conv.channels[id] = make(chan string, conv.size)
 	}
 }
 
 func (conv *ConveyerImpl) getChannel(id string) (chan string, error) {
+	conv.mu.RLock()
+	defer conv.mu.RUnlock()
+
 	ch, exists := conv.channels[id]
 	if !exists {
 		return nil, ErrChan
@@ -66,6 +74,9 @@ func (conv *ConveyerImpl) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	conv.mu.Lock()
+	defer conv.mu.Unlock()
+
 	conv.createChannel(input)
 	conv.createChannel(output)
 
@@ -81,6 +92,9 @@ func (conv *ConveyerImpl) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	conv.mu.Lock()
+	defer conv.mu.Unlock()
+
 	for _, inp := range inputs {
 		conv.createChannel(inp)
 	}
@@ -99,6 +113,9 @@ func (conv *ConveyerImpl) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	conv.mu.Lock()
+	defer conv.mu.Unlock()
+
 	conv.createChannel(input)
 
 	for _, out := range outputs {
@@ -114,6 +131,24 @@ func (conv *ConveyerImpl) RegisterSeparator(
 
 func (conv *ConveyerImpl) Run(ctx context.Context) error {
 	group, groupCtx := errgroup.WithContext(ctx)
+
+	conv.mu.RLock()
+
+	decorators := make([]decoratorSpec, len(conv.decorators))
+	copy(decorators, conv.decorators)
+
+	multiplexers := make([]multiplexerSpec, len(conv.multiplexers))
+	copy(multiplexers, conv.multiplexers)
+
+	separators := make([]separatorSpec, len(conv.separators))
+	copy(separators, conv.separators)
+
+	channelsToClose := make(map[string]chan string, len(conv.channels))
+	for k, v := range conv.channels {
+		channelsToClose[k] = v
+	}
+
+	conv.mu.RUnlock()
 
 	for _, decorator := range conv.decorators {
 		dec := decorator
@@ -159,9 +194,17 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 
 	err := group.Wait()
 
+	conv.mu.Lock()
 	for _, ch := range conv.channels {
-		close(ch)
+		if ch != nil {
+			close(ch)
+		}
 	}
+
+	for key := range conv.channels {
+		conv.channels[key] = nil
+	}
+	conv.mu.Unlock()
 
 	if err != nil {
 		return fmt.Errorf("conveyer error: %w", err)
