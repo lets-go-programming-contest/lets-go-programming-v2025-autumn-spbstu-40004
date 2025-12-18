@@ -40,6 +40,7 @@ type multiplexerSpec struct {
 
 func New(size int) *ConveyerImpl {
 	return &ConveyerImpl{
+		mu:           sync.RWMutex{},
 		size:         size,
 		channels:     make(map[string]chan string),
 		decorators:   make([]decoratorSpec, 0),
@@ -49,8 +50,6 @@ func New(size int) *ConveyerImpl {
 }
 
 func (conv *ConveyerImpl) createChannel(id string) {
-	conv.mu.Lock()
-	defer conv.mu.Unlock()
 
 	if _, exists := conv.channels[id]; !exists {
 		conv.channels[id] = make(chan string, conv.size)
@@ -73,8 +72,11 @@ func (conv *ConveyerImpl) closeChannels() {
 	conv.mu.Lock()
 	defer conv.mu.Unlock()
 
-	for _, channel := range conv.channels {
-		close(channel)
+	for key, channel := range conv.channels {
+		if channel != nil {
+			close(channel)
+			conv.channels[key] = nil
+		}
 	}
 }
 
@@ -139,8 +141,6 @@ func (conv *ConveyerImpl) RegisterSeparator(
 }
 
 func (conv *ConveyerImpl) Run(ctx context.Context) error {
-	defer conv.closeChannels()
-
 	group, groupCtx := errgroup.WithContext(ctx)
 
 	for _, decorator := range conv.decorators {
@@ -187,9 +187,7 @@ func (conv *ConveyerImpl) Run(ctx context.Context) error {
 
 	err := group.Wait()
 
-	for key := range conv.channels {
-		conv.channels[key] = nil
-	}
+	conv.closeChannels()
 
 	if err != nil {
 		return fmt.Errorf("conveyer error: %w", err)
