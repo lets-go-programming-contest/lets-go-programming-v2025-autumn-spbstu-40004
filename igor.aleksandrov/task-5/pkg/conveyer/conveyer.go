@@ -43,6 +43,7 @@ func (c *Conveyer) getChannel(name string) (chan string, error) {
 	defer c.mu.RUnlock()
 
 	channel, exists := c.channels[name]
+
 	if !exists {
 		return nil, ErrChannelNotFound
 	}
@@ -62,7 +63,7 @@ func (c *Conveyer) RegisterDecorator(
 	c.ensureChannel(inputName)
 	c.ensureChannel(outputName)
 
-	handler := func(ctx context.Context) error {
+	wrapper := func(ctx context.Context) error {
 		c.mu.RLock()
 		inCh := c.getExistingChannelUnsafe(inputName)
 		outCh := c.getExistingChannelUnsafe(outputName)
@@ -72,7 +73,7 @@ func (c *Conveyer) RegisterDecorator(
 	}
 
 	c.mu.Lock()
-	c.handlers = append(c.handlers, handler)
+	c.handlers = append(c.handlers, wrapper)
 	c.mu.Unlock()
 }
 
@@ -87,8 +88,7 @@ func (c *Conveyer) RegisterMultiplexer(
 
 	c.ensureChannel(outputName)
 
-	handler := func(ctx context.Context) error {
-
+	wrapper := func(ctx context.Context) error {
 		c.mu.RLock()
 		inChs := make([]chan string, 0, len(inputs))
 
@@ -103,7 +103,7 @@ func (c *Conveyer) RegisterMultiplexer(
 	}
 
 	c.mu.Lock()
-	c.handlers = append(c.handlers, handler)
+	c.handlers = append(c.handlers, wrapper)
 	c.mu.Unlock()
 }
 
@@ -118,8 +118,7 @@ func (c *Conveyer) RegisterSeparator(
 		c.ensureChannel(name)
 	}
 
-	handler := func(ctx context.Context) error {
-
+	wrapper := func(ctx context.Context) error {
 		c.mu.RLock()
 		inCh := c.getExistingChannelUnsafe(inputName)
 		outChs := make([]chan string, 0, len(outputs))
@@ -134,7 +133,7 @@ func (c *Conveyer) RegisterSeparator(
 	}
 
 	c.mu.Lock()
-	c.handlers = append(c.handlers, handler)
+	c.handlers = append(c.handlers, wrapper)
 	c.mu.Unlock()
 }
 
@@ -144,10 +143,10 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	c.mu.RLock()
 
 	for _, hnd := range c.handlers {
-		handler := hnd
+		h := hnd
 
 		group.Go(func() error {
-			return handler(gCtx)
+			return h(gCtx)
 		})
 	}
 
@@ -178,7 +177,7 @@ func (c *Conveyer) closeAllChannels() {
 }
 
 func (c *Conveyer) Send(name string, data string) error {
-	channel, err := c.getChannel(name)
+	ch, err := c.getChannel(name)
 
 	if err != nil {
 		return err
@@ -188,23 +187,23 @@ func (c *Conveyer) Send(name string, data string) error {
 		_ = recover()
 	}()
 
-	channel <- data
+	ch <- data
 
 	return nil
 }
 
 func (c *Conveyer) Recv(name string) (string, error) {
-	channel, err := c.getChannel(name)
+	ch, err := c.getChannel(name)
 
 	if err != nil {
 		return "", err
 	}
 
-	value, ok := <-channel
+	val, ok := <-ch
 
 	if !ok {
 		return UndefinedValue, nil
 	}
 
-	return value, nil
+	return val, nil
 }
