@@ -36,7 +36,6 @@ func main() {
 	}
 
 	err = ioutils.WriteBytesToFile(cfg.OutputFile, jsonMarshalled)
-
 	if err != nil {
 		panic(err)
 	}

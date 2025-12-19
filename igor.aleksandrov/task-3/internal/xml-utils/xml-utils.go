@@ -15,11 +15,11 @@ type ValCurs struct {
 }
 
 type Currency struct {
-	NumCode       string  `xml:"NumCode" json:"-"`
-	CharCode      string  `xml:"CharCode" json:"char_code"`
-	ValueStr      string  `xml:"Value" json:"-"`
-	NumericalCode int     `xml:"-" json:"num_code"`
-	Value         float64 `xml:"-" json:"value"`
+	NumCode       string  `xml:"NumCode"    json:"-"`
+	CharCode      string  `xml:"CharCode"   json:"char_code"`
+	ValueStr      string  `xml:"Value"      json:"-"`
+	NumericalCode int     `xml:"-"          json:"num_code"`
+	Value         float64 `xml:"-"          json:"value"`
 }
 
 func ParseXML(filePath string) ([]Currency, error) {
