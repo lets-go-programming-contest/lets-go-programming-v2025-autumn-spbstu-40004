@@ -63,8 +63,6 @@ func New(size int) *conveyer {
 }
 
 func (c *conveyer) obtainChannel(name string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	if _, exists := c.channels[name]; exists {
 		return
