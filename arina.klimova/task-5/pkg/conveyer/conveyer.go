@@ -152,6 +152,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
 	for _, ch := range c.channels {
 		close(ch)
 	}
@@ -159,6 +160,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("conveyer finished: %w", err)
 	}
+
 	return nil
 }
 
@@ -185,6 +187,7 @@ func (c *conveyer) runDecoratorHandlers(group *errgroup.Group, ctx context.Conte
 		group.Go(func() error {
 			input, _ := c.getChannel(dec.input)
 			output, _ := c.getChannel(dec.output)
+
 			return dec.fn(ctx, input, output)
 		})
 	}
@@ -193,6 +196,7 @@ func (c *conveyer) runDecoratorHandlers(group *errgroup.Group, ctx context.Conte
 func (c *conveyer) runMultiplexerHandlers(group *errgroup.Group, ctx context.Context, multiplexers []multiplexerSpec) {
 	for _, multiplexer := range multiplexers {
 		mux := multiplexer
+
 		group.Go(func() error {
 			inputs := make([]chan string, len(mux.inputs))
 
@@ -201,6 +205,7 @@ func (c *conveyer) runMultiplexerHandlers(group *errgroup.Group, ctx context.Con
 			}
 
 			output, _ := c.getChannel(mux.output)
+
 			return mux.fn(ctx, inputs, output)
 		})
 	}
@@ -209,10 +214,12 @@ func (c *conveyer) runMultiplexerHandlers(group *errgroup.Group, ctx context.Con
 func (c *conveyer) runSeparatorHandlers(group *errgroup.Group, ctx context.Context, separators []separatorSpec) {
 	for _, separator := range separators {
 		sep := separator
+
 		group.Go(func() error {
 			input, _ := c.getChannel(sep.input)
 
 			outputs := make([]chan string, len(sep.outputs))
+
 			for i, name := range sep.outputs {
 				outputs[i], _ = c.getChannel(name)
 			}
