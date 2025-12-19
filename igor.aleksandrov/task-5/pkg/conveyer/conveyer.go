@@ -194,7 +194,6 @@ func (c *Conveyer) Send(name string, data string) error {
 
 func (c *Conveyer) Recv(name string) (string, error) {
 	channel, err := c.getChannel(name)
-
 	if err != nil {
 		return "", err
 	}
