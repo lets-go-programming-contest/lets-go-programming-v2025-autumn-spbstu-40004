@@ -32,6 +32,7 @@ type conveyer struct {
 	multiplexers  []multiplexerSpec
 	separators    []separatorSpec
 	runInProgress bool
+	runStarted    bool
 }
 
 type decoratorSpec struct {
@@ -63,6 +64,8 @@ func New(size int) *conveyer {
 }
 
 func (c *conveyer) obtainChannel(name string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	if _, exists := c.channels[name]; exists {
 		return
@@ -72,8 +75,8 @@ func (c *conveyer) obtainChannel(name string) {
 }
 
 func (c *conveyer) getChannel(name string) (chan string, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 
 	if channel, exists := c.channels[name]; exists {
 		return channel, nil
@@ -90,12 +93,16 @@ func (c *conveyer) RegisterDecorator(
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if c.runInProgress {
+	if c.runStarted {
 		return ErrCannotRegister
 	}
 
-	c.obtainChannel(input)
-	c.obtainChannel(output)
+	if _, exists := c.channels[input]; !exists {
+		c.channels[input] = make(chan string, c.bufferSize)
+	}
+	if _, exists := c.channels[output]; !exists {
+		c.channels[output] = make(chan string, c.bufferSize)
+	}
 
 	c.decorators = append(c.decorators, decoratorSpec{
 		fn:     decoratorFunc,
@@ -114,15 +121,19 @@ func (c *conveyer) RegisterMultiplexer(
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if c.runInProgress {
+	if c.runStarted {
 		return ErrCannotRegister
 	}
 
 	for _, inputName := range inputs {
-		c.obtainChannel(inputName)
+		if _, exists := c.channels[inputName]; !exists {
+			c.channels[inputName] = make(chan string, c.bufferSize)
+		}
 	}
 
-	c.obtainChannel(output)
+	if _, exists := c.channels[output]; !exists {
+		c.channels[output] = make(chan string, c.bufferSize)
+	}
 
 	c.multiplexers = append(c.multiplexers, multiplexerSpec{
 		fn:     multiplexerFunc,
@@ -145,7 +156,9 @@ func (c *conveyer) RegisterSeparator(
 		return ErrCannotRegister
 	}
 
-	c.obtainChannel(input)
+	if _, exists := c.channels[input]; !exists {
+		c.channels[input] = make(chan string, c.bufferSize)
+	}
 
 	for _, outputName := range outputs {
 		c.obtainChannel(outputName)
@@ -177,6 +190,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 	copy(separatorsCopy, c.separators)
 
 	c.runInProgress = true
+	c.runStarted = true
 	c.mu.Unlock()
 
 	group, groupCtx := errgroup.WithContext(ctx)
@@ -246,6 +260,9 @@ func (c *conveyer) Run(ctx context.Context) error {
 	err := group.Wait()
 
 	c.mu.Lock()
+	for _, ch := range c.channels {
+		close(ch)
+	}
 	c.runInProgress = false
 	c.mu.Unlock()
 
@@ -281,7 +298,7 @@ func (c *conveyer) Recv(output string) (string, error) {
 	select {
 	case data, ok := <-channel:
 		if !ok {
-			return "", ErrChannelClosed
+			return "undefined", nil
 		}
 		return data, nil
 	case <-time.After(timeoutTime):
