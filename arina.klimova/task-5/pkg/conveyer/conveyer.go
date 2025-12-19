@@ -246,9 +246,6 @@ func (c *conveyer) Run(ctx context.Context) error {
 	err := group.Wait()
 
 	c.mu.Lock()
-	for _, ch := range c.channels {
-		close(ch)
-	}
 	c.runInProgress = false
 	c.mu.Unlock()
 
