@@ -22,7 +22,7 @@ type Conveyer struct {
 
 func New(size int) *Conveyer {
 	return &Conveyer{
-		mu: sync.RWMutex{},
+		mu:          sync.RWMutex{},
 		channels:    make(map[string]chan string),
 		handlers:    make([]func(ctx context.Context) error, 0),
 		channelSize: size,
@@ -153,6 +153,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	c.mu.RUnlock()
 
 	err := group.Wait()
+
 	c.closeAllChannels()
 
 	if err != nil {
@@ -177,8 +178,7 @@ func (c *Conveyer) closeAllChannels() {
 }
 
 func (c *Conveyer) Send(name string, data string) error {
-	ch, err := c.getChannel(name)
-
+	channel, err := c.getChannel(name)
 	if err != nil {
 		return err
 	}
@@ -187,19 +187,19 @@ func (c *Conveyer) Send(name string, data string) error {
 		_ = recover()
 	}()
 
-	ch <- data
+	channel <- data
 
 	return nil
 }
 
 func (c *Conveyer) Recv(name string) (string, error) {
-	ch, err := c.getChannel(name)
+	channel, err := c.getChannel(name)
 
 	if err != nil {
 		return "", err
 	}
 
-	val, ok := <-ch
+	val, ok := <-channel
 
 	if !ok {
 		return UndefinedValue, nil
