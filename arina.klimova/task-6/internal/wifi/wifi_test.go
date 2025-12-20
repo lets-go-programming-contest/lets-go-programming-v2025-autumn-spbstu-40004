@@ -11,10 +11,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	errWiFi = errors.New("wifi error")
+)
+
 //go:generate mockery --name=WiFiHandle --testonly --quiet --outpkg=wifi_test --output=.
 
 func createMockInterface(name string, mac string) *wifi.Interface {
 	hwAddr, _ := net.ParseMAC(mac)
+
 	return &wifi.Interface{
 		Index:        1,
 		Name:         name,
@@ -26,16 +31,9 @@ func createMockInterface(name string, mac string) *wifi.Interface {
 	}
 }
 
-func parseMACs(addrs []string) []net.HardwareAddr {
-	hwAddrs := make([]net.HardwareAddr, 0, len(addrs))
-	for _, addr := range addrs {
-		hwAddr, _ := net.ParseMAC(addr)
-		hwAddrs = append(hwAddrs, hwAddr)
-	}
-	return hwAddrs
-}
-
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := &WiFiHandle{}
 	service := mywifi.New(mockWiFi)
 
@@ -44,7 +42,11 @@ func TestNew(t *testing.T) {
 }
 
 func TestWiFiService_GetAddresses(t *testing.T) {
+	t.Parallel()
+
 	t.Run("successful query", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := mywifi.New(mockWiFi)
 
@@ -69,10 +71,12 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 	})
 
 	t.Run("interfaces error", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := mywifi.New(mockWiFi)
 
-		mockWiFi.On("Interfaces").Return(nil, errors.New("wifi error"))
+		mockWiFi.On("Interfaces").Return(nil, errWiFi)
 
 		addresses, err := service.GetAddresses()
 
@@ -83,6 +87,8 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 	})
 
 	t.Run("empty interfaces", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := mywifi.New(mockWiFi)
 
@@ -96,6 +102,8 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 	})
 
 	t.Run("interface without MAC address", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := mywifi.New(mockWiFi)
 
@@ -121,7 +129,11 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 }
 
 func TestWiFiService_GetNames(t *testing.T) {
+	t.Parallel()
+
 	t.Run("successful query", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := mywifi.New(mockWiFi)
 
@@ -144,10 +156,12 @@ func TestWiFiService_GetNames(t *testing.T) {
 	})
 
 	t.Run("interfaces error", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := mywifi.New(mockWiFi)
 
-		mockWiFi.On("Interfaces").Return(nil, errors.New("wifi error"))
+		mockWiFi.On("Interfaces").Return(nil, errWiFi)
 
 		names, err := service.GetNames()
 
@@ -158,6 +172,8 @@ func TestWiFiService_GetNames(t *testing.T) {
 	})
 
 	t.Run("empty interfaces", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := mywifi.New(mockWiFi)
 
@@ -171,6 +187,8 @@ func TestWiFiService_GetNames(t *testing.T) {
 	})
 
 	t.Run("duplicate interface names", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := mywifi.New(mockWiFi)
 
