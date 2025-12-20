@@ -46,14 +46,22 @@ func TestDBService_GetNames(t *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			name: "rows_err_after_loop",
+			mockFn: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.NewRows([]string{"name"}).
+					AddRow("Ivan").
+					RowError(0, errors.New("post-iteration error"))
+				mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dbRaw, mock, err := sqlmock.New()
-			if err != nil {
-				t.Fatalf("failed to open sqlmock: %s", err)
-			}
+			dbRaw, mock, _ := sqlmock.New()
 			defer dbRaw.Close()
 
 			tt.mockFn(mock)
@@ -93,6 +101,23 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "query_error",
+			mockFn: func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(errors.New("query fail"))
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "scan_error",
+			mockFn: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
+				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
 			name: "rows_iteration_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
 				rows := sqlmock.NewRows([]string{"name"}).
@@ -107,10 +132,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dbRaw, mock, err := sqlmock.New()
-			if err != nil {
-				t.Fatalf("failed to open sqlmock: %s", err)
-			}
+			dbRaw, mock, _ := sqlmock.New()
 			defer dbRaw.Close()
 
 			tt.mockFn(mock)
@@ -124,6 +146,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			}
+			assert.NoError(t, mock.ExpectationsWereMet())
 		})
 	}
 }
