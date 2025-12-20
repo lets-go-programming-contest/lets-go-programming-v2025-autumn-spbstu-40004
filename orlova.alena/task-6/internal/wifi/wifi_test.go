@@ -46,6 +46,8 @@ func TestGetAddresses(t *testing.T) {
 			},
 			wantLen: 2,
 			check: func(t *testing.T, addrs []net.HardwareAddr) {
+				t.Helper()
+
 				assert.Equal(t, mustMAC("00:11:22:33:44:55"), addrs[0])
 				assert.Equal(t, mustMAC("aa:bb:cc:dd:ee:ff"), addrs[1])
 			},
@@ -57,6 +59,8 @@ func TestGetAddresses(t *testing.T) {
 			},
 			wantLen: 0,
 			check: func(t *testing.T, addrs []net.HardwareAddr) {
+				t.Helper()
+
 				assert.Empty(t, addrs)
 			},
 		},
@@ -69,6 +73,8 @@ func TestGetAddresses(t *testing.T) {
 			},
 			wantLen: 1,
 			check: func(t *testing.T, addrs []net.HardwareAddr) {
+				t.Helper()
+
 				assert.Nil(t, addrs[0])
 			},
 		},
@@ -97,8 +103,9 @@ func TestGetAddresses(t *testing.T) {
 				assert.Contains(t, err.Error(), tc.errMsg)
 				assert.Nil(t, got)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Len(t, got, tc.wantLen)
+
 				if tc.check != nil {
 					tc.check(t, got)
 				}
@@ -181,7 +188,7 @@ func TestGetNames(t *testing.T) {
 				assert.Contains(t, err.Error(), tc.errMsg)
 				assert.Nil(t, got)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tc.want, got)
 			}
 
@@ -212,11 +219,11 @@ func TestEdgeCases(t *testing.T) {
 		service := mywifi.New(mock)
 
 		names, err := service.GetNames()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []string{""}, names)
 
 		addrs, err := service.GetAddresses()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, addrs, 1)
 
 		mock.AssertExpectations(t)
@@ -234,10 +241,10 @@ func TestEdgeCases(t *testing.T) {
 		service := mywifi.New(mock)
 
 		addrs1, err1 := service.GetAddresses()
-		assert.NoError(t, err1)
+		require.NoError(t, err1)
 
 		names1, err2 := service.GetNames()
-		assert.NoError(t, err2)
+		require.NoError(t, err2)
 
 		assert.Len(t, addrs1, 1)
 		assert.Len(t, names1, 1)
