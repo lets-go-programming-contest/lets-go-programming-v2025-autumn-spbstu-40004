@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -47,6 +48,7 @@ type Conveyer struct {
 	size     int
 	channels map[string]chan string
 	workers  []func(ctx context.Context) error
+	rwlock   sync.RWMutex
 }
 
 func (c *Conveyer) RegisterDecorator(
@@ -54,6 +56,8 @@ func (c *Conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	c.rwlock.Lock()
+	defer c.rwlock.Unlock()
 	inCh := c.getOrCreateChannel(input)
 	outCh := c.getOrCreateChannel(output)
 	worker := func(ctx context.Context) error {
@@ -68,6 +72,9 @@ func (c *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	c.rwlock.Lock()
+	defer c.rwlock.Unlock()
+
 	inChans := make([]chan string, len(inputs))
 	for i, name := range inputs {
 		inChans[i] = c.getOrCreateChannel(name)
@@ -86,6 +93,8 @@ func (c *Conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	c.rwlock.Lock()
+	defer c.rwlock.Unlock()
 	inCh := c.getOrCreateChannel(input)
 	outChans := make([]chan string, len(outputs))
 
@@ -106,6 +115,8 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	}
 
 	defer func() {
+		c.rwlock.Lock()
+		defer c.rwlock.Unlock()
 		for _, ch := range c.channels {
 			close(ch)
 		}
@@ -129,6 +140,9 @@ func (c *Conveyer) Run(ctx context.Context) error {
 }
 
 func (c *Conveyer) Send(input string, data string) error {
+	c.rwlock.RLock()
+	defer c.rwlock.RUnlock()
+
 	ch, exists := c.channels[input]
 	if !exists {
 		return ErrNoChannels
@@ -139,6 +153,9 @@ func (c *Conveyer) Send(input string, data string) error {
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
+	c.rwlock.RLock()
+	defer c.rwlock.RUnlock()
+
 	ch, exists := c.channels[output]
 	if !exists {
 		return "", ErrNoChannels
