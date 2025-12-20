@@ -79,7 +79,7 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 
 		addresses, err := service.GetAddresses()
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "getting interfaces:")
 		assert.Nil(t, addresses)
 		mockWiFi.AssertExpectations(t)
@@ -95,7 +95,7 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 
 		addresses, err := service.GetAddresses()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, addresses)
 		mockWiFi.AssertExpectations(t)
 	})
@@ -120,7 +120,7 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 
 		addresses, err := service.GetAddresses()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.Len(t, addresses, 1)
 		assert.Nil(t, addresses[0])
 		mockWiFi.AssertExpectations(t)
@@ -164,7 +164,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 
 		names, err := service.GetNames()
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "getting interfaces:")
 		assert.Nil(t, names)
 		mockWiFi.AssertExpectations(t)
@@ -180,7 +180,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 
 		names, err := service.GetNames()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, names)
 		mockWiFi.AssertExpectations(t)
 	})
@@ -200,7 +200,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 
 		names, err := service.GetNames()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.Len(t, names, 2)
 		assert.Equal(t, "wlan0", names[0])
 		assert.Equal(t, "wlan0", names[1])
