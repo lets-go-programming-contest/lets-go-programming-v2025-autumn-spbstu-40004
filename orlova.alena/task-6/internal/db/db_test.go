@@ -89,25 +89,25 @@ func TestGetNames(t *testing.T) {
 		},
 	}
 
-	for _, tс := range tests {
-		t.Run(tс.name, func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			mockDB, mock, err := sqlmock.New()
 			require.NoError(t, err)
 			defer mockDB.Close()
 
-			tс.setup(mock)
+			tt.setup(mock)
 
 			service := db.New(mockDB)
 			result, err := service.GetNames()
 
-			if tс.wantErr {
+			if tt.wantErr {
 				require.Error(t, err)
 				assert.Nil(t, result)
 			} else {
 				require.NoError(t, err)
-				assert.Equal(t, tс.expected, result)
+				assert.Equal(t, tt.expected, result)
 			}
 
 			assert.NoError(t, mock.ExpectationsWereMet())
@@ -177,25 +177,25 @@ func TestGetUniqueNames(t *testing.T) {
 		},
 	}
 
-	for _, tс := range tests {
-		t.Run(tс.name, func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			mockDB, mock, err := sqlmock.New()
 			require.NoError(t, err)
 			defer mockDB.Close()
 
-			tс.setup(mock)
+			tt.setup(mock)
 
 			service := db.New(mockDB)
 			result, err := service.GetUniqueNames()
 
-			if tс.wantErr {
+			if tt.wantErr {
 				require.Error(t, err)
 				assert.Nil(t, result)
 			} else {
 				require.NoError(t, err)
-				assert.Equal(t, tс.expected, result)
+				assert.Equal(t, tt.expected, result)
 			}
 
 			assert.NoError(t, mock.ExpectationsWereMet())
