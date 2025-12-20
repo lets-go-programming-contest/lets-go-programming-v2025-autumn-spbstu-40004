@@ -15,7 +15,9 @@ var errMock = errors.New("mock error")
 
 type testDatabase struct{}
 
-func (t *testDatabase) Query(string, ...any) (*sql.Rows, error) { return nil, nil }
+func (t *testDatabase) Query(string, ...any) (*sql.Rows, error) {
+	return &sql.Rows{}, nil
+}
 
 func TestNew(t *testing.T) {
 	t.Parallel()
@@ -38,21 +40,21 @@ func TestNew(t *testing.T) {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	t.Run("success cases", func(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 
 		cases := []struct {
-			name string
 			rows []string
 			want []string
 		}{
-			{"multiple", []string{"A", "B", "C"}, []string{"A", "B", "C"}},
-			{"single", []string{"Single"}, []string{"Single"}},
-			{"empty", []string{}, []string{}},
+			{[]string{"A", "B", "C"}, []string{"A", "B", "C"}},
+			{[]string{"Single"}, []string{"Single"}},
+			{[]string{}, []string{}},
+			{[]string{"Test"}, []string{"Test"}},
 		}
 
 		for _, tc := range cases {
-			t.Run(tc.name, func(t *testing.T) {
+			t.Run("", func(t *testing.T) {
 				t.Parallel()
 
 				mockDB, mock, err := sqlmock.New()
@@ -71,23 +73,20 @@ func TestGetNames(t *testing.T) {
 		}
 	})
 
-	t.Run("error cases", func(t *testing.T) {
+	t.Run("errors", func(t *testing.T) {
 		t.Parallel()
 
 		cases := []struct {
-			name   string
 			mock   func(sqlmock.Sqlmock)
 			errMsg string
 		}{
 			{
-				"query error",
 				func(m sqlmock.Sqlmock) {
 					m.ExpectQuery("SELECT name FROM users").WillReturnError(errMock)
 				},
 				"db query",
 			},
 			{
-				"scan error",
 				func(m sqlmock.Sqlmock) {
 					rows := sqlmock.NewRows([]string{"name"}).AddRow(123)
 					m.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
@@ -95,7 +94,13 @@ func TestGetNames(t *testing.T) {
 				"rows scanning",
 			},
 			{
-				"rows error",
+				func(m sqlmock.Sqlmock) {
+					rows := sqlmock.NewRows([]string{"name"}).AddRow("ok").AddRow(456)
+					m.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+				},
+				"rows scanning",
+			},
+			{
 				func(m sqlmock.Sqlmock) {
 					rows := sqlmock.NewRows([]string{"name"}).AddRow("test").RowError(0, errMock)
 					m.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
@@ -105,7 +110,7 @@ func TestGetNames(t *testing.T) {
 		}
 
 		for _, tc := range cases {
-			t.Run(tc.name, func(t *testing.T) {
+			t.Run("", func(t *testing.T) {
 				t.Parallel()
 
 				mockDB, mock, err := sqlmock.New()
@@ -128,22 +133,22 @@ func TestGetNames(t *testing.T) {
 func TestGetUniqueNames(t *testing.T) {
 	t.Parallel()
 
-	t.Run("success cases", func(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 
 		cases := []struct {
-			name string
 			rows []string
 			want []string
 		}{
-			{"unique", []string{"A", "B", "C"}, []string{"A", "B", "C"}},
-			{"duplicates", []string{"A", "A", "B"}, []string{"A", "B"}},
-			{"single", []string{"One"}, []string{"One"}},
-			{"empty", []string{}, []string{}},
+			{[]string{"A", "B", "C"}, []string{"A", "B", "C"}},
+			{[]string{"A", "A", "B"}, []string{"A", "B"}},
+			{[]string{"Same", "Same", "Same"}, []string{"Same"}},
+			{[]string{"One"}, []string{"One"}},
+			{[]string{}, []string{}},
 		}
 
 		for _, tc := range cases {
-			t.Run(tc.name, func(t *testing.T) {
+			t.Run("", func(t *testing.T) {
 				t.Parallel()
 
 				mockDB, mock, err := sqlmock.New()
@@ -162,33 +167,44 @@ func TestGetUniqueNames(t *testing.T) {
 		}
 	})
 
-	t.Run("error cases", func(t *testing.T) {
+	t.Run("errors", func(t *testing.T) {
 		t.Parallel()
 
 		cases := []struct {
-			name   string
 			mock   func(sqlmock.Sqlmock)
 			errMsg string
 		}{
 			{
-				"query error",
 				func(m sqlmock.Sqlmock) {
 					m.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(sql.ErrConnDone)
 				},
 				"db query",
 			},
 			{
-				"scan null",
 				func(m sqlmock.Sqlmock) {
 					rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
 					m.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
 				},
 				"rows scanning",
 			},
+			{
+				func(m sqlmock.Sqlmock) {
+					rows := sqlmock.NewRows([]string{"name"}).AddRow("valid").AddRow(nil)
+					m.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+				},
+				"rows scanning",
+			},
+			{
+				func(m sqlmock.Sqlmock) {
+					rows := sqlmock.NewRows([]string{"name"}).AddRow("test").RowError(0, errMock)
+					m.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+				},
+				"rows error",
+			},
 		}
 
 		for _, tc := range cases {
-			t.Run(tc.name, func(t *testing.T) {
+			t.Run("", func(t *testing.T) {
 				t.Parallel()
 
 				mockDB, mock, err := sqlmock.New()
@@ -211,7 +227,23 @@ func TestGetUniqueNames(t *testing.T) {
 func TestEdgeCases(t *testing.T) {
 	t.Parallel()
 
-	t.Run("rows close and large data", func(t *testing.T) {
+	t.Run("closed connection", func(t *testing.T) {
+		t.Parallel()
+
+		mockDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		mockDB.Close()
+
+		mock.ExpectQuery("SELECT name FROM users").
+			WillReturnError(errors.New("connection closed"))
+
+		result, err := db.New(mockDB).GetNames()
+
+		require.Error(t, err)
+		assert.Nil(t, result)
+	})
+
+	t.Run("rows close", func(t *testing.T) {
 		t.Parallel()
 
 		mockDB, mock, err := sqlmock.New()
@@ -224,6 +256,43 @@ func TestEdgeCases(t *testing.T) {
 		result, err := db.New(mockDB).GetNames()
 		require.NoError(t, err)
 		assert.Equal(t, []string{"Test"}, result)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("large dataset", func(t *testing.T) {
+		t.Parallel()
+
+		mockDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		defer mockDB.Close()
+
+		rows := sqlmock.NewRows([]string{"name"})
+		for range 100 {
+			rows.AddRow("User")
+		}
+
+		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+
+		result, err := db.New(mockDB).GetNames()
+		require.NoError(t, err)
+		assert.Len(t, result, 100)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("special characters", func(t *testing.T) {
+		t.Parallel()
+
+		mockDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		defer mockDB.Close()
+
+		names := []string{"Name-Dash", "Name_Underscore"}
+		mock.ExpectQuery("SELECT DISTINCT name FROM users").
+			WillReturnRows(createRows(names...))
+
+		result, err := db.New(mockDB).GetUniqueNames()
+		require.NoError(t, err)
+		assert.Equal(t, names, result)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }
