@@ -117,6 +117,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	defer func() {
 		c.rwlock.Lock()
 		defer c.rwlock.Unlock()
+
 		for _, ch := range c.channels {
 			close(ch)
 		}
@@ -188,5 +189,6 @@ func New(size int) Conveyer {
 		size:     size,
 		channels: make(map[string]chan string),
 		workers:  []func(ctx context.Context) error{},
+		rwlock:   sync.RWMutex{},
 	}
 }
