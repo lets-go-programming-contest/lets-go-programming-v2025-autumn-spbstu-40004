@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/widgeiw/task-8/config"
 )
 
 func main() {
-	fmt.Println("[TASK-8] Initial commit")
+	cfg := config.GetConfig()
+	fmt.Printf("%s %s\n", cfg.Environment, cfg.LogLevel)
 }
