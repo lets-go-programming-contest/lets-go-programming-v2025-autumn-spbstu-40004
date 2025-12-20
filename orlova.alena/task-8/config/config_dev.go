@@ -18,5 +18,6 @@ func getDefaultConfig() Config {
 	if err != nil {
 		panic(fmt.Sprintf("Failed to parse dev config: %v", err))
 	}
+
 	return cfg
 }
