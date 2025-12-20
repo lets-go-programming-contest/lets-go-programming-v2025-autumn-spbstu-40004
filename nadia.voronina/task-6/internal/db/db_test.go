@@ -16,8 +16,11 @@ var (
 
 func TestGetNames_Success(t *testing.T) {
 	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
+
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	rows := sqlmock.NewRows([]string{"name"}).
@@ -38,6 +41,7 @@ func TestGetNames_QueryError(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	mock.ExpectQuery("SELECT name FROM users").WillReturnError(errDBDown)
@@ -55,6 +59,7 @@ func TestGetNames_ScanError(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	rows := sqlmock.NewRows([]string{"name"}).
@@ -74,6 +79,7 @@ func TestGetNames_RowsError(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	rows := sqlmock.NewRows([]string{"name"}).AddRow("Ivan")
@@ -93,6 +99,7 @@ func TestGetNames_EmptyResult(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	rows := sqlmock.NewRows([]string{"name"})
@@ -111,6 +118,7 @@ func TestGetUniqueNames_Success(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	rows := sqlmock.NewRows([]string{"name"}).
@@ -131,6 +139,7 @@ func TestGetUniqueNames_QueryError(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(errDBDown)
@@ -148,6 +157,7 @@ func TestGetUniqueNames_ScanError(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
@@ -166,6 +176,7 @@ func TestGetUniqueNames_RowsError(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	rows := sqlmock.NewRows([]string{"name"}).
@@ -186,6 +197,7 @@ func TestGetUniqueNames_EmptyResult(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 
 	require.NoError(t, err)
+
 	defer mockDB.Close()
 
 	rows := sqlmock.NewRows([]string{"name"})
