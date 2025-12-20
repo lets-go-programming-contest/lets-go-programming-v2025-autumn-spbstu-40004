@@ -11,6 +11,12 @@ import (
 	"github.com/widgeiw/task-6/internal/db"
 )
 
+var (
+	dberror   = errors.New("error db")
+	strerror  = errors.New("string error")
+	connerror = errors.New("connection closed")
+)
+
 func TestNew(t *testing.T) {
 	t.Parallel()
 
@@ -54,7 +60,10 @@ func TestGetNames_Success(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			mockDB, mock, err := sqlmock.New()
 			require.NoError(t, err)
 			defer mockDB.Close()
@@ -84,7 +93,7 @@ func TestGetNames_Errors(t *testing.T) {
 			name: "error of request",
 			mockSetup: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery("SELECT name FROM users").
-					WillReturnError(errors.New("error db"))
+					WillReturnError(dberror)
 			},
 			errorMsg: "db query",
 		},
@@ -104,7 +113,7 @@ func TestGetNames_Errors(t *testing.T) {
 			mockSetup: func(mock sqlmock.Sqlmock) {
 				rows := sqlmock.NewRows([]string{"name"}).
 					AddRow("Тест").
-					RowError(0, errors.New("string error"))
+					RowError(0, strerror)
 				mock.ExpectQuery("SELECT name FROM users").
 					WillReturnRows(rows)
 			},
@@ -113,7 +122,10 @@ func TestGetNames_Errors(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			mockDB, mock, err := sqlmock.New()
 			require.NoError(t, err)
 			defer mockDB.Close()
@@ -123,7 +135,7 @@ func TestGetNames_Errors(t *testing.T) {
 			service := db.New(mockDB)
 			result, err := service.GetNames()
 
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), tc.errorMsg)
 			assert.Nil(t, result)
 			assert.NoError(t, mock.ExpectationsWereMet())
@@ -157,7 +169,10 @@ func TestGetUniqueNames_Success(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			mockDB, mock, err := sqlmock.New()
 			require.NoError(t, err)
 			defer mockDB.Close()
@@ -205,7 +220,10 @@ func TestGetUniqueNames_Errors(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			mockDB, mock, err := sqlmock.New()
 			require.NoError(t, err)
 			defer mockDB.Close()
@@ -215,7 +233,7 @@ func TestGetUniqueNames_Errors(t *testing.T) {
 			service := db.New(mockDB)
 			result, err := service.GetUniqueNames()
 
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), tc.errorMsg)
 			assert.Nil(t, result)
 			assert.NoError(t, mock.ExpectationsWereMet())
@@ -227,34 +245,40 @@ func TestEdgeCases(t *testing.T) {
 	t.Parallel()
 
 	t.Run("nil Database in constructor", func(t *testing.T) {
+		t.Parallel()
+
 		service := db.New(nil)
 		assert.NotNil(t, service)
 		assert.Nil(t, service.DB)
 	})
 
 	t.Run("closed connection", func(t *testing.T) {
+		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		mockDB.Close()
 
 		mock.ExpectQuery("SELECT name FROM users").
-			WillReturnError(errors.New("connection closed"))
+			WillReturnError(connerror)
 
 		service := db.New(mockDB)
 		result, err := service.GetNames()
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("large amount of requests", func(t *testing.T) {
+		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()
 
 		names := make([]string, 100)
 		rows := sqlmock.NewRows([]string{"name"})
-		for i := 0; i < 100; i++ {
+		for i := range 100 {
 			names[i] = "User"
 			rows.AddRow("User")
 		}
@@ -272,8 +296,10 @@ func TestEdgeCases(t *testing.T) {
 
 func createMockRows(names []string) *sqlmock.Rows {
 	rows := sqlmock.NewRows([]string{"name"})
+
 	for _, name := range names {
 		rows.AddRow(name)
 	}
+
 	return rows
 }
