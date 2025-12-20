@@ -15,8 +15,10 @@ var prodConfigData []byte
 func getDefaultConfig() Config {
 	var cfg Config
 	err := yaml.Unmarshal(prodConfigData, &cfg)
+
 	if err != nil {
 		panic(fmt.Sprintf("Failed to parse prod config: %v", err))
 	}
+
 	return cfg
 }
