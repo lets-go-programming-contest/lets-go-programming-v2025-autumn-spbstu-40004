@@ -2,8 +2,17 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/arinaklimova/task-8/config"
 )
 
 func main() {
-	fmt.Println("task-8")
+	config, err := config.Load()
+	if err != nil {
+		fmt.Println("Error:", err)
+
+		return
+	}
+
+	fmt.Print(config.Environment, " ", config.LogLevel)
 }
