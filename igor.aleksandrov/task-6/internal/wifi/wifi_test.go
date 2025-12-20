@@ -9,6 +9,7 @@ import (
 	"github.com/MrMels625/task-6/internal/wifi/mocks"
 	wifilib "github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWiFiService_GetAddresses(t *testing.T) {
@@ -43,7 +44,7 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "driver_error",
+			name: "error_getting_interfaces",
 			mockFn: func(m *mocks.WiFiHandle) {
 				m.On("Interfaces").Return(nil, errors.New("system failure"))
 			},
@@ -61,9 +62,10 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 			got, err := service.GetAddresses()
 
 			if tt.wantErr {
-				assert.Error(t, err)
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), "getting interfaces")
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			}
 			mockWiFi.AssertExpectations(t)
@@ -110,9 +112,10 @@ func TestWiFiService_GetNames(t *testing.T) {
 			got, err := service.GetNames()
 
 			if tt.wantErr {
-				assert.Error(t, err)
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), "getting interfaces")
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			}
 			mockWiFi.AssertExpectations(t)
