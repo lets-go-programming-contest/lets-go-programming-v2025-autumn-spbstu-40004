@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+//go:generate mockery --name=WiFiHandle --testonly --quiet --outpkg=wifi_test --output=.
+
 func createMockInterface(name string, mac string) *wifi.Interface {
 	hwAddr, _ := net.ParseMAC(mac)
 	return &wifi.Interface{
