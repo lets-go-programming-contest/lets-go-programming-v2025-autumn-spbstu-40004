@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	errDb  = errors.New("error db")
+	errDB  = errors.New("error db")
 	errStr = errors.New("string error")
 	errCon = errors.New("connection closed")
 )
@@ -60,7 +60,6 @@ func TestGetNames_Success(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -93,7 +92,7 @@ func TestGetNames_Errors(t *testing.T) {
 			name: "error of request",
 			mockSetup: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery("SELECT name FROM users").
-					WillReturnError(errDb)
+					WillReturnError(errDB)
 			},
 			errorMsg: "db query",
 		},
@@ -122,7 +121,6 @@ func TestGetNames_Errors(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -169,7 +167,6 @@ func TestGetUniqueNames_Success(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -220,7 +217,6 @@ func TestGetUniqueNames_Errors(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -278,8 +274,10 @@ func TestEdgeCases(t *testing.T) {
 
 		names := make([]string, 100)
 		rows := sqlmock.NewRows([]string{"name"})
+
 		for i := range 100 {
 			names[i] = "User"
+
 			rows.AddRow("User")
 		}
 
