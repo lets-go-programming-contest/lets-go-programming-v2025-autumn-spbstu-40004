@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	dberror   = errors.New("error db")
-	strerror  = errors.New("string error")
-	connerror = errors.New("connection closed")
+	errDb  = errors.New("error db")
+	errStr = errors.New("string error")
+	errCon = errors.New("connection closed")
 )
 
 func TestNew(t *testing.T) {
@@ -93,7 +93,7 @@ func TestGetNames_Errors(t *testing.T) {
 			name: "error of request",
 			mockSetup: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery("SELECT name FROM users").
-					WillReturnError(dberror)
+					WillReturnError(errDb)
 			},
 			errorMsg: "db query",
 		},
@@ -113,7 +113,7 @@ func TestGetNames_Errors(t *testing.T) {
 			mockSetup: func(mock sqlmock.Sqlmock) {
 				rows := sqlmock.NewRows([]string{"name"}).
 					AddRow("Тест").
-					RowError(0, strerror)
+					RowError(0, errStr)
 				mock.ExpectQuery("SELECT name FROM users").
 					WillReturnRows(rows)
 			},
@@ -260,7 +260,7 @@ func TestEdgeCases(t *testing.T) {
 		mockDB.Close()
 
 		mock.ExpectQuery("SELECT name FROM users").
-			WillReturnError(connerror)
+			WillReturnError(errCon)
 
 		service := db.New(mockDB)
 		result, err := service.GetNames()
