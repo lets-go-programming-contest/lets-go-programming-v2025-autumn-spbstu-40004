@@ -11,9 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	errWiFi = errors.New("wifi error")
-)
+var errWiFi = errors.New("wifi error")
 
 //go:generate mockery --name=WiFiHandle --testonly --quiet --outpkg=wifi_test --output=.
 
@@ -64,6 +62,7 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 
 		expectedAddr1, _ := net.ParseMAC("00:11:22:33:44:55")
 		expectedAddr2, _ := net.ParseMAC("aa:bb:cc:dd:ee:ff")
+
 		assert.Equal(t, expectedAddr1, addresses[0])
 		assert.Equal(t, expectedAddr2, addresses[1])
 

@@ -11,10 +11,8 @@ import (
 )
 
 var (
-	errDB   = errors.New("db error")
-	errRow  = errors.New("row error")
-	errScan = errors.New("scan error")
-	errRows = errors.New("rows error")
+	errDB  = errors.New("db error")
+	errRow = errors.New("row error")
 )
 
 func mockDBRows(names []string) *sqlmock.Rows {
@@ -57,7 +55,7 @@ func TestDBService_GetNames(t *testing.T) {
 
 		names, err := service.GetNames()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []string{"Alice", "Bob"}, names)
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
@@ -76,7 +74,7 @@ func TestDBService_GetNames(t *testing.T) {
 
 		names, err := service.GetNames()
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "db query:")
 		assert.Nil(t, names)
 		require.NoError(t, mock.ExpectationsWereMet())
@@ -230,7 +228,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 
 		names, err := service.GetUniqueNames()
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "rows error:")
 		assert.Nil(t, names)
 		require.NoError(t, mock.ExpectationsWereMet())
