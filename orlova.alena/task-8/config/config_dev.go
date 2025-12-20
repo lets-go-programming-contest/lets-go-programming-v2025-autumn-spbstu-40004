@@ -14,6 +14,7 @@ var devConfigData []byte
 
 func getDefaultConfig() Config {
 	var cfg Config
+
 	err := yaml.Unmarshal(devConfigData, &cfg)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to parse dev config: %v", err))
