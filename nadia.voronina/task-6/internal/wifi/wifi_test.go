@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Package-level error variables
 var (
 	errExpected  = errors.New("ExpectedError")
 	errSomeError = errors.New("some error")
