@@ -57,7 +57,7 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 
 		addresses, err := service.GetAddresses()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.Len(t, addresses, 2)
 
 		expectedAddr1, _ := net.ParseMAC("00:11:22:33:44:55")
@@ -146,7 +146,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 
 		names, err := service.GetNames()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.Len(t, names, 3)
 		assert.Equal(t, "wlan0", names[0])
 		assert.Equal(t, "wlan1", names[1])

@@ -96,7 +96,7 @@ func TestDBService_GetNames(t *testing.T) {
 
 		names, err := service.GetNames()
 
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "rows scanning:")
 		assert.Nil(t, names)
 		require.NoError(t, mock.ExpectationsWereMet())
