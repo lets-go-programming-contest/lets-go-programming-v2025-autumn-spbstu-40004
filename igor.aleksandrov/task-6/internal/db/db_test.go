@@ -9,10 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	errQuery = errors.New("query failed")
-)
-
 func TestDBService_GetNames(t *testing.T) {
 	t.Parallel()
 
@@ -36,7 +32,28 @@ func TestDBService_GetNames(t *testing.T) {
 		{
 			name: "query_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery("SELECT name FROM users").WillReturnError(errQuery)
+				mock.ExpectQuery("SELECT name FROM users").WillReturnError(errors.New("db error"))
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "scan_error",
+			mockFn: func(mock sqlmock.Sqlmock) {
+				// Передаем несовместимый тип данных или nil там, где ожидается строка
+				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
+				mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "rows_error",
+			mockFn: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.NewRows([]string{"name"}).
+					AddRow("User1").
+					RowError(0, errors.New("rows error"))
+				mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 			},
 			want:    nil,
 			wantErr: true,
@@ -87,7 +104,27 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 		{
 			name: "query_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(errQuery)
+				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(errors.New("query fail"))
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "scan_error",
+			mockFn: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
+				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "rows_iteration_error",
+			mockFn: func(mock sqlmock.Sqlmock) {
+				rows := sqlmock.NewRows([]string{"name"}).
+					AddRow("User1").
+					RowError(0, errors.New("iteration error"))
+				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
 			},
 			want:    nil,
 			wantErr: true,
