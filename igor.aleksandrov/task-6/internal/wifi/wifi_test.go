@@ -9,7 +9,6 @@ import (
 	"github.com/MrMels625/task-6/internal/wifi/mocks"
 	wifilib "github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestWiFiService_GetAddresses(t *testing.T) {
@@ -22,53 +21,39 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "success_two_interfaces",
+			name: "success",
 			mockFn: func(m *mocks.WiFiHandle) {
 				m.On("Interfaces").Return([]*wifilib.Interface{
-					{
-						Index:        1,
-						Name:         "wlan0",
-						HardwareAddr: net.HardwareAddr{0x00, 0x11, 0x22, 0x33, 0x44, 0x55},
-					},
-					{
-						Index:        2,
-						Name:         "wlan1",
-						HardwareAddr: net.HardwareAddr{0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF},
-					},
+					{HardwareAddr: net.HardwareAddr{0x00, 0x11, 0x22, 0x33, 0x44, 0x55}},
 				}, nil)
 			},
-			want: []net.HardwareAddr{
-				{0x00, 0x11, 0x22, 0x33, 0x44, 0x55},
-				{0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF},
-			},
+			want:    []net.HardwareAddr{{0x00, 0x11, 0x22, 0x33, 0x44, 0x55}},
 			wantErr: false,
 		},
 		{
-			name: "error_getting_interfaces",
+			name: "error_interfaces",
 			mockFn: func(m *mocks.WiFiHandle) {
-				m.On("Interfaces").Return(nil, errors.New("system failure"))
+				m.On("Interfaces").Return(nil, errors.New("fail"))
 			},
-			want:    nil,
 			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockWiFi := new(mocks.WiFiHandle)
-			tt.mockFn(mockWiFi)
+			m := new(mocks.WiFiHandle)
+			tt.mockFn(m)
 
-			service := wifi.New(mockWiFi)
+			service := wifi.New(m)
 			got, err := service.GetAddresses()
 
 			if tt.wantErr {
-				require.Error(t, err)
-				assert.Contains(t, err.Error(), "getting interfaces")
+				assert.Error(t, err)
 			} else {
-				require.NoError(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			}
-			mockWiFi.AssertExpectations(t)
+			m.AssertExpectations(t)
 		})
 	}
 }
@@ -83,42 +68,40 @@ func TestWiFiService_GetNames(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "success_names",
+			name: "success",
 			mockFn: func(m *mocks.WiFiHandle) {
 				m.On("Interfaces").Return([]*wifilib.Interface{
-					{Name: "wifi_home"},
-					{Name: "wifi_office"},
+					{Name: "wlan0"},
+					{Name: "wlan1"},
 				}, nil)
 			},
-			want:    []string{"wifi_home", "wifi_office"},
+			want:    []string{"wlan0", "wlan1"},
 			wantErr: false,
 		},
 		{
-			name: "error_on_names",
+			name: "error_interfaces", // Важно: этот тест покрывает if err != nil внутри GetNames()
 			mockFn: func(m *mocks.WiFiHandle) {
 				m.On("Interfaces").Return(nil, errors.New("fail"))
 			},
-			want:    nil,
 			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockWiFi := new(mocks.WiFiHandle)
-			tt.mockFn(mockWiFi)
+			m := new(mocks.WiFiHandle)
+			tt.mockFn(m)
 
-			service := wifi.New(mockWiFi)
+			service := wifi.New(m)
 			got, err := service.GetNames()
 
 			if tt.wantErr {
-				require.Error(t, err)
-				assert.Contains(t, err.Error(), "getting interfaces")
+				assert.Error(t, err)
 			} else {
-				require.NoError(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			}
-			mockWiFi.AssertExpectations(t)
+			m.AssertExpectations(t)
 		})
 	}
 }

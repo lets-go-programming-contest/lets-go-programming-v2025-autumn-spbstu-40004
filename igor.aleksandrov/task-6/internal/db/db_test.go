@@ -7,6 +7,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/MrMels625/task-6/internal/db"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDBService_GetNames(t *testing.T) {
@@ -19,57 +20,49 @@ func TestDBService_GetNames(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "success_multiple_names",
+			name: "success",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"name"}).
-					AddRow("Ivan").
-					AddRow("Oleg")
+				rows := sqlmock.NewRows([]string{"name"}).AddRow("Alice").AddRow("Bob")
 				mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 			},
-			want:    []string{"Ivan", "Oleg"},
+			want:    []string{"Alice", "Bob"},
 			wantErr: false,
 		},
 		{
 			name: "query_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery("SELECT name FROM users").WillReturnError(errors.New("db error"))
+				mock.ExpectQuery("SELECT name FROM users").WillReturnError(errors.New("db fail"))
 			},
-			want:    nil,
 			wantErr: true,
 		},
 		{
 			name: "scan_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				// Передаем несовместимый тип данных или nil там, где ожидается строка
-				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
+				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil) // Ошибка сканирования в не-nullable строку
 				mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 			},
-			want:    nil,
 			wantErr: true,
 		},
 		{
 			name: "rows_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"name"}).
-					AddRow("User1").
-					RowError(0, errors.New("rows error"))
+				rows := sqlmock.NewRows([]string{"name"}).AddRow("Alice").RowError(0, errors.New("iteration fail"))
 				mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 			},
-			want:    nil,
 			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dbRaw, mock, _ := sqlmock.New()
+			dbRaw, mock, err := sqlmock.New()
+			require.NoError(t, err)
 			defer dbRaw.Close()
 
 			tt.mockFn(mock)
 			service := db.New(dbRaw)
 
 			got, err := service.GetNames()
-
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -91,22 +84,19 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "success_distinct",
+			name: "success",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"name"}).
-					AddRow("User1").
-					AddRow("User2")
+				rows := sqlmock.NewRows([]string{"name"}).AddRow("Alice").AddRow("Charlie")
 				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
 			},
-			want:    []string{"User1", "User2"},
+			want:    []string{"Alice", "Charlie"},
 			wantErr: false,
 		},
 		{
 			name: "query_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(errors.New("query fail"))
+				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(errors.New("fail"))
 			},
-			want:    nil,
 			wantErr: true,
 		},
 		{
@@ -115,32 +105,28 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
 				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
 			},
-			want:    nil,
 			wantErr: true,
 		},
 		{
-			name: "rows_iteration_error",
+			name: "rows_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"name"}).
-					AddRow("User1").
-					RowError(0, errors.New("iteration error"))
+				rows := sqlmock.NewRows([]string{"name"}).AddRow("Alice").RowError(0, errors.New("err"))
 				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
 			},
-			want:    nil,
 			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dbRaw, mock, _ := sqlmock.New()
+			dbRaw, mock, err := sqlmock.New()
+			require.NoError(t, err)
 			defer dbRaw.Close()
 
 			tt.mockFn(mock)
 			service := db.New(dbRaw)
 
 			got, err := service.GetUniqueNames()
-
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
