@@ -15,6 +15,32 @@ var errWiFi = errors.New("wifi error")
 
 //go:generate mockery --name=WiFiHandle --testonly --quiet --outpkg=wifi_test --output=.
 
+func createMockInterface(name string, mac string) *wifi.Interface {
+	hwAddr, _ := net.ParseMAC(mac)
+
+	return &wifi.Interface{
+		Index:        1,
+		Name:         name,
+		HardwareAddr: hwAddr,
+		PHY:          0,
+		Device:       0,
+		Type:         wifi.InterfaceTypeStation,
+		Frequency:    2412,
+	}
+}
+
+func createMockInterfaceWithNilMAC(name string) *wifi.Interface {
+	return &wifi.Interface{
+		Index:        1,
+		Name:         name,
+		HardwareAddr: nil,
+		PHY:          0,
+		Device:       0,
+		Type:         wifi.InterfaceTypeStation,
+		Frequency:    2412,
+	}
+}
+
 func TestNew(t *testing.T) {
 	t.Parallel()
 
@@ -40,8 +66,8 @@ func TestGetAddresses(t *testing.T) {
 			name: "success of getting addresses",
 			mockFunc: func(m *WiFiHandle) {
 				m.On("Interfaces").Return([]*wifi.Interface{
-					{Name: "wlan0", HardwareAddr: mustMAC("00:11:22:33:44:55")},
-					{Name: "wlan1", HardwareAddr: mustMAC("aa:bb:cc:dd:ee:ff")},
+					createMockInterface("wlan0", "00:11:22:33:44:55"),
+					createMockInterface("wlan1", "aa:bb:cc:dd:ee:ff"),
 				}, nil)
 			},
 			wantLen: 2,
@@ -68,7 +94,7 @@ func TestGetAddresses(t *testing.T) {
 			name: "interface withnil MAC",
 			mockFunc: func(m *WiFiHandle) {
 				m.On("Interfaces").Return([]*wifi.Interface{
-					{Name: "wlan0", HardwareAddr: nil},
+					createMockInterfaceWithNilMAC("wlan0"),
 				}, nil)
 			},
 			wantLen: 1,
@@ -130,9 +156,9 @@ func TestGetNames(t *testing.T) {
 			name: "success of getting names",
 			mockFunc: func(m *WiFiHandle) {
 				m.On("Interfaces").Return([]*wifi.Interface{
-					{Name: "wlan0", HardwareAddr: mustMAC("00:11:22:33:44:55")},
-					{Name: "wlan1", HardwareAddr: mustMAC("aa:bb:cc:dd:ee:ff")},
-					{Name: "eth0", HardwareAddr: mustMAC("11:22:33:44:55:66")},
+					createMockInterface("wlan0", "00:11:22:33:44:55"),
+					createMockInterface("wlan1", "aa:bb:cc:dd:ee:ff"),
+					createMockInterface("eth0", "11:22:33:44:55:66"),
 				}, nil)
 			},
 			want: []string{"wlan0", "wlan1", "eth0"},
@@ -148,8 +174,8 @@ func TestGetNames(t *testing.T) {
 			name: "duplicated names",
 			mockFunc: func(m *WiFiHandle) {
 				m.On("Interfaces").Return([]*wifi.Interface{
-					{Name: "wlan0", HardwareAddr: mustMAC("00:11:22:33:44:55")},
-					{Name: "wlan0", HardwareAddr: mustMAC("aa:bb:cc:dd:ee:ff")},
+					createMockInterface("wlan0", "00:11:22:33:44:55"),
+					createMockInterface("wlan0", "aa:bb:cc:dd:ee:ff"),
 				}, nil)
 			},
 			want: []string{"wlan0", "wlan0"},
@@ -158,7 +184,7 @@ func TestGetNames(t *testing.T) {
 			name: "interface with nil MAC",
 			mockFunc: func(m *WiFiHandle) {
 				m.On("Interfaces").Return([]*wifi.Interface{
-					{Name: "wlan0", HardwareAddr: nil},
+					createMockInterfaceWithNilMAC("wlan0"),
 				}, nil)
 			},
 			want: []string{"wlan0"},
@@ -234,20 +260,20 @@ func TestEdgeCases(t *testing.T) {
 
 		mock := &WiFiHandle{}
 		ifaces := []*wifi.Interface{
-			{Name: "wlan0", HardwareAddr: mustMAC("00:11:22:33:44:55")},
+			createMockInterface("wlan0", "00:11:22:33:44:55"),
 		}
 		mock.On("Interfaces").Return(ifaces, nil).Twice()
 
 		service := mywifi.New(mock)
 
-		addrs1, err1 := service.GetAddresses()
-		require.NoError(t, err1)
+		addrs, err := service.GetAddresses()
+		require.NoError(t, err)
 
-		names1, err2 := service.GetNames()
-		require.NoError(t, err2)
+		names, err := service.GetNames()
+		require.NoError(t, err)
 
-		assert.Len(t, addrs1, 1)
-		assert.Len(t, names1, 1)
+		assert.Len(t, addrs, 1)
+		assert.Len(t, names, 1)
 		mock.AssertExpectations(t)
 	})
 }
