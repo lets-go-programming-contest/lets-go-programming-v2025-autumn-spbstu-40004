@@ -12,5 +12,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(conf.Environment, conf.LogLevel)
+	fmt.Print(conf.Environment, conf.LogLevel)
 }
