@@ -1,7 +1,6 @@
 package wifi_test
 
 import (
-	"errors"
 	"net"
 	"testing"
 
@@ -51,7 +50,7 @@ var testTableGetAddresses = []wifiTestRow{
 	{
 		name:        "error case",
 		interfaces:  nil,
-		errExpected: errors.New("failed to get interfaces"),
+		errExpected: errFailedToGetInterfaces,
 	},
 }
 
@@ -76,8 +75,16 @@ var testTableGetNames = []wifiTestRow{
 	{
 		name:        "error case",
 		interfaces:  nil,
-		errExpected: errors.New("failed to get interfaces"),
+		errExpected: errFailedToGetInterfaces,
 	},
+}
+
+var errFailedToGetInterfaces = errorStr("failed to get interfaces")
+
+type errorStr string
+
+func (e errorStr) Error() string {
+	return string(e)
 }
 
 func TestGetAddresses(t *testing.T) {
@@ -89,12 +96,12 @@ func TestGetAddresses(t *testing.T) {
 			}
 
 			service := wifi.New(mockHandle)
-
 			addresses, err := service.GetAddresses()
 
 			if row.errExpected != nil {
 				require.ErrorIs(t, err, row.errExpected)
 				require.Nil(t, addresses)
+
 				return
 			}
 
@@ -124,6 +131,7 @@ func TestGetNames(t *testing.T) {
 			if row.errExpected != nil {
 				require.ErrorIs(t, err, row.errExpected)
 				require.Nil(t, names)
+
 				return
 			}
 
