@@ -1,7 +1,8 @@
-// go:build dev
+//go:build dev
+
 package config
 
 import _ "embed"
 
-// go:embed dev.yaml
+//go:embed configurations/dev.yaml
 var configYamlData []byte
