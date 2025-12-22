@@ -64,7 +64,6 @@ func TestGetAddresses(t *testing.T) {
 	}
 
 	for _, row := range testTableGetAddresses {
-		row := row
 		t.Run(row.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -127,7 +126,6 @@ func TestGetNames(t *testing.T) {
 	}
 
 	for _, row := range testTableGetNames {
-		row := row
 		t.Run(row.name, func(t *testing.T) {
 			t.Parallel()
 
