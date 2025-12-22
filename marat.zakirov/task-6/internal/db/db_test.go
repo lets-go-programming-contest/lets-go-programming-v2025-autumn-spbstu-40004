@@ -13,45 +13,18 @@ type rowTestDB struct {
 	errExpected error
 }
 
-var testTableGetName = []rowTestDB{
-	{
-		names: []string{"nameSt", "nameNd", "nameRd"},
-	},
-	{
-		names: []string{"repeatingName", "repeatingName", "repeatingName"},
-	},
-	{
-		names:       nil,
-		errExpected: errNoNames,
-	},
-}
+type customError string
 
-var testTableGetUniqueName = []rowTestDB{
-	{
-		names: []string{"nameSt", "nameNd", "nameRd"},
-	},
-	{
-		names:       []string{"repeatingName", "repeatingName", "repeatingName"},
-		errExpected: errRepeatedName,
-	},
-	{
-		names:       nil,
-		errExpected: errNoNames,
-	},
+func (e customError) Error() string {
+	return string(e)
 }
 
 var (
-	errNoNames      = errorStr("NoNames")
-	errRepeatedName = errorStr("RepeatedName")
-	errQueryFailed  = errorStr("query failed")
-	errRowIteration = errorStr("row iteration error")
+	errNoNames      = customError("NoNames")
+	errRepeatedName = customError("RepeatedName")
+	errQueryFailed  = customError("query failed")
+	errRowIteration = customError("row iteration error")
 )
-
-type errorStr string
-
-func (e errorStr) Error() string {
-	return string(e)
-}
 
 func mockDBRows(names []string) *sqlmock.Rows {
 	rows := sqlmock.NewRows([]string{"name"})
@@ -63,6 +36,21 @@ func mockDBRows(names []string) *sqlmock.Rows {
 }
 
 func TestGetName(t *testing.T) {
+	t.Parallel()
+
+	testTableGetName := []rowTestDB{
+		{
+			names: []string{"nameSt", "nameNd", "nameRd"},
+		},
+		{
+			names: []string{"repeatingName", "repeatingName", "repeatingName"},
+		},
+		{
+			names:       nil,
+			errExpected: errNoNames,
+		},
+	}
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
@@ -88,6 +76,22 @@ func TestGetName(t *testing.T) {
 }
 
 func TestGetUniqueNames(t *testing.T) {
+	t.Parallel()
+
+	testTableGetUniqueName := []rowTestDB{
+		{
+			names: []string{"nameSt", "nameNd", "nameRd"},
+		},
+		{
+			names:       []string{"repeatingName", "repeatingName", "repeatingName"},
+			errExpected: errRepeatedName,
+		},
+		{
+			names:       nil,
+			errExpected: errNoNames,
+		},
+	}
+
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
@@ -114,6 +118,8 @@ func TestGetUniqueNames(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	mockDB, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
@@ -129,6 +135,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestGetNameQueryError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer mockDB.Close()
@@ -144,6 +152,8 @@ func TestGetNameQueryError(t *testing.T) {
 }
 
 func TestGetUniqueNamesQueryError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer mockDB.Close()
@@ -159,6 +169,8 @@ func TestGetUniqueNamesQueryError(t *testing.T) {
 }
 
 func TestGetNameScanError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer mockDB.Close()
@@ -175,6 +187,8 @@ func TestGetNameScanError(t *testing.T) {
 }
 
 func TestGetUniqueNamesScanError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer mockDB.Close()
@@ -191,6 +205,8 @@ func TestGetUniqueNamesScanError(t *testing.T) {
 }
 
 func TestGetNameRowsError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer mockDB.Close()
@@ -211,6 +227,8 @@ func TestGetNameRowsError(t *testing.T) {
 }
 
 func TestGetUniqueNamesRowsError(t *testing.T) {
+	t.Parallel()
+
 	mockDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer mockDB.Close()
