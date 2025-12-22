@@ -5,10 +5,8 @@ package config
 import _ "embed"
 
 //go:embed prod.yaml
-var rawProd []byte
+var prodConfigData []byte
 
-func init() {
-	currentSource = func() []byte {
-		return rawProd
-	}
+func getConfigData() []byte {
+	return prodConfigData
 }

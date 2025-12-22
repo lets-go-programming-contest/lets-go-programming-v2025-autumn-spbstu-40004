@@ -5,10 +5,8 @@ package config
 import _ "embed"
 
 //go:embed dev.yaml
-var rawDev []byte
+var devConfigData []byte
 
-func init() {
-	currentSource = func() []byte {
-		return rawDev
-	}
+func getConfigData() []byte {
+	return devConfigData
 }
