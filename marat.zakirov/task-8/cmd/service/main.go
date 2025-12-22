@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ZakirovMS/task-8/config"
 )
@@ -9,8 +10,8 @@ import (
 func main() {
 	cfg, err := config.Get()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	fmt.Printf("%s %s\n", cfg.Environment, cfg.LogLevel)
+	fmt.Print(cfg.Environment, " ", cfg.LogLevel)
 }

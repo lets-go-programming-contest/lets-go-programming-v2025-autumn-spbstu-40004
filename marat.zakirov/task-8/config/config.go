@@ -14,6 +14,7 @@ type Config struct {
 
 func Get() (*Config, error) {
 	var cfg Config
+
 	data := getConfigData()
 
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
