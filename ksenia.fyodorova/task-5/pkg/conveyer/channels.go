@@ -2,11 +2,13 @@ package conveyer
 
 import (
 	"errors"
+	"sync"
 )
 
 var ErrChanNotFound = errors.New("chan not found")
 
 type DefaultConveyer struct {
+	mu           sync.RWMutex
 	channels     map[string]chan string
 	bufferSize   int
 	decorators   []specDecorator
@@ -15,6 +17,9 @@ type DefaultConveyer struct {
 }
 
 func (c *DefaultConveyer) obtainChannel(name string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if _, exists := c.channels[name]; exists {
 		return
 	}
@@ -24,6 +29,9 @@ func (c *DefaultConveyer) obtainChannel(name string) {
 }
 
 func (c *DefaultConveyer) getChannel(name string) (chan string, error) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
 	if channel, exists := c.channels[name]; exists {
 		return channel, nil
 	}
@@ -32,6 +40,9 @@ func (c *DefaultConveyer) getChannel(name string) (chan string, error) {
 }
 
 func (c *DefaultConveyer) closeAllChannels() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	for _, channel := range c.channels {
 		close(channel)
 	}
