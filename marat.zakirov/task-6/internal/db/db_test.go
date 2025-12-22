@@ -27,6 +27,20 @@ var testTableGetName = []rowTestDb{
 	},
 }
 
+var testTableGetUniqueName = []rowTestDb{
+	{
+		names: []string{"nameSt", "nameNd", "nameRd"},
+	},
+	{
+		names:       []string{"repeatingName", "repeatingName", "repeatingName"},
+		errExpected: errors.New("RepeatedName"),
+	},
+	{
+		names:       nil,
+		errExpected: errors.New("NoNames"),
+	},
+}
+
 func mockDbRows(names []string) *sqlmock.Rows {
 	rows := sqlmock.NewRows([]string{"name"})
 	for _, name := range names {
@@ -47,6 +61,27 @@ func TestGetName(t *testing.T) {
 		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(mockDbRows(row.names)).WillReturnError(row.errExpected)
 		names, err := dbService.GetNames()
 
+		if row.errExpected != nil {
+			require.ErrorIs(t, err, row.errExpected, "row: %d, expected error: %w, actual error: %w", i, row.errExpected, err)
+			require.Nil(t, names, "row: %d, names must be nil", i)
+			continue
+		}
+
+		require.NoError(t, err, "row: %d, error must be nil", i)
+		require.Equal(t, row.names, names, "row: %d, expected names: %s, actual names: %s", i, row.names, names)
+	}
+}
+
+func TestGetUniqueNames(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
+	}
+
+	dbService := db.DBService{DB: mockDB}
+	for i, row := range testTableGetUniqueName {
+		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(mockDbRows(row.names)).WillReturnError(row.errExpected)
+		names, err := dbService.GetUniqueNames()
 		if row.errExpected != nil {
 			require.ErrorIs(t, err, row.errExpected, "row: %d, expected error: %w, actual error: %w", i, row.errExpected, err)
 			require.Nil(t, names, "row: %d, names must be nil", i)
