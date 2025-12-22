@@ -73,11 +73,15 @@ func (cnv *Conveyer) RegisterMultiplexer(
 	cnv.mu.Lock()
 	cnv.handlers = append(cnv.handlers, func(ctx context.Context) error {
 		cnv.mu.RLock()
+
 		inputChans := make([]chan string, 0, len(inNames))
+
 		for _, name := range inNames {
 			inputChans = append(inputChans, cnv.channels[name])
 		}
+
 		outputChan := cnv.channels[out]
+
 		cnv.mu.RUnlock()
 
 		return handler(ctx, inputChans, outputChan)
@@ -95,11 +99,14 @@ func (cnv *Conveyer) RegisterSeparator(
 	cnv.mu.Lock()
 	cnv.handlers = append(cnv.handlers, func(ctx context.Context) error {
 		cnv.mu.RLock()
+
 		inputChan := cnv.channels[input]
 		outputChans := make([]chan string, 0, len(outNames))
+
 		for _, name := range outNames {
 			outputChans = append(outputChans, cnv.channels[name])
 		}
+
 		cnv.mu.RUnlock()
 
 		return handler(ctx, inputChan, outputChans)
@@ -140,6 +147,7 @@ func (cnv *Conveyer) Send(input string, data string) error {
 	}
 
 	channel <- data
+
 	return nil
 }
 
@@ -169,6 +177,7 @@ func (cnv *Conveyer) GetChannel(name string) (chan string, error) {
 	if !ok {
 		return nil, ErrChannelNotFound
 	}
+
 	return channel, nil
 }
 
@@ -177,6 +186,7 @@ func (cnv *Conveyer) HasChannel(name string) bool {
 	defer cnv.mu.RUnlock()
 
 	_, ok := cnv.channels[name]
+
 	return ok
 }
 
