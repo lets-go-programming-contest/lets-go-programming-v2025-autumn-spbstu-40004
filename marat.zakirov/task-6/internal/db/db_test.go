@@ -92,3 +92,16 @@ func TestGetUniqueNames(t *testing.T) {
 		require.Equal(t, row.names, names, "row: %d, expected names: %s, actual names: %s", i, row.names, names)
 	}
 }
+
+func TestNew(t *testing.T) {
+	mockDB, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when marshaling expected json data", err)
+	}
+
+	defer mockDB.Close()
+	require.NoError(t, err, "should create mock DB without error")
+	dbService := db.New(mockDB)
+	require.NotNil(t, dbService, "DBService should not be nil")
+	require.NotNil(t, dbService.DB, "DB field should not be nil")
+}
