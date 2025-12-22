@@ -105,3 +105,107 @@ func TestNew(t *testing.T) {
 	require.NotNil(t, dbService, "DBService should not be nil")
 	require.NotNil(t, dbService.DB, "DB field should not be nil")
 }
+
+func TestGetNameQueryError(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	dbService := db.DBService{DB: mockDB}
+	expectedErr := errors.New("query failed")
+	mock.ExpectQuery("SELECT name FROM users").WillReturnError(expectedErr)
+
+	names, err := dbService.GetNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "db query")
+	require.Nil(t, names)
+}
+
+func TestGetUniqueNamesQueryError(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	dbService := db.DBService{DB: mockDB}
+	expectedErr := errors.New("query failed")
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(expectedErr)
+
+	names, err := dbService.GetUniqueNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "db query")
+	require.Nil(t, names)
+}
+
+func TestGetNameScanError(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	dbService := db.DBService{DB: mockDB}
+
+	// nil значение вызовет ошибку при сканировании в string
+	rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
+	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+
+	names, err := dbService.GetNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "rows scanning")
+	require.Nil(t, names)
+}
+
+func TestGetUniqueNamesScanError(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	dbService := db.DBService{DB: mockDB}
+
+	// nil значение вызовет ошибку при сканировании в string
+	rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+
+	names, err := dbService.GetUniqueNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "rows scanning")
+	require.Nil(t, names)
+}
+
+func TestGetNameRowsError(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	dbService := db.DBService{DB: mockDB}
+
+	rows := sqlmock.NewRows([]string{"name"}).
+		AddRow("test1").
+		AddRow("test2").
+		RowError(1, errors.New("row iteration error"))
+
+	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+
+	names, err := dbService.GetNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "rows error")
+	require.Nil(t, names)
+}
+
+func TestGetUniqueNamesRowsError(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	dbService := db.DBService{DB: mockDB}
+
+	rows := sqlmock.NewRows([]string{"name"}).
+		AddRow("test1").
+		AddRow("test2").
+		RowError(1, errors.New("row iteration error"))
+
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+
+	names, err := dbService.GetUniqueNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "rows error")
+	require.Nil(t, names)
+}
