@@ -6,7 +6,7 @@ import (
 
 type Config struct {
 	Environment string `yaml:"environment"`
-	Log_level   string `yaml:"log_level"`
+	LogLevel    string `yaml:"log_level"`
 }
 
 func GetConfig() (*Config, error) {

@@ -1,2 +1,2 @@
 environment: dev
-log_level: 1
+log_level: debug

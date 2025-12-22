@@ -12,5 +12,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("%s %s\n", conf.Environment, conf.Log_level)
+	fmt.Printf("%s %s\n", conf.Environment, conf.LogLevel)
 }

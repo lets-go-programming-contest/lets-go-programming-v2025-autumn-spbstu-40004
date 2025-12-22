@@ -1,2 +1,2 @@
 environment: prod
-log_level: 2
+log_level: error
