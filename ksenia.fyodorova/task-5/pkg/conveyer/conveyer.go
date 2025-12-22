@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -39,6 +40,7 @@ type specSeparator struct {
 
 func New(size int) *DefaultConveyer {
 	return &DefaultConveyer{
+		mu:           sync.RWMutex{},
 		channels:     make(map[string]chan string),
 		bufferSize:   size,
 		decorators:   make([]specDecorator, 0),
