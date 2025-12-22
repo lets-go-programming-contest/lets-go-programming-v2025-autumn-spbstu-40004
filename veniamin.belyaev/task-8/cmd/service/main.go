@@ -8,7 +8,6 @@ import (
 
 func main() {
 	config, err := Config.Parse()
-
 	if err != nil {
 		fmt.Println(err)
 
