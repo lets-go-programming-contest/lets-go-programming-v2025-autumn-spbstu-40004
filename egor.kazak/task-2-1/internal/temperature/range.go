@@ -24,6 +24,7 @@ func NewRange(minVal, maxVal int) (*Range, error) {
 	if minVal > maxVal {
 		return nil, fmt.Errorf("%w: %d > %d", ErrInvalidRange, minVal, maxVal)
 	}
+
 	return &Range{min: minVal, max: maxVal}, nil
 }
 
@@ -44,6 +45,7 @@ func (r *Range) ApplyConstraint(operator string, temperature int) error {
 	default:
 		return fmt.Errorf("%w: %q", ErrUnsupportedOp, operator)
 	}
+
 	return nil
 }
 
@@ -51,5 +53,6 @@ func (r *Range) Current() (int, bool) {
 	if r.min <= r.max {
 		return r.min, true
 	}
+
 	return 0, false
 }
