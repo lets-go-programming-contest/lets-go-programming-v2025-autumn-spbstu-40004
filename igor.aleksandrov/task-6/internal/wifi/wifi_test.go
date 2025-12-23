@@ -5,7 +5,7 @@ import (
 	"net"
 	"testing"
 
-	wifilib "github.com/mdlayher/wifi"
+	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -14,12 +14,12 @@ type MockWiFiHandle struct {
 	mock.Mock
 }
 
-func (m *MockWiFiHandle) Interfaces() ([]*wifilib.Interface, error) {
+func (m *MockWiFiHandle) Interfaces() ([]*wifi.Interface, error) {
 	args := m.Called()
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).([]*wifilib.Interface), args.Error(1)
+	return args.Get(0).([]*wifi.Interface), args.Error(1)
 }
 
 func mustMAC(s string) net.HardwareAddr {
@@ -42,9 +42,19 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 		{
 			name: "success",
 			mockFn: func(m *MockWiFiHandle) {
-				m.On("Interfaces").Return([]*wifilib.Interface{
-					{Name: "wlan0", HardwareAddr: mustMAC("00:11:22:33:44:55")},
-					{Name: "wlan1", HardwareAddr: mustMAC("aa:bb:cc:dd:ee:ff")},
+				m.On("Interfaces").Return([]*wifi.Interface{
+					{HardwareAddr: mustMAC("00:11:22:33:44:55")},
+				}, nil)
+			},
+			want:    []net.HardwareAddr{mustMAC("00:11:22:33:44:55")},
+			wantErr: false,
+		},
+		{
+			name: "success_multiple",
+			mockFn: func(m *MockWiFiHandle) {
+				m.On("Interfaces").Return([]*wifi.Interface{
+					{HardwareAddr: mustMAC("00:11:22:33:44:55")},
+					{HardwareAddr: mustMAC("aa:bb:cc:dd:ee:ff")},
 				}, nil)
 			},
 			want: []net.HardwareAddr{
@@ -54,19 +64,9 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "success_single",
-			mockFn: func(m *MockWiFiHandle) {
-				m.On("Interfaces").Return([]*wifilib.Interface{
-					{HardwareAddr: net.HardwareAddr{0x00, 0x11, 0x22, 0x33, 0x44, 0x55}},
-				}, nil)
-			},
-			want:    []net.HardwareAddr{{0x00, 0x11, 0x22, 0x33, 0x44, 0x55}},
-			wantErr: false,
-		},
-		{
 			name: "empty_list",
 			mockFn: func(m *MockWiFiHandle) {
-				m.On("Interfaces").Return([]*wifilib.Interface{}, nil)
+				m.On("Interfaces").Return([]*wifi.Interface{}, nil)
 			},
 			want:    []net.HardwareAddr{},
 			wantErr: false,
@@ -74,8 +74,8 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 		{
 			name: "interface_with_nil_mac",
 			mockFn: func(m *MockWiFiHandle) {
-				m.On("Interfaces").Return([]*wifilib.Interface{
-					{Name: "wlan0", HardwareAddr: nil},
+				m.On("Interfaces").Return([]*wifi.Interface{
+					{HardwareAddr: nil},
 				}, nil)
 			},
 			want:    []net.HardwareAddr{nil},
@@ -100,6 +100,7 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 
 			if tt.wantErr {
 				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "getting interfaces")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
@@ -121,18 +122,29 @@ func TestWiFiService_GetNames(t *testing.T) {
 		{
 			name: "success",
 			mockFn: func(m *MockWiFiHandle) {
-				m.On("Interfaces").Return([]*wifilib.Interface{
+				m.On("Interfaces").Return([]*wifi.Interface{
 					{Name: "wlan0"},
-					{Name: "wlan1"},
 				}, nil)
 			},
-			want:    []string{"wlan0", "wlan1"},
+			want:    []string{"wlan0"},
+			wantErr: false,
+		},
+		{
+			name: "success_multiple",
+			mockFn: func(m *MockWiFiHandle) {
+				m.On("Interfaces").Return([]*wifi.Interface{
+					{Name: "wlan0"},
+					{Name: "wlan1"},
+					{Name: "eth0"},
+				}, nil)
+			},
+			want:    []string{"wlan0", "wlan1", "eth0"},
 			wantErr: false,
 		},
 		{
 			name: "empty_list",
 			mockFn: func(m *MockWiFiHandle) {
-				m.On("Interfaces").Return([]*wifilib.Interface{}, nil)
+				m.On("Interfaces").Return([]*wifi.Interface{}, nil)
 			},
 			want:    []string{},
 			wantErr: false,
@@ -140,7 +152,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 		{
 			name: "empty_name",
 			mockFn: func(m *MockWiFiHandle) {
-				m.On("Interfaces").Return([]*wifilib.Interface{
+				m.On("Interfaces").Return([]*wifi.Interface{
 					{Name: ""},
 				}, nil)
 			},
@@ -150,7 +162,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 		{
 			name: "duplicate_names",
 			mockFn: func(m *MockWiFiHandle) {
-				m.On("Interfaces").Return([]*wifilib.Interface{
+				m.On("Interfaces").Return([]*wifi.Interface{
 					{Name: "wlan0"},
 					{Name: "wlan0"},
 				}, nil)
@@ -177,6 +189,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 
 			if tt.wantErr {
 				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "getting interfaces")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
@@ -194,4 +207,12 @@ func TestNew(t *testing.T) {
 
 	assert.NotNil(t, service)
 	assert.Equal(t, m, service.WiFi)
+}
+
+func TestNew_NilHandle(t *testing.T) {
+	t.Parallel()
+
+	service := New(nil)
+	assert.NotNil(t, service)
+	assert.Nil(t, service.WiFi)
 }
