@@ -26,6 +26,7 @@ func main() {
 				operator    string
 				temperature int
 			)
+
 			if _, err := fmt.Scan(&operator, &temperature); err != nil {
 				log.Fatal(fmt.Errorf("failed to read constraint: %w", err))
 			}
