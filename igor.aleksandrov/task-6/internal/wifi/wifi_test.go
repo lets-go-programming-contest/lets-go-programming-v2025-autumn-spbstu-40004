@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/MrMels625/task-6/internal/wifi"
-	wifimock "github.com/MrMels625/task-6/internal/wifi/mocks"
+	wifimock "github.com/MrMels625/task-6/internal/wifi/_mocks"
 
 	wifilib "github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
