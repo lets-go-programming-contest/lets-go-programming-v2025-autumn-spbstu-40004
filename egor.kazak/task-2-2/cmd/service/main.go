@@ -1,36 +1,11 @@
 package main
 
 import (
-	"container/heap"
 	"fmt"
 	"log"
+
+	"github.com/CuatHimBong/task-2-2/internal/heaputil"
 )
-
-type IntHeap []int
-
-func (h *IntHeap) Len() int { return len(*h) }
-
-func (h *IntHeap) Less(i, j int) bool { return (*h)[i] > (*h)[j] }
-
-func (h *IntHeap) Swap(i, j int) { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
-
-func (h *IntHeap) Push(x interface{}) {
-	num, ok := x.(int)
-	if !ok {
-		log.Fatal("type assertion to int failed")
-	}
-
-	*h = append(*h, num)
-}
-
-func (h *IntHeap) Pop() interface{} {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-
-	return x
-}
 
 func main() {
 	var dishCount, preferenceOrder int
@@ -41,9 +16,8 @@ func main() {
 	}
 
 	ratings := make([]int, dishCount)
-
-	for index := range ratings {
-		_, err := fmt.Scan(&ratings[index])
+	for i := range ratings {
+		_, err := fmt.Scan(&ratings[i])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -54,24 +28,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	heapInstance := &IntHeap{}
-	heap.Init(heapInstance)
+	if preferenceOrder <= 0 || preferenceOrder > dishCount {
+		log.Fatal("invalid preference order index")
+	}
+
+	h := &heaputil.IntHeap{}
+	heaputil.Init(h)
 
 	for _, rating := range ratings {
-		heap.Push(heapInstance, rating)
+		heaputil.Push(h, rating)
 	}
 
 	var result int
-
-	for range preferenceOrder {
-		item := heap.Pop(heapInstance)
-		num, ok := item.(int)
-
-		if !ok {
-			log.Fatal("type assertion to int failed")
-		}
-
-		result = num
+	for i := 0; i < preferenceOrder; i++ {
+		result = heaputil.Pop(h)
 	}
 
 	fmt.Println(result)
