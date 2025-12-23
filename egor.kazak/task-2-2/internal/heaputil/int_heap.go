@@ -15,11 +15,9 @@ func (h *IntHeap) Swap(i, j int) {
 func (h *IntHeap) Push(x interface{}) {
 	num, ok := x.(int)
 	if !ok {
-		
 		panic("heaputil: Push received non-int value")
 		
 	}
-
 	*h = append(*h, num)
 }
 
@@ -51,4 +49,5 @@ func Pop(h *IntHeap) int {
 		return num
 	}
 	panic("heaputil: Pop returned non-int value")
+	
 }
