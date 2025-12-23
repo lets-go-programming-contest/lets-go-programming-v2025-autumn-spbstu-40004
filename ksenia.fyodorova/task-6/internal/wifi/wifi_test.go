@@ -5,42 +5,36 @@ import (
 	"net"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lolnyok/task-6/internal/wifi"
-	"github.com/mdlayher/wifi"
+	mywifi "github.com/lolnyok/task-6/internal/wifi"
+	extwifi "github.com/mdlayher/wifi"
 )
 
 type MockWiFiHandle struct {
 	mock.Mock
 }
 
-func (m *MockWiFiHandle) Interfaces() ([]*wifi.Interface, error) {
+func (m *MockWiFiHandle) Interfaces() ([]*extwifi.Interface, error) {
 	args := m.Called()
-	return args.Get(0).([]*wifi.Interface), args.Error(1)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*extwifi.Interface), args.Error(1)
 }
 
 func TestWiFiService_GetAddresses_Success(t *testing.T) {
-	t.Parallel()
-
 	mockWiFi := new(MockWiFiHandle)
-	service := wifi.New(mockWiFi)
+	service := mywifi.New(mockWiFi)
 
 	hwAddr1, _ := net.ParseMAC("00:11:22:33:44:55")
 	hwAddr2, _ := net.ParseMAC("AA:BB:CC:DD:EE:FF")
 
-	interfaces := []*wifi.Interface{
-		{
-			Index:        1,
-			Name:         "wlan0",
-			HardwareAddr: hwAddr1,
-		},
-		{
-			Index:        2,
-			Name:         "wlan1",
-			HardwareAddr: hwAddr2,
-		},
+	interfaces := []*extwifi.Interface{
+		{Index: 1, Name: "wlan0", HardwareAddr: hwAddr1},
+		{Index: 2, Name: "wlan1", HardwareAddr: hwAddr2},
 	}
 
 	expectedAddresses := []net.HardwareAddr{hwAddr1, hwAddr2}
@@ -50,18 +44,16 @@ func TestWiFiService_GetAddresses_Success(t *testing.T) {
 	addresses, err := service.GetAddresses()
 
 	require.NoError(t, err)
-	require.Equal(t, expectedAddresses, addresses)
+	assert.Equal(t, expectedAddresses, addresses)
 	mockWiFi.AssertExpectations(t)
 }
 
 func TestWiFiService_GetAddresses_Error(t *testing.T) {
-	t.Parallel()
-
 	mockWiFi := new(MockWiFiHandle)
-	service := wifi.New(mockWiFi)
+	service := mywifi.New(mockWiFi)
 
 	testErr := errors.New("interface error")
-	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, testErr)
+	mockWiFi.On("Interfaces").Return([]*extwifi.Interface{}, testErr)
 
 	addresses, err := service.GetAddresses()
 
@@ -73,12 +65,10 @@ func TestWiFiService_GetAddresses_Error(t *testing.T) {
 }
 
 func TestWiFiService_GetAddresses_Empty(t *testing.T) {
-	t.Parallel()
-
 	mockWiFi := new(MockWiFiHandle)
-	service := wifi.New(mockWiFi)
+	service := mywifi.New(mockWiFi)
 
-	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, nil)
+	mockWiFi.On("Interfaces").Return([]*extwifi.Interface{}, nil)
 
 	addresses, err := service.GetAddresses()
 
@@ -87,26 +77,31 @@ func TestWiFiService_GetAddresses_Empty(t *testing.T) {
 	mockWiFi.AssertExpectations(t)
 }
 
-func TestWiFiService_GetNames_Success(t *testing.T) {
-	t.Parallel()
-
+func TestWiFiService_GetAddresses_NilInterface(t *testing.T) {
 	mockWiFi := new(MockWiFiHandle)
-	service := wifi.New(mockWiFi)
+	service := mywifi.New(mockWiFi)
+
+	interfaces := []*extwifi.Interface{nil}
+	mockWiFi.On("Interfaces").Return(interfaces, nil)
+
+	addresses, err := service.GetAddresses()
+
+	require.NoError(t, err)
+	require.Len(t, addresses, 1)
+	assert.Nil(t, addresses[0])
+	mockWiFi.AssertExpectations(t)
+}
+
+func TestWiFiService_GetNames_Success(t *testing.T) {
+	mockWiFi := new(MockWiFiHandle)
+	service := mywifi.New(mockWiFi)
 
 	hwAddr1, _ := net.ParseMAC("00:11:22:33:44:55")
 	hwAddr2, _ := net.ParseMAC("AA:BB:CC:DD:EE:FF")
 
-	interfaces := []*wifi.Interface{
-		{
-			Index:        1,
-			Name:         "wlan0",
-			HardwareAddr: hwAddr1,
-		},
-		{
-			Index:        2,
-			Name:         "wlan1",
-			HardwareAddr: hwAddr2,
-		},
+	interfaces := []*extwifi.Interface{
+		{Index: 1, Name: "wlan0", HardwareAddr: hwAddr1},
+		{Index: 2, Name: "wlan1", HardwareAddr: hwAddr2},
 	}
 
 	expectedNames := []string{"wlan0", "wlan1"}
@@ -116,18 +111,16 @@ func TestWiFiService_GetNames_Success(t *testing.T) {
 	names, err := service.GetNames()
 
 	require.NoError(t, err)
-	require.Equal(t, expectedNames, names)
+	assert.Equal(t, expectedNames, names)
 	mockWiFi.AssertExpectations(t)
 }
 
 func TestWiFiService_GetNames_Error(t *testing.T) {
-	t.Parallel()
-
 	mockWiFi := new(MockWiFiHandle)
-	service := wifi.New(mockWiFi)
+	service := mywifi.New(mockWiFi)
 
 	testErr := errors.New("interface error")
-	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, testErr)
+	mockWiFi.On("Interfaces").Return([]*extwifi.Interface{}, testErr)
 
 	names, err := service.GetNames()
 
@@ -139,12 +132,10 @@ func TestWiFiService_GetNames_Error(t *testing.T) {
 }
 
 func TestWiFiService_GetNames_Empty(t *testing.T) {
-	t.Parallel()
-
 	mockWiFi := new(MockWiFiHandle)
-	service := wifi.New(mockWiFi)
+	service := mywifi.New(mockWiFi)
 
-	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, nil)
+	mockWiFi.On("Interfaces").Return([]*extwifi.Interface{}, nil)
 
 	names, err := service.GetNames()
 
@@ -153,66 +144,37 @@ func TestWiFiService_GetNames_Empty(t *testing.T) {
 	mockWiFi.AssertExpectations(t)
 }
 
-func TestWiFiService_GetNames_WithNilHardwareAddr(t *testing.T) {
-	t.Parallel()
-
+func TestWiFiService_GetNames_NilInterface(t *testing.T) {
 	mockWiFi := new(MockWiFiHandle)
-	service := wifi.New(mockWiFi)
+	service := mywifi.New(mockWiFi)
 
-	interfaces := []*wifi.Interface{
-		{
-			Index:        1,
-			Name:         "wlan0",
-			HardwareAddr: nil,
-		},
-		{
-			Index:        2,
-			Name:         "wlan1",
-			HardwareAddr: []byte{0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF},
-		},
+	interfaces := []*extwifi.Interface{nil}
+	mockWiFi.On("Interfaces").Return(interfaces, nil)
+
+	names, err := service.GetNames()
+
+	require.NoError(t, err)
+	require.Len(t, names, 1)
+	assert.Equal(t, "", names[0])
+	mockWiFi.AssertExpectations(t)
+}
+
+func TestWiFiService_GetNames_WithNilName(t *testing.T) {
+	mockWiFi := new(MockWiFiHandle)
+	service := mywifi.New(mockWiFi)
+
+	hwAddr, _ := net.ParseMAC("00:11:22:33:44:55")
+	interfaces := []*extwifi.Interface{
+		{Index: 1, Name: "", HardwareAddr: hwAddr},
 	}
 
-	expectedNames := []string{"wlan0", "wlan1"}
+	expectedNames := []string{""}
 
 	mockWiFi.On("Interfaces").Return(interfaces, nil)
 
 	names, err := service.GetNames()
 
 	require.NoError(t, err)
-	require.Equal(t, expectedNames, names)
-	mockWiFi.AssertExpectations(t)
-}
-
-func TestWiFiService_GetAddresses_WithNilHardwareAddr(t *testing.T) {
-	t.Parallel()
-
-	mockWiFi := new(MockWiFiHandle)
-	service := wifi.New(mockWiFi)
-
-	hwAddr2, _ := net.ParseMAC("AA:BB:CC:DD:EE:FF")
-
-	interfaces := []*wifi.Interface{
-		{
-			Index:        1,
-			Name:         "wlan0",
-			HardwareAddr: nil,
-		},
-		{
-			Index:        2,
-			Name:         "wlan1",
-			HardwareAddr: hwAddr2,
-		},
-	}
-
-	expectedAddresses := []net.HardwareAddr{nil, hwAddr2}
-
-	mockWiFi.On("Interfaces").Return(interfaces, nil)
-
-	// Act
-	addresses, err := service.GetAddresses()
-
-	// Assert
-	require.NoError(t, err)
-	require.Equal(t, expectedAddresses, addresses)
+	assert.Equal(t, expectedNames, names)
 	mockWiFi.AssertExpectations(t)
 }
