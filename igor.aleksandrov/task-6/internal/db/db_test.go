@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/MrMels625/task-6/internal/db"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/MrMels625/task-6/internal/db"
 )
 
 var (
