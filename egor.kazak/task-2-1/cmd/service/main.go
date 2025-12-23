@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/CuatHimBong/task-2-1/internal/temperature"
+	"task-2-1/internal/temperature"
 )
 
 func main() {
