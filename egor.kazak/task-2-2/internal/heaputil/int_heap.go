@@ -13,24 +13,23 @@ func (h *IntHeap) Swap(i, j int) {
 }
 
 func (h *IntHeap) Push(x interface{}) {
-	num, ok := x.(int)
-	if !ok {
+	if num, ok := x.(int); ok {
+		*h = append(*h, num)
+	} else {
 		panic("heaputil: Push received non-int value")
-		
 	}
-	*h = append(*h, num)
 }
 
 func (h *IntHeap) Pop() interface{} {
 	old := *h
-	length := len(old)
+	oldLen := len(old)
 
-	if length == 0 {
+	if oldLen == 0 {
 		panic("heaputil: Pop called on empty heap")
 	}
 
-	x := old[length-1]
-	*h = old[0 : length-1]
+	x := old[oldLen-1]
+	*h = old[0 : oldLen-1]
 
 	return x
 }
@@ -49,5 +48,4 @@ func Pop(h *IntHeap) int {
 		return num
 	}
 	panic("heaputil: Pop returned non-int value")
-	
 }
