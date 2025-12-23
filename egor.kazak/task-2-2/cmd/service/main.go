@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"task-2-2/internal/heaputil"
+	"github.com/CuatHimBong/task-2-2/internal/heaputil"
 )
 
 func main() {
