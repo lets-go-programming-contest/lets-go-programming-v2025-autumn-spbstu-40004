@@ -1,35 +1,49 @@
 package main
 
 import (
-	"encoding/json"
+	"flag"
+	"os"
 
-	"github.com/CuatHimBong/task-3/internal/config"
-	"github.com/CuatHimBong/task-3/internal/currency"
-	"github.com/CuatHimBong/task-3/internal/storage"
+	filesaver "github.com/CuatHimBong/task-3/internal/file_saver"
+	valsys "github.com/CuatHimBong/task-3/internal/valute_system"
+	"gopkg.in/yaml.v2"
 )
 
+type DirHandle struct {
+	InputFile  string `yaml:"input-file"`
+	OutputFile string `yaml:"output-file"`
+}
+
 func main() {
-	cfg, err := config.LoadConfig()
+	var fileDir string
+
+	flag.StringVar(&fileDir, "config", "yaml", "Specifies the path to the config")
+	flag.Parse()
+
+	content, err := os.ReadFile(fileDir)
+	if err != nil {
+		panic("no such file or directory")
+	}
+
+	var config DirHandle
+
+	err = yaml.Unmarshal(content, &config)
+	if err != nil {
+		panic("did not find expected key")
+	}
+
+	curs, err := valsys.ParseXML(config.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	xmlData, err := storage.ReadFile(cfg.InputFile)
+	jsonData, err := valsys.CreateJSON(curs)
 	if err != nil {
 		panic(err)
 	}
 
-	currencies, err := currency.ParseXML(xmlData)
+	err = filesaver.SaveToFile(jsonData, config.OutputFile)
 	if err != nil {
-		panic(err)
-	}
-
-	jsonData, err := json.MarshalIndent(currencies, "", "    ")
-	if err != nil {
-		panic(err)
-	}
-
-	if err := storage.WriteJSON(cfg.OutputFile, jsonData); err != nil {
 		panic(err)
 	}
 }
