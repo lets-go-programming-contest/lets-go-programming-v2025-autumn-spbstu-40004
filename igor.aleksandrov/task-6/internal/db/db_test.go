@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"errors"
 	"testing"
 
@@ -14,14 +15,21 @@ var (
 	errRows  = errors.New("rows error")
 )
 
+func createTestService(t *testing.T) (*sql.DB, sqlmock.Sqlmock, DBService) {
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+
+	var dbInterface Database = mockDB
+	service := New(dbInterface)
+
+	return mockDB, mock, service
+}
+
 func TestDBService_GetNames(t *testing.T) {
 	t.Parallel()
 
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	mockDB, mock, service := createTestService(t)
 	defer mockDB.Close()
-
-	service := New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
 		AddRow("Alice").
@@ -40,11 +48,8 @@ func TestDBService_GetNames(t *testing.T) {
 func TestDBService_GetNames_QueryError(t *testing.T) {
 	t.Parallel()
 
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	mockDB, mock, service := createTestService(t)
 	defer mockDB.Close()
-
-	service := New(mockDB)
 
 	mock.ExpectQuery("SELECT name FROM users").
 		WillReturnError(errQuery)
@@ -60,11 +65,8 @@ func TestDBService_GetNames_QueryError(t *testing.T) {
 func TestDBService_GetNames_ScanError(t *testing.T) {
 	t.Parallel()
 
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	mockDB, mock, service := createTestService(t)
 	defer mockDB.Close()
-
-	service := New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
 		AddRow(nil)
@@ -83,11 +85,8 @@ func TestDBService_GetNames_ScanError(t *testing.T) {
 func TestDBService_GetNames_RowsError(t *testing.T) {
 	t.Parallel()
 
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	mockDB, mock, service := createTestService(t)
 	defer mockDB.Close()
-
-	service := New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
 		RowError(0, errRows).
@@ -107,11 +106,8 @@ func TestDBService_GetNames_RowsError(t *testing.T) {
 func TestDBService_GetUniqueNames(t *testing.T) {
 	t.Parallel()
 
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	mockDB, mock, service := createTestService(t)
 	defer mockDB.Close()
-
-	service := New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
 		AddRow("Alice").
@@ -130,11 +126,8 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 func TestDBService_GetUniqueNames_QueryError(t *testing.T) {
 	t.Parallel()
 
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	mockDB, mock, service := createTestService(t)
 	defer mockDB.Close()
-
-	service := New(mockDB)
 
 	mock.ExpectQuery("SELECT DISTINCT name FROM users").
 		WillReturnError(errQuery)
@@ -150,11 +143,8 @@ func TestDBService_GetUniqueNames_QueryError(t *testing.T) {
 func TestDBService_GetUniqueNames_ScanError(t *testing.T) {
 	t.Parallel()
 
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	mockDB, mock, service := createTestService(t)
 	defer mockDB.Close()
-
-	service := New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
 		AddRow(nil)
@@ -173,11 +163,8 @@ func TestDBService_GetUniqueNames_ScanError(t *testing.T) {
 func TestDBService_GetUniqueNames_RowsError(t *testing.T) {
 	t.Parallel()
 
-	mockDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	mockDB, mock, service := createTestService(t)
 	defer mockDB.Close()
-
-	service := New(mockDB)
 
 	rows := sqlmock.NewRows([]string{"name"}).
 		RowError(0, errRows).
