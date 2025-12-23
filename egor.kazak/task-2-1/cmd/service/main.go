@@ -23,8 +23,8 @@ func main() {
 
 		for range constraints {
 			var (
-				operator    string
-				temp int
+				operator string
+				temp     int
 			)
 
 			if _, err := fmt.Scan(&operator, &temp); err != nil {
