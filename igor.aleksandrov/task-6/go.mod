@@ -1,4 +1,4 @@
-module github.com/15446-rus75/task-6
+module github.com/MrMels625/task-6
 
 go 1.22.7
 
