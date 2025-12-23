@@ -12,12 +12,13 @@ func (h *IntHeap) Swap(i, j int) {
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
+//nolint:wsl
 func (h *IntHeap) Push(x interface{}) {
-	if num, ok := x.(int); ok {
-		*h = append(*h, num)
-	} else {
+	num, ok := x.(int)
+	if !ok {
 		panic("heaputil: Push received non-int value")
 	}
+	*h = append(*h, num)
 }
 
 func (h *IntHeap) Pop() interface{} {
