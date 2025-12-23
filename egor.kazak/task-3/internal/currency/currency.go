@@ -11,33 +11,32 @@ import (
 )
 
 type Currency struct {
-	NumCode  int     `json:"num_code"`
-	CharCode string  `json:"char_code"`
+	NumCode  int     `xml:"NumCode" json:"num_code"`
+	CharCode string  `xml:"CharCode" json:"char_code"`
 	Value    float64 `json:"value"`
 }
 
 func (c *Currency) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
-	var aux struct {
+	aux := struct {
 		NumCode  int    `xml:"NumCode"`
 		CharCode string `xml:"CharCode"`
 		ValueStr string `xml:"Value"`
-	}
+	}{}
 
 	err := decoder.DecodeElement(&aux, &start)
 	if err != nil {
 		return fmt.Errorf("failed to decode XML element: %w", err)
 	}
 
-	value, err := strconv.ParseFloat(strings.ReplaceAll(aux.ValueStr, ",", "."), 64)
+	v := strings.ReplaceAll(aux.ValueStr, ",", ".")
+	value, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return fmt.Errorf("failed to parse float from %q: %w", aux.ValueStr, err)
 	}
 
-	*c = Currency{
-		NumCode:  aux.NumCode,
-		CharCode: aux.CharCode,
-		Value:    value,
-	}
+	c.NumCode = aux.NumCode
+	c.CharCode = aux.CharCode
+	c.Value = value
 
 	return nil
 }
