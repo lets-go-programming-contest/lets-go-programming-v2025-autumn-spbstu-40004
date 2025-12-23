@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/CuatHimBong/task-2-2/internal/heaputil"
+	"task-2-2/internal/heaputil"
 )
 
 func main() {
@@ -29,19 +29,19 @@ func main() {
 	}
 
 	if preferenceOrder <= 0 || preferenceOrder > dishCount {
-		log.Fatal("invalid preference order index")
+		log.Fatal("preferenceOrder must be in range [1, dishCount]")
 	}
 
-	h := &heaputil.IntHeap{}
-	heaputil.Init(h)
+	heap := &heaputil.IntHeap{}
+	heaputil.Init(heap)
 
 	for _, rating := range ratings {
-		heaputil.Push(h, rating)
+		heaputil.Push(heap, rating)
 	}
 
 	var result int
-	for i := 0; i < preferenceOrder; i++ {
-		result = heaputil.Pop(h)
+	for range preferenceOrder {
+		result = heaputil.Pop(heap)
 	}
 
 	fmt.Println(result)
