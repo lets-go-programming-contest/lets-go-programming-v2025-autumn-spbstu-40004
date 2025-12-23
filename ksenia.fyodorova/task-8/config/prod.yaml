@@ -1,2 +1,2 @@
-environment: production
-log_level: warn
+environment: prod
+log_level: error

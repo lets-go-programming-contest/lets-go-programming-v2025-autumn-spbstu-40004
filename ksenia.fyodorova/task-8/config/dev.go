@@ -3,37 +3,23 @@
 package config
 
 import (
+	"errors"
+
 	_ "embed"
 
 	"gopkg.in/yaml.v3"
 )
 
-//go:embed development.yaml
-var developmentData []byte
+//go:embed dev.yaml
+var devConfig []byte
 
-func Load() (*AppConfig, error) {
-	cfg := &AppConfig{}
+var ErrUnmarshal = errors.New("cant unmarshal yaml")
 
-	err := yaml.Unmarshal(developmentData, cfg)
-	if err != nil {
-		return nil, &ConfigError{Msg: "не удалось разобрать YAML конфигурации", Err: err}
+func Load() (*Config, error) {
+	var cfg Config
+	if err := yaml.Unmarshal(devConfig, &cfg); err != nil {
+		return nil, ErrUnmarshal
 	}
 
-	return cfg, nil
-}
-
-type ConfigError struct {
-	Msg string
-	Err error
-}
-
-func (e *ConfigError) Error() string {
-	if e.Err != nil {
-		return e.Msg + ": " + e.Err.Error()
-	}
-	return e.Msg
-}
-
-func (e *ConfigError) Unwrap() error {
-	return e.Err
+	return &cfg, nil
 }

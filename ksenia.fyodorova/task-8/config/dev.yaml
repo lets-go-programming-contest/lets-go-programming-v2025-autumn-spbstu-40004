@@ -1,2 +1,2 @@
-environment: development
-log_level: info
+environment: dev
+log_level: debug
