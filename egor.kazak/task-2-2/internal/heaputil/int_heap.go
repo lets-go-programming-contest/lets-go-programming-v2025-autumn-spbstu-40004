@@ -43,11 +43,11 @@ func Push(h *IntHeap, x int) {
 	heap.Push(h, x)
 }
 
+//nolint:wsl
 func Pop(h *IntHeap) int {
 	item := heap.Pop(h)
 	if num, ok := item.(int); ok {
 		return num
 	}
-
-	panic("heaputil: Pop returned non-int value") //nolint:wsl
+	panic("heaputil: Pop returned non-int value")
 }
