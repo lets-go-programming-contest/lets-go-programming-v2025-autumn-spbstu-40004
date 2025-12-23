@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"task-2-1/internal/temperature"
+	temp "task-2-1/internal/temperature"
 )
 
 func main() {
@@ -19,20 +19,20 @@ func main() {
 			log.Fatal(fmt.Errorf("failed to read constraints count: %w", err))
 		}
 
-		tempRange := temperature.NewDefaultRange()
+		tempRange := temp.NewDefaultRange()
 
 		for range constraints {
 			var (
 				operator    string
-				temperature int
+				temp int
 			)
 
-			if _, err := fmt.Scan(&operator, &temperature); err != nil {
+			if _, err := fmt.Scan(&operator, &temp); err != nil {
 				log.Fatal(fmt.Errorf("failed to read constraint: %w", err))
 			}
 
-			if err := tempRange.ApplyConstraint(operator, temperature); err != nil {
-				log.Fatal(fmt.Errorf("invalid constraint %q %d: %w", operator, temperature, err))
+			if err := tempRange.ApplyConstraint(operator, temp); err != nil {
+				log.Fatal(fmt.Errorf("invalid constraint %q %d: %w", operator, temp, err))
 			}
 
 			if value, ok := tempRange.Current(); ok {
