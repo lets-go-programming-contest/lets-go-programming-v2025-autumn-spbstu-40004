@@ -1,11 +1,10 @@
-package db_test
+package db
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/MrMels625/task-6/internal/db"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -38,7 +37,7 @@ func TestDBService_GetNames(t *testing.T) {
 		{
 			name: "scan_error",
 			mockFn: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil) // Ошибка сканирования в не-nullable строку
+				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
 				mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 			},
 			wantErr: true,
@@ -60,7 +59,7 @@ func TestDBService_GetNames(t *testing.T) {
 			defer dbRaw.Close()
 
 			tt.mockFn(mock)
-			service := db.New(dbRaw)
+			service := New(dbRaw)
 
 			got, err := service.GetNames()
 			if tt.wantErr {
@@ -124,7 +123,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 			defer dbRaw.Close()
 
 			tt.mockFn(mock)
-			service := db.New(dbRaw)
+			service := New(dbRaw)
 
 			got, err := service.GetUniqueNames()
 			if tt.wantErr {
