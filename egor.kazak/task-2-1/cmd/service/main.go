@@ -3,51 +3,39 @@ package main
 import (
 	"fmt"
 	"log"
+
+	"github.com/CuatHimBong/task-2-1/internal/temperature"
 )
 
 func main() {
 	var count int
-
-	_, err := fmt.Scan(&count)
-	if err != nil {
-		log.Fatal(err)
+	if _, err := fmt.Scan(&count); err != nil {
+		log.Fatal(fmt.Errorf("failed to read count: %w", err))
 	}
 
 	for range count {
 		var constraints int
-
-		_, err := fmt.Scan(&constraints)
-		if err != nil {
-			log.Fatal(err)
+		if _, err := fmt.Scan(&constraints); err != nil {
+			log.Fatal(fmt.Errorf("failed to read constraints count: %w", err))
 		}
 
-		minTemp := 15
-		maxTemp := 30
+		tempRange := temperature.NewDefaultRange()
 
 		for range constraints {
 			var (
 				operator    string
 				temperature int
 			)
-
-			_, err := fmt.Scan(&operator, &temperature)
-			if err != nil {
-				log.Fatal(err)
+			if _, err := fmt.Scan(&operator, &temperature); err != nil {
+				log.Fatal(fmt.Errorf("failed to read constraint: %w", err))
 			}
 
-			switch operator {
-			case ">=":
-				if temperature > minTemp {
-					minTemp = temperature
-				}
-			case "<=":
-				if temperature < maxTemp {
-					maxTemp = temperature
-				}
+			if err := tempRange.ApplyConstraint(operator, temperature); err != nil {
+				log.Fatal(fmt.Errorf("invalid constraint %q %d: %w", operator, temperature, err))
 			}
 
-			if minTemp <= maxTemp {
-				fmt.Println(minTemp)
+			if value, ok := tempRange.Current(); ok {
+				fmt.Println(value)
 			} else {
 				fmt.Println(-1)
 			}
